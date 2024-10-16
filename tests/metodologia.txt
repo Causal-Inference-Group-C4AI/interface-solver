@@ -1,9 +1,11 @@
 Numero de testes
 arestas
+variaveis nao observaveis
 path/pra/csv
 path/pra/uai
 
 arestas
+variaveis nao observaveis
 path/pra/csv
 path/pra/uai
 
