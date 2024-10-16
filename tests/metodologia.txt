@@ -1,0 +1,10 @@
+Numero de testes
+arestas
+path/pra/csv
+path/pra/uai
+
+arestas
+path/pra/csv
+path/pra/uai
+
+....
