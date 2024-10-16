@@ -3,10 +3,11 @@ arestas
 variaveis nao observaveis
 path/pra/csv
 path/pra/uai
+path/pro/.lcn
 
 arestas
 variaveis nao observaveis
 path/pra/csv
 path/pra/uai
-
+path/pro/.lcn
 ....
