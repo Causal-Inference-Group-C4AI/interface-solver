@@ -1,28 +1,29 @@
-#!/usr/bin/python3
-
-from solver_interfaces.dowhy_interface import dowhy_solver
-from solver_interfaces.bcause_interface import bcause_solver
-from solver_interfaces.lcn_solver import lcn_solver
 from solver_interfaces.autobounds_solver import autobounds_solver
+from solver_interfaces.bcause_interface import bcause_solver
+from solver_interfaces.dowhy_interface import dowhy_solver
+from solver_interfaces.lcn_solver import lcn_solver
+
 
 def process_test_data(file_path):
     tests = []
 
     with open(file_path, 'r') as file:
-        num_tests = int(file.readline().strip())  # First line is the number of tests
-        
+        # First line is the number of tests
+        num_tests = int(file.readline().strip())
+
         for _ in range(num_tests):
             test = {}  # Dictionary to store a single test's data
-            
+
             test['edges'] = file.readline().strip()
             test['unobservables'] = file.readline().strip()
             test['csv_path'] = file.readline().strip()
             test['uai_path'] = file.readline().strip()
             test['lcn_path'] = file.readline().strip()
-            
+
             tests.append(test)
 
     return tests
+
 
 def automatic_interface():
     filename = input('Type the filename: ')
@@ -36,7 +37,7 @@ def automatic_interface():
         print()
         dowhy_solver(test['csv_path'], test['edges'], test['unobservables'])
         j += 1
-        
+
         print(f"Test {i+j} -- Bcause:")
         print(f"  Edges: {test['edges']}")
         print(f"  CSV Path: {test['csv_path']}")
@@ -56,7 +57,8 @@ def automatic_interface():
         print(f"  Edges: {test['edges']}")
         print(f"  Unobservable Variables: {test['unobservables']}")
         print(f"  CSV Path: {test['csv_path']}")
-        autobounds_solver(test['edges'], test['unobservables'], test['csv_path'])
+        autobounds_solver(
+            test['edges'], test['unobservables'], test['csv_path'])
         j += 1
 
         # print(f"Test {i+j}:")
@@ -65,8 +67,6 @@ def automatic_interface():
         # print(f"  CSV Path: {test['csv_path']}")
         # print(f"  UAI Path: {test['uai_path']}")
         # print(f"  .LCN Path: {test['lcn_path']}")
-
-
 
 
 if __name__ == "__main__":
