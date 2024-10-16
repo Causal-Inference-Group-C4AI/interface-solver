@@ -8,9 +8,10 @@ from bcause.models.cmodel import StructuralCausalModel
 
 from numpy.testing import assert_array_almost_equal
 
+def bcause_solver(uai_path, csv_path):
+    pass
 
-
-def because_solver():
+def because_solver_old():
     n_tests = int(input('How many tests do you wanna run? '))
 
     test_filenames = list()
@@ -50,5 +51,3 @@ def test_causal_query(inf, X, Y):
     print(f'P(Y=1|do(X=0)) = {[p_do0.values[1], p_do0.values[3]]}')
     print(f'P(Y=1|do(X=1)) = {[p_do1.values[1], p_do1.values[3]]}')
     print(f'ATE            = {[p_do1.values[1] - p_do0.values[1], p_do1.values[3] - p_do0.values[3]]}')
-
-because_solver()
