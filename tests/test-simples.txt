@@ -1,0 +1,6 @@
+1
+Z -> X, X -> Y, U -> X, U -> Y
+U
+balke_pearl.csv
+balke_pearl.uai
+balke_pearl.lcn
