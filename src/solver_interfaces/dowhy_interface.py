@@ -9,6 +9,28 @@ warnings.filterwarnings('ignore', category=UserWarning)
 warnings.filterwarnings('ignore', category=FutureWarning)
 
 
+def output(
+    text: str = "",
+    output_file: str = "outputs/dowhy_output.txt",
+    end: str = "\n",
+    reset: bool = False
+) -> None:
+    """Prints a message and writes it to a file.
+
+    Args:
+        text (str, optional): Message to be outputed and written to the file.
+            Defaults to "".
+        output_file (str, optional): filepath. Defaults to "dowhy_output.txt".
+        end (str, optional): End of the message. Defaults to "\\n".
+    """
+    if reset:
+        with open(output_file, 'w') as file:
+            file.write("")
+    print(text, end=end)
+    with open(output_file, 'a') as file:
+        file.write(text + end)
+
+
 def dowhy_solver(csv_path: str, edges_str: str):
     """Solves a causal inference problem using DoWhy.
 
@@ -32,12 +54,12 @@ def dowhy_solver(csv_path: str, edges_str: str):
     # Step 2: Identify
     identified_estimand = model.identify_effect()
     estimands = {"backdoor": None, "iv": None, "frontdoor": None}
-    print("Estimands found:", end=" ")
+    output("Estimands found:", end=" ", reset=True)
     for estimand, value in identified_estimand.estimands.items():
         if estimand in estimands:
             estimands[estimand] = value is not None
-            print(f"{estimand} " if estimands[estimand] else "", end="")
-    print()
+            output(f"{estimand} " if estimands[estimand] else "", end="")
+    output()
 
     # Step 3: Estimate with all available methods
     estimation_methods = {
@@ -64,15 +86,15 @@ def dowhy_solver(csv_path: str, edges_str: str):
                         test_significance=True,
                         confidence_intervals=True
                     )
-                    print("-" * 80)
-                    print(f"Estimation using {method_name}:")
-                    print(f"ATE = {estimate.value}")
+                    output("-" * 80)
+                    output(f"Estimation using {method_name}:")
+                    output(f"ATE = {estimate.value}")
 
-                    # Print the p-value
+                    # output the p-value
                     p_value = estimate.test_stat_significance()["p_value"]
-                    print("P-value:", p_value)
+                    output(f"P-value: {p_value}")
 
-                    # Print the confidence interval
+                    # output the confidence interval
                     confidence_intervals = estimate.get_confidence_intervals()
                     if isinstance(confidence_intervals, np.ndarray):
                         confidence_intervals = confidence_intervals.flatten()
@@ -81,10 +103,10 @@ def dowhy_solver(csv_path: str, edges_str: str):
                         confidence_intervals = [float(_)
                                                 for _ in confidence_intervals]
 
-                    print("Confidence interval:", confidence_intervals)
-                    print("-" * 80)
+                    output(f"Confidence interval: {confidence_intervals}")
+                    output("-" * 80)
                 except Exception as e:
-                    print(f"Failed to estimate using {method_name}: {str(e)}")
+                    output(f"Failed to estimate using {method_name}: {str(e)}")
 
     # # Step 4: Refute
     # refutation = model.refute_estimate(
