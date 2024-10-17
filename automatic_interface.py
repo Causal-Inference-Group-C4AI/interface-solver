@@ -12,17 +12,18 @@ def process_test_data(file_path):
     tests = []
 
     with open(file_path, 'r') as file:
-        num_tests = int(file.readline().strip())  # First line is the number of tests
-        
+        # First line is the number of tests
+        num_tests = int(file.readline().strip())
+
         for _ in range(num_tests):
             test = {}  # Dictionary to store a single test's data
-            
+
             test['edges'] = file.readline().strip()
             test['unobservables'] = file.readline().strip()
             test['csv_path'] = file.readline().strip()
             test['uai_path'] = file.readline().strip()
             test['lcn_path'] = file.readline().strip()
-            
+
             tests.append(test)
 
     return tests
@@ -38,7 +39,7 @@ def automatic_interface(file_path):
         print()
         dowhy_solver(test['csv_path'], test['edges'])
         j += 1
-        
+
         print(f"Test {i+j} -- Bcause:")
         print(f"  Edges: {test['edges']}")
         print(f"  CSV Path: {test['csv_path']}")
@@ -58,7 +59,8 @@ def automatic_interface(file_path):
         print(f"  Edges: {test['edges']}")
         print(f"  Unobservable Variables: {test['unobservables']}")
         print(f"  CSV Path: {test['csv_path']}")
-        autobounds_solver(test['edges'], test['unobservables'], test['csv_path'])
+        autobounds_solver(
+            test['edges'], test['unobservables'], test['csv_path'])
         j += 1
 
 
