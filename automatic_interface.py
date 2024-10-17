@@ -32,21 +32,21 @@ def automatic_interface(file_path):
     tests = process_test_data(file_path)
     j = 0
     for i, test in enumerate(tests, 1):
-        print(f"Test {i+j} -- DoWhy:")
-        print(f"  Edges: {test['edges']}")
-        print(f"  Unobservable Variables: {test['unobservables']}")
-        print(f"  CSV Path: {test['csv_path']}")
-        print()
-        dowhy_solver(test['csv_path'], test['edges'])
-        j += 1
-
-        # print(f"Test {i+j} -- Bcause:")
+        # print(f"Test {i+j} -- DoWhy:")
         # print(f"  Edges: {test['edges']}")
+        # print(f"  Unobservable Variables: {test['unobservables']}")
         # print(f"  CSV Path: {test['csv_path']}")
-        # print(f"  UAI Path: {test['uai_path']}")
         # print()
-        # bcause_solver(test['uai_path'], test['csv_path'])
+        # dowhy_solver(test['csv_path'], test['edges'])
         # j += 1
+
+        print(f"Test {i+j} -- Bcause:")
+        print(f"  Edges: {test['edges']}")
+        print(f"  CSV Path: {test['csv_path']}")
+        print(f"  UAI Path: {test['uai_path']}")
+        print()
+        bcause_solver(test['uai_path'], test['csv_path'])
+        j += 1
 
         # print(f"Test {i+j} -- LCN:")
         # print(f"  Edges: {test['edges']}")
