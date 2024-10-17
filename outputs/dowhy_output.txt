@@ -1,0 +1,16 @@
+Estimands found: backdoor iv 
+--------------------------------------------------------------------------------
+Estimation using backdoor.linear_regression:
+ATE = 0.23544231631810425
+P-value: [6.2290416e-14]
+Confidence interval: [0.1747477619414785, 0.29613687069473005]
+--------------------------------------------------------------------------------
+Failed to estimate using backdoor.propensity_score_matching: No common causes/confounders present. Propensity score based methods are not applicable
+Failed to estimate using backdoor.propensity_score_stratification: No common causes/confounders present. Propensity score based methods are not applicable
+Failed to estimate using backdoor.propensity_score_weighting: No common causes/confounders present. Propensity score based methods are not applicable
+--------------------------------------------------------------------------------
+Estimation using iv.instrumental_variable:
+ATE = -1.3636363636363638
+P-value: (0, 0.001)
+Confidence interval: [-1.6507411108867516, -0.8715429108407191]
+--------------------------------------------------------------------------------

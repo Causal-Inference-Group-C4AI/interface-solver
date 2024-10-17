@@ -1,0 +1,18 @@
+# -- Configurando o bcause -- 
+# Altere o arquivo setup.py:
+# matplotlib>=3.5.2
+# networkx>=2.6.3
+
+# -- Configurando o autobounds --
+# Altere o arquivo setup.py ou pyproject.toml
+# pyscipopt==5.1.1
+
+
+# Para rodar, utilize:
+# pip install -r requirements.txt
+
+matplotlib==3.9.2
+networkx==2.8.5
+pyscipopt==5.1.1
+numpy==1.24.4
+
