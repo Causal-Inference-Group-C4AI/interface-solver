@@ -7,8 +7,6 @@ from src.solver_interfaces.dowhy_interface import dowhy_solver
 from src.solver_interfaces.bcause_interface import bcause_solver
 from src.solver_interfaces.lcn_solver import lcn_solver
 from src.solver_interfaces.autobounds_solver import autobounds_solver
-from utils.conversor import convert_string_edges_to_tuples
-
 
 def process_test_data(file_path):
     tests = []
