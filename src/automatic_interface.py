@@ -35,31 +35,31 @@ def automatic_interface():
         print(f"  Unobservable Variables: {test['unobservables']}")
         print(f"  CSV Path: {test['csv_path']}")
         print()
-        dowhy_solver(test['csv_path'], test['edges'], test['unobservables'])
+        dowhy_solver(test['csv_path'], test['edges'])
         j += 1
 
-        print(f"Test {i+j} -- Bcause:")
-        print(f"  Edges: {test['edges']}")
-        print(f"  CSV Path: {test['csv_path']}")
-        print(f"  UAI Path: {test['uai_path']}")
-        print()
-        bcause_solver(test['uai_path'], test['csv_path'])
-        j += 1
+        # print(f"Test {i+j} -- Bcause:")
+        # print(f"  Edges: {test['edges']}")
+        # print(f"  CSV Path: {test['csv_path']}")
+        # print(f"  UAI Path: {test['uai_path']}")
+        # print()
+        # bcause_solver(test['uai_path'], test['csv_path'])
+        # j += 1
 
-        print(f"Test {i+j} -- LCN:")
-        print(f"  Edges: {test['edges']}")
-        print(f"  .LCN Path: {test['lcn_path']}")
-        print()
-        lcn_solver()
-        j += 1
+        # print(f"Test {i+j} -- LCN:")
+        # print(f"  Edges: {test['edges']}")
+        # print(f"  .LCN Path: {test['lcn_path']}")
+        # print()
+        # lcn_solver()
+        # j += 1
 
-        print(f"Test {i+j} -- AUTOBOUNDS:")
-        print(f"  Edges: {test['edges']}")
-        print(f"  Unobservable Variables: {test['unobservables']}")
-        print(f"  CSV Path: {test['csv_path']}")
-        autobounds_solver(
-            test['edges'], test['unobservables'], test['csv_path'])
-        j += 1
+        # print(f"Test {i+j} -- AUTOBOUNDS:")
+        # print(f"  Edges: {test['edges']}")
+        # print(f"  Unobservable Variables: {test['unobservables']}")
+        # print(f"  CSV Path: {test['csv_path']}")
+        # autobounds_solver(
+        #     test['edges'], test['unobservables'], test['csv_path'])
+        # j += 1
 
         # print(f"Test {i+j}:")
         # print(f"  Edges: {test['edges']}")
