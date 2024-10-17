@@ -1,9 +1,14 @@
 #!/usr/bin/python3
 
-from solver_interfaces.dowhy_interface import dowhy_solver
-from solver_interfaces.bcause_interface import bcause_solver
-from solver_interfaces.lcn_solver import lcn_solver
-from solver_interfaces.autobounds_solver import autobounds_solver
+import argparse
+from pathlib import Path
+
+from src.solver_interfaces.dowhy_interface import dowhy_solver
+from src.solver_interfaces.bcause_interface import bcause_solver
+from src.solver_interfaces.lcn_solver import lcn_solver
+from src.solver_interfaces.autobounds_solver import autobounds_solver
+from utils.conversor import convert_string_edges_to_tuples
+
 
 def process_test_data(file_path):
     tests = []
@@ -24,9 +29,8 @@ def process_test_data(file_path):
 
     return tests
 
-def automatic_interface():
-    filename = input('Type the filename: ')
-    tests = process_test_data(filename)
+def automatic_interface(file_path):
+    tests = process_test_data(file_path)
     j = 0
     for i, test in enumerate(tests, 1):
         print(f"Test {i+j} -- DoWhy:")
@@ -34,7 +38,7 @@ def automatic_interface():
         print(f"  Unobservable Variables: {test['unobservables']}")
         print(f"  CSV Path: {test['csv_path']}")
         print()
-        dowhy_solver(test['csv_path'], test['edges'], test['unobservables'])
+        dowhy_solver(test['csv_path'], test['edges'])
         j += 1
         
         print(f"Test {i+j} -- Bcause:")
@@ -59,15 +63,12 @@ def automatic_interface():
         autobounds_solver(test['edges'], test['unobservables'], test['csv_path'])
         j += 1
 
-        # print(f"Test {i+j}:")
-        # print(f"  Edges: {test['edges']}")
-        # print(f"  Unobservable Variables: {test['unobservables']}")
-        # print(f"  CSV Path: {test['csv_path']}")
-        # print(f"  UAI Path: {test['uai_path']}")
-        # print(f"  .LCN Path: {test['lcn_path']}")
 
-
-
+def main():
+    parser = argparse.ArgumentParser(description="Runs tests of Causal Effect under Partial-Observability.")    
+    parser.add_argument('file_path', help='The path to the file you want to read')
+    args = parser.parse_args()
+    automatic_interface(args.file_path)
 
 if __name__ == "__main__":
-    automatic_interface()
+    main()
