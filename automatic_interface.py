@@ -20,6 +20,8 @@ def process_test_data(file_path):
 
             test['edges'] = file.readline().strip()
             test['unobservables'] = file.readline().strip()
+            test['treatment'] = file.readline().strip()
+            test['outcome'] = file.readline().strip()
             test['csv_path'] = file.readline().strip()
             test['uai_path'] = file.readline().strip()
             test['lcn_path'] = file.readline().strip()
@@ -45,7 +47,7 @@ def automatic_interface(file_path):
         print(f"  CSV Path: {test['csv_path']}")
         print(f"  UAI Path: {test['uai_path']}")
         print()
-        bcause_solver(test['uai_path'], test['csv_path'])
+        bcause_solver(test['uai_path'], test['csv_path'], test['treatment'], test['outcome'])
         j += 1
 
         # print(f"Test {i+j} -- LCN:")
