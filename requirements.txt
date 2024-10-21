@@ -16,3 +16,12 @@ networkx==2.8.5
 pyscipopt==5.1.1
 numpy==1.24.4
 
+pandas==2.1.3
+pgmpy==0.1.17
+tqdm
+setuptools
+wheel
+plotnine
+sympy
+scipy
+dowhy
