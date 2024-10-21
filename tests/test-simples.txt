@@ -1,8 +1,9 @@
 1
+1 2 3 4
 Z -> X, X -> Y, U -> X, U -> Y
-U
 X
 Y
+U
 {"V0":"Z", "V1":"X", "V2": "Y"}
 data/csv/balke_pearl.csv
 data/uai/balke_pearl.uai

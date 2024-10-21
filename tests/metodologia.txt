@@ -1,12 +1,20 @@
 Numero de testes
+lista de solvers para esse teste: 1 2 3 4 (dowhy bcause lcn autobounds)
 arestas
+treatment
+outcome
 variaveis nao observaveis
+Mapping de variáveis do UAI para as variáveis descritas 
 path/pra/csv
 path/pra/uai
 path/pro/.lcn
 
+lista de solvers para esse teste: 1 2 3 4 (dowhy bcause lcn autobounds)
 arestas
+treatment
+outcome
 variaveis nao observaveis
+Mapping de variáveis do UAI para as variáveis descritas 
 path/pra/csv
 path/pra/uai
 path/pro/.lcn

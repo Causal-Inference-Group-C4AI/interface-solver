@@ -21,4 +21,3 @@ def bcause_solver(uai_path: str, csv_path: str, treatment_variable: str, outcome
     print('ATE                          = ',
           [p_do1.values[1] - p_do0.values[1],
            p_do1.values[3] - p_do0.values[3]])
-    pass
