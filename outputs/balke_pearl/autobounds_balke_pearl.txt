@@ -1,0 +1,9 @@
+[('Z0', 0.8999999999999999), ('Z1', 0.1)]
+LOWER BOUND: # -- Primal: -0.23 / Dual: -0.23 / Time: 0.0 ##
+UPPER BOUND: # -- Primal: -0.15 / Dual: -0.15 / Time: 0.0 ##
+Problem is finished! Returning final values
+Problem is finished! Returning final values
+CURRENT THRESHOLDS: # -- Theta: 0.08000000000000002 / Epsilon: 0.0 ##
+==============================================
+Causal effect lies in the interval [-0.23, -0.15]
+==============================================
