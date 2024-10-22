@@ -9,26 +9,59 @@ warnings.filterwarnings('ignore', category=UserWarning)
 warnings.filterwarnings('ignore', category=FutureWarning)
 
 
-def output(
-    text: str = "",
-    output_file: str = "outputs/dowhy_output.txt",
-    end: str = "\n",
-    reset: bool = False
-) -> None:
-    """Prints a message and writes it to a file.
-
-    Args:
-        text (str, optional): Message to be outputed and written to the file.
-            Defaults to "".
-        output_file (str, optional): filepath. Defaults to "dowhy_output.txt".
-        end (str, optional): End of the message. Defaults to "\\n".
+class Output:
     """
-    if reset:
-        with open(output_file, 'w') as file:
+    A utility class for managing output to both the console and a file.
+
+    This class provides a simple mechanism for printing messages to the console
+    and simultaneously writing them to a specified output file. It also allows
+    for optional file reset functionality, clearing the file contents on the
+    first use if specified.
+
+    **Attributes**:
+        output_file (str): The file path to which the output will be written.
+            Defaults to "outputs/dowhy_output.txt".
+        reset (bool): If True, the output file will be cleared when the first
+            message is written. Defaults to False.
+
+    **Methods**:
+        __call__(text: str, end: str):
+            Prints a message to the console and appends it to the output file.
+        reset():
+            Resets the content of the output file by clearing it.
+    """
+
+    def __init__(self,
+                 output_file: str = "outputs/dowhy_output.txt",
+                 reset_file: bool = False) -> None:
+        """Initializes the Output class.
+
+        Args:
+            output_file (str, optional): The file to write output to.
+                Defaults to "outputs/dowhy_output.txt".
+            reset (bool, optional): Whether to reset the file.
+                Defaults to False.
+        """
+        self.output_file = output_file
+        if reset_file:
+            self.reset()
+
+    def __call__(self, text: str = "", end: str = "\n") -> None:
+        """Prints a message and writes it to a file.
+
+        Args:
+            text (str, optional): Message to be outputed and written to the
+                file. Defaults to "".
+            end (str, optional): End of the message. Defaults to "\\n".
+        """
+        print(text, end=end)
+        with open(self.output_file, 'a') as file:
+            file.write(text + end)
+
+    def reset(self) -> None:
+        """Resets the output file."""
+        with open(self.output_file, 'w') as file:
             file.write("")
-    print(text, end=end)
-    with open(output_file, 'a') as file:
-        file.write(text + end)
 
 
 def dowhy_solver(test_name: str, csv_path: str, edges_str: str):
@@ -55,12 +88,13 @@ def dowhy_solver(test_name: str, csv_path: str, edges_str: str):
     identified_estimand = model.identify_effect()
     estimands = {"backdoor": None, "iv": None, "frontdoor": None}
     output_file = f"outputs/{test_name}/dowhy_{test_name}.txt"
-    output("Estimands found:", output_file=output_file, end=" ", reset=True)
+    output = Output(output_file, True)
+    output("Estimands found:", end=" ")
     for estimand, value in identified_estimand.estimands.items():
         if estimand in estimands:
             estimands[estimand] = value is not None
-            output(f"{estimand} " if estimands[estimand] else "", output_file=output_file, end="")
-    output(output_file=output_file)
+            output(f"{estimand} " if estimands[estimand] else "", end="")
+    output()
 
     # Step 3: Estimate with all available methods
     estimation_methods = {
@@ -87,13 +121,13 @@ def dowhy_solver(test_name: str, csv_path: str, edges_str: str):
                         test_significance=True,
                         confidence_intervals=True
                     )
-                    output("-" * 80, output_file=output_file)
-                    output(f"Estimation using {method_name}:", output_file=output_file)
-                    output(f"ATE = {estimate.value}", output_file=output_file)
+                    output("-" * 80, )
+                    output(f"Estimation using {method_name}:")
+                    output(f"ATE = {estimate.value}")
 
                     # output the p-value
                     p_value = estimate.test_stat_significance()["p_value"]
-                    output(f"P-value: {p_value}", output_file=output_file)
+                    output(f"P-value: {p_value}")
 
                     # output the confidence interval
                     confidence_intervals = estimate.get_confidence_intervals()
@@ -104,10 +138,10 @@ def dowhy_solver(test_name: str, csv_path: str, edges_str: str):
                         confidence_intervals = [float(_)
                                                 for _ in confidence_intervals]
 
-                    output(f"Confidence interval: {confidence_intervals}", output_file=output_file)
-                    output("-" * 80, output_file=output_file)
+                    output(f"Confidence interval: {confidence_intervals}")
+                    output("-" * 80)
                 except Exception as e:
-                    output(f"Failed to estimate using {method_name}: {str(e)}", output_file=output_file)
+                    output(f"Failed to estimate using {method_name}: {str(e)}")
 
     # # Step 4: Refute
     # refutation = model.refute_estimate(
@@ -119,6 +153,7 @@ def dowhy_solver(test_name: str, csv_path: str, edges_str: str):
 
 if __name__ == "__main__":
     dowhy_solver(
+        test_name='balke_pearl',
         csv_path='data/csv/balke_pearl.csv',
         edges_str="Z -> X, X -> Y",
     )
