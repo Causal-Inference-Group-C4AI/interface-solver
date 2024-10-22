@@ -31,7 +31,7 @@ def output(
         file.write(text + end)
 
 
-def dowhy_solver(csv_path: str, edges_str: str):
+def dowhy_solver(test_name: str, csv_path: str, edges_str: str):
     """Solves a causal inference problem using DoWhy.
 
     Args:
@@ -54,12 +54,13 @@ def dowhy_solver(csv_path: str, edges_str: str):
     # Step 2: Identify
     identified_estimand = model.identify_effect()
     estimands = {"backdoor": None, "iv": None, "frontdoor": None}
-    output("Estimands found:", end=" ", reset=True)
+    output_file = f"outputs/{test_name}/dowhy_{test_name}.txt"
+    output("Estimands found:", output_file=output_file, end=" ", reset=True)
     for estimand, value in identified_estimand.estimands.items():
         if estimand in estimands:
             estimands[estimand] = value is not None
-            output(f"{estimand} " if estimands[estimand] else "", end="")
-    output()
+            output(f"{estimand} " if estimands[estimand] else "", output_file=output_file, end="")
+    output(output_file=output_file)
 
     # Step 3: Estimate with all available methods
     estimation_methods = {
@@ -86,13 +87,13 @@ def dowhy_solver(csv_path: str, edges_str: str):
                         test_significance=True,
                         confidence_intervals=True
                     )
-                    output("-" * 80)
-                    output(f"Estimation using {method_name}:")
-                    output(f"ATE = {estimate.value}")
+                    output("-" * 80, output_file=output_file)
+                    output(f"Estimation using {method_name}:", output_file=output_file)
+                    output(f"ATE = {estimate.value}", output_file=output_file)
 
                     # output the p-value
                     p_value = estimate.test_stat_significance()["p_value"]
-                    output(f"P-value: {p_value}")
+                    output(f"P-value: {p_value}", output_file=output_file)
 
                     # output the confidence interval
                     confidence_intervals = estimate.get_confidence_intervals()
@@ -103,10 +104,10 @@ def dowhy_solver(csv_path: str, edges_str: str):
                         confidence_intervals = [float(_)
                                                 for _ in confidence_intervals]
 
-                    output(f"Confidence interval: {confidence_intervals}")
-                    output("-" * 80)
+                    output(f"Confidence interval: {confidence_intervals}", output_file=output_file)
+                    output("-" * 80, output_file=output_file)
                 except Exception as e:
-                    output(f"Failed to estimate using {method_name}: {str(e)}")
+                    output(f"Failed to estimate using {method_name}: {str(e)}", output_file=output_file)
 
     # # Step 4: Refute
     # refutation = model.refute_estimate(
