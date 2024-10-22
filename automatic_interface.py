@@ -1,13 +1,13 @@
 #!/usr/bin/python3
 
 import argparse
-from pathlib import Path
 import json
+from pathlib import Path
 
-from src.solver_interfaces.dowhy_interface import dowhy_solver
-from src.solver_interfaces.bcause_interface import bcause_solver
-from src.solver_interfaces.lcn_solver import lcn_solver
 from src.solver_interfaces.autobounds_solver import autobounds_solver
+from src.solver_interfaces.bcause_interface import bcause_solver
+from src.solver_interfaces.dowhy_interface import dowhy_solver
+from src.solver_interfaces.lcn_solver import lcn_solver
 
 
 def process_test_data(file_path):
@@ -20,6 +20,7 @@ def process_test_data(file_path):
         for _ in range(num_tests):
             test = {}  # Dictionary to store a single test's data
 
+            test['test_name'] = file.readline().strip()
             test['solvers'] = file.readline().strip().split(' ')
             test['edges'] = file.readline().strip()
             test['treatment'] = file.readline().strip()
@@ -34,11 +35,15 @@ def process_test_data(file_path):
 
     return tests
 
+
 def automatic_interface(file_path):
     tests = process_test_data(file_path)
     j = 0
     for i, test in enumerate(tests, 1):
-        print(f'Solvers: {test['solvers']}')
+
+        folder_name = Path(f"outputs/{test['test_name']}")
+        folder_name.mkdir(parents=True, exist_ok=True)
+
         if '1' in test['solvers']:
             print(f"Test {i+j} -- DoWhy:")
             print(f"  Edges: {test['edges']}")
@@ -54,7 +59,9 @@ def automatic_interface(file_path):
             print(f"  CSV Path: {test['csv_path']}")
             print(f"  UAI Path: {test['uai_path']}")
             print()
-            bcause_solver(test['uai_path'], test['csv_path'], test['treatment'], test['outcome'], test['mapping'])
+            bcause_solver(test['test_name'], test['uai_path'],
+                          test['csv_path'], test['treatment'],
+                          test['outcome'], test['mapping'])
             j += 1
 
         if '3' in test['solvers']:
@@ -76,10 +83,13 @@ def automatic_interface(file_path):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Runs tests of Causal Effect under Partial-Observability.")    
-    parser.add_argument('file_path', help='The path to the file you want to read')
+    parser = argparse.ArgumentParser(
+        description="Runs tests of Causal Effect under Partial-Observability.")
+    parser.add_argument('file_path',
+                        help='The path to the file you want to read')
     args = parser.parse_args()
     automatic_interface(args.file_path)
-    
+
+
 if __name__ == "__main__":
     main()
