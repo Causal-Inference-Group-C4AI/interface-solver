@@ -64,12 +64,21 @@ class Output:
             file.write("")
 
 
-def dowhy_solver(test_name: str, csv_path: str, edges_str: str):
+def dowhy_solver(
+    test_name: str,
+    csv_path: str,
+    edges_str: str,
+    treatment: str,
+    outcome: str
+) -> None:
     """Solves a causal inference problem using DoWhy.
 
     Args:
+        test_name (str): Name of the test case.
         csv_path (str): Path to the CSV file with the data.
         edges_str (str): String with the edges of the graph.
+        treatment (str): Name of the treatment variable.
+        outcome (str): Name of the outcome variable.
     """
     # Data and graph
     data = pd.read_csv(csv_path)
@@ -79,8 +88,8 @@ def dowhy_solver(test_name: str, csv_path: str, edges_str: str):
     # Step 1: Model
     model = CausalModel(
         data=data,
-        treatment="X",
-        outcome="Y",
+        treatment=treatment,
+        outcome=outcome,
         graph=graph
     )
 
@@ -156,4 +165,6 @@ if __name__ == "__main__":
         test_name='balke_pearl',
         csv_path='data/csv/balke_pearl.csv',
         edges_str="Z -> X, X -> Y",
+        treatment='X',
+        outcome='Y'
     )

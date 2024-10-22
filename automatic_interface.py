@@ -45,10 +45,15 @@ def automatic_interface(file_path):
         if '1' in test['solvers']:
             print(f"Test {i+j} -- DoWhy:")
             print(f"  Edges: {test['edges']}")
+            print(f"  Treatment: {test['treatment']}")
+            print(f"  Outcome: {test['outcome']}")
             print(f"  Unobservable Variables: {test['unobservables']}")
             print(f"  CSV Path: {test['csv_path']}")
             print()
-            dowhy_solver(test['test_name'], test['csv_path'], test['edges'])
+            dowhy_solver(
+                test['test_name'], test['csv_path'], test['edges'],
+                test['treatment'], test['outcome']
+            )
             j += 1
 
         if '2' in test['solvers']:
