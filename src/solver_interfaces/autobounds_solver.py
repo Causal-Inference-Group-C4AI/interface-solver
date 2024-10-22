@@ -1,5 +1,5 @@
-# from autobounds.causalProblem import causalProblem
-# from autobounds.DAG import DAG
+from autobounds.causalProblem import causalProblem
+from autobounds.DAG import DAG
 import os
 import glob
 import contextlib
@@ -55,7 +55,6 @@ def autobounds_solver(edges, unobservables, csv_path):
         unobservables (str): A string representing the unobservables of the causal graph.
         csv_path (str): The path to the CSV file containing the data.
     """
-    return
     # Create a DAG object from the edges and unobservables
     dag = DAG()
     dag.from_structure(edges=edges, unob=unobservables)
