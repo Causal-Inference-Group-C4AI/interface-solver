@@ -47,12 +47,16 @@ class Output:
                 file. Defaults to "".
             end (str, optional): End of the message. Defaults to "\\n".
         """
-        print(text, end=end)
-        try:
-            with open(self.output_file, 'a') as file:
-                file.write(text + end)
-        except IOError as e:
-            print(f"Error writing to file {self.output_file}: {e}")
+        if len(text) > 80 and text.count("\n") == 0:
+            self.__call__(text[:80])
+            self.__call__(text[80:], end=end)
+        else:
+            print(text, end=end)
+            try:
+                with open(self.output_file, 'a') as file:
+                    file.write(text + end)
+            except IOError as e:
+                print(f"Error writing to file {self.output_file}: {e}")
 
     def reset(self) -> None:
         """Resets the output file by clearing its content."""
@@ -79,6 +83,10 @@ def dowhy_solver(
         treatment (str): Name of the treatment variable.
         outcome (str): Name of the outcome variable.
     """
+    # Configure output
+    output_file = f"outputs/{test_name}/dowhy_{test_name}.txt"
+    output = Output(output_file)
+
     # Data and graph
     data = pd.read_csv(csv_path)
     edges = [tuple(edge.split(' -> ')) for edge in edges_str.split(', ')]
@@ -94,17 +102,13 @@ def dowhy_solver(
 
     # Step 2: Identify
     identified_estimand = model.identify_effect()
-    estimands = {"backdoor": None, "iv": None, "frontdoor": None}
-    output_file = f"outputs/{test_name}/dowhy_{test_name}.txt"
-    output = Output(output_file, True)
-    output("Estimands found:", end=" ")
+    estimands = []
     for estimand, value in identified_estimand.estimands.items():
-        if estimand in estimands:
-            estimands[estimand] = value is not None
-            output(f"{estimand} " if estimands[estimand] else "", end="")
-    output()
+        if estimand in ["backdoor", "iv", "frontdoor"] and value is not None:
+            estimands.append(estimand)
+    output("Estimands found: "+", ".join(estimands))
 
-    # Step 3: Estimate with all available methods
+    # Step 3 + 4: Estimate and Refute (for each estimand)
     estimation_methods = {
         "backdoor": [
             "linear_regression",
@@ -118,45 +122,59 @@ def dowhy_solver(
         "frontdoor": []
     }
 
-    for estimand in estimation_methods.keys():
-        if estimands[estimand]:
-            for method in estimation_methods[estimand]:
-                method_name = f"{estimand}.{method}"
-                try:
-                    estimate = model.estimate_effect(
+    refutation_methods = [
+        "placebo_treatment_refuter",
+        "data_subset_refuter",
+        "random_common_cause",
+        "dummy_outcome_refuter"
+    ]
+
+    for estimand in estimands:
+        for method in estimation_methods[estimand]:
+            method_name = f"{estimand}.{method}"
+            output("-" * 80)
+            try:
+                estimate = model.estimate_effect(
+                    identified_estimand,
+                    method_name=method_name,
+                    test_significance=True,
+                    confidence_intervals=True
+                )
+                output(f"Estimation using {method_name}:")
+                output(f"ATE = {estimate.value}")
+
+                # output the p-value
+                p_value = estimate.test_stat_significance()["p_value"]
+                output(f"P-value: {p_value}")
+
+                # output the confidence interval
+                confidence_intervals = estimate.get_confidence_intervals()
+                if isinstance(confidence_intervals, np.ndarray):
+                    confidence_intervals = confidence_intervals.flatten()
+                    confidence_intervals = confidence_intervals.tolist()
+                else:
+                    confidence_intervals = [float(_)
+                                            for _ in confidence_intervals]
+
+                output(f"Confidence interval: {confidence_intervals}\n")
+
+                # Step 4: Refute
+                for refuter in refutation_methods:
+                    ref = model.refute_estimate(
                         identified_estimand,
-                        method_name=method_name,
-                        test_significance=True,
-                        confidence_intervals=True
+                        estimate,
+                        method_name=refuter,
+                        placebo_type="permute"
                     )
-                    output("-" * 80)
-                    output(f"Estimation using {method_name}:")
-                    output(f"ATE = {estimate.value}")
-
-                    # output the p-value
-                    p_value = estimate.test_stat_significance()["p_value"]
-                    output(f"P-value: {p_value}")
-
-                    # output the confidence interval
-                    confidence_intervals = estimate.get_confidence_intervals()
-                    if isinstance(confidence_intervals, np.ndarray):
-                        confidence_intervals = confidence_intervals.flatten()
-                        confidence_intervals = confidence_intervals.tolist()
+                    if refuter != refutation_methods[-1]:
+                        output(str(ref))
                     else:
-                        confidence_intervals = [float(_)
-                                                for _ in confidence_intervals]
+                        output(str(ref[0]), end="")
 
-                    output(f"Confidence interval: {confidence_intervals}")
-                    output("-" * 80)
-                except Exception as e:
-                    output(f"Failed to estimate using {method_name}: {str(e)}")
-
-    # # Step 4: Refute
-    # refutation = model.refute_estimate(
-    #     identified_estimand,
-    #     estimate,
-    #     method_name="random_common_cause"
-    # )
+            except KeyError as e:
+                output(f"Failed to refute using {refuter}. Error:{str(e)}")
+            except Exception as e:
+                output(f"Failed to estimate using {method_name}: {str(e)}")
 
 
 if __name__ == "__main__":
