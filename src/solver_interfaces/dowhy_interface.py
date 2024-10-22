@@ -14,15 +14,13 @@ class Output:
     A utility class for managing output to both the console and a file.
 
     This class provides a simple mechanism for printing messages to the console
-    and simultaneously writing them to a specified output file. It also allows
-    for optional file reset functionality, clearing the file contents on the
-    first use if specified.
+    and simultaneously writing them to a specified output file. The file is
+    automatically cleared upon initialization to ensure a fresh output for each
+    session.
 
     **Attributes**:
         output_file (str): The file path to which the output will be written.
             Defaults to "outputs/dowhy_output.txt".
-        reset (bool): If True, the output file will be cleared when the first
-            message is written. Defaults to False.
 
     **Methods**:
         __call__(text: str, end: str):
@@ -31,37 +29,38 @@ class Output:
             Resets the content of the output file by clearing it.
     """
 
-    def __init__(self,
-                 output_file: str = "outputs/dowhy_output.txt",
-                 reset_file: bool = False) -> None:
-        """Initializes the Output class.
+    def __init__(self, output_file: str = "outputs/dowhy_output.txt") -> None:
+        """Initializes the Output class and resets the file.
 
         Args:
             output_file (str, optional): The file to write output to.
                 Defaults to "outputs/dowhy_output.txt".
-            reset (bool, optional): Whether to reset the file.
-                Defaults to False.
         """
         self.output_file = output_file
-        if reset_file:
-            self.reset()
+        self.reset()
 
     def __call__(self, text: str = "", end: str = "\n") -> None:
         """Prints a message and writes it to a file.
 
         Args:
-            text (str, optional): Message to be outputed and written to the
+            text (str, optional): Message to be outputted and written to the
                 file. Defaults to "".
             end (str, optional): End of the message. Defaults to "\\n".
         """
         print(text, end=end)
-        with open(self.output_file, 'a') as file:
-            file.write(text + end)
+        try:
+            with open(self.output_file, 'a') as file:
+                file.write(text + end)
+        except IOError as e:
+            print(f"Error writing to file {self.output_file}: {e}")
 
     def reset(self) -> None:
-        """Resets the output file."""
-        with open(self.output_file, 'w') as file:
-            file.write("")
+        """Resets the output file by clearing its content."""
+        try:
+            with open(self.output_file, 'w') as file:
+                file.write("")
+        except IOError as e:
+            print(f"Error resetting file {self.output_file}: {e}")
 
 
 def dowhy_solver(
@@ -130,7 +129,7 @@ def dowhy_solver(
                         test_significance=True,
                         confidence_intervals=True
                     )
-                    output("-" * 80, )
+                    output("-" * 80)
                     output(f"Estimation using {method_name}:")
                     output(f"ATE = {estimate.value}")
 
