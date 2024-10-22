@@ -1,4 +1,5 @@
 Numero de testes
+Nome do teste
 lista de solvers para esse teste: 1 2 3 4 (dowhy bcause lcn autobounds)
 arestas
 treatment
@@ -9,6 +10,7 @@ path/pra/csv
 path/pra/uai
 path/pro/.lcn
 
+nome do teste
 lista de solvers para esse teste: 1 2 3 4 (dowhy bcause lcn autobounds)
 arestas
 treatment
