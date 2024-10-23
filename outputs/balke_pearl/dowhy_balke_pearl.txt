@@ -1,7 +1,60 @@
-Estimands found: iv 
+Estimands found: backdoor, iv
+--------------------------------------------------------------------------------
+Estimation using backdoor.linear_regression:
+ATE = 0.23544231631810436
+P-value: [6.2290416e-14]
+Confidence interval: [0.17474776194147856, 0.2961368706947301]
+
+Refute: Use a Placebo Treatment
+Estimated effect:0.23544231631810436
+New effect:0.007231158117132163
+p value:0.76
+
+Refute: Use a subset of data
+Estimated effect:0.23544231631810436
+New effect:0.23499705036306545
+p value:0.94
+
+Refute: Add a random common cause
+Estimated effect:0.23544231631810436
+New effect:0.23530529893389304
+p value:1.0
+
+Refute: Use a Dummy Outcome
+Estimated effect:0
+New effect:0.0033861069841632408
+p value:0.8799999999999999
+--------------------------------------------------------------------------------
+Failed to estimate using backdoor.propensity_score_matching: No common causes/co
+nfounders present. Propensity score based methods are not applicable
+--------------------------------------------------------------------------------
+Failed to estimate using backdoor.propensity_score_stratification: No common cau
+ses/confounders present. Propensity score based methods are not applicable
+--------------------------------------------------------------------------------
+Failed to estimate using backdoor.propensity_score_weighting: No common causes/c
+onfounders present. Propensity score based methods are not applicable
 --------------------------------------------------------------------------------
 Estimation using iv.instrumental_variable:
 ATE = -1.3636363636363638
 P-value: (0, 0.001)
-Confidence interval: [-1.6530594712952311, -0.991776897800994]
---------------------------------------------------------------------------------
+Confidence interval: [-1.6631580542353368, -0.8758426655496985]
+
+Refute: Use a Placebo Treatment
+Estimated effect:-1.3636363636363638
+New effect:0.003703703703703709
+p value:0.9199999999999999
+
+Refute: Use a subset of data
+Estimated effect:-1.3636363636363638
+New effect:-1.3550425149547527
+p value:0.8
+
+Refute: Add a random common cause
+Estimated effect:-1.3636363636363638
+New effect:-1.363636363636364
+p value:1.0
+
+Refute: Use a Dummy Outcome
+Estimated effect:0
+New effect:-0.06408747180534463
+p value:0.76
