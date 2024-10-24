@@ -5,8 +5,10 @@ import warnings
 
 import numpy as np
 import pandas as pd
-from autobounds.autobounds.causalProblem import causalProblem
-from autobounds.autobounds.DAG import DAG
+
+from autobounds.causalProblem import causalProblem
+from autobounds.DAG import DAG
+from utils.output_writer import OutputWriterAutobounds
 
 
 warnings.simplefilter(action='ignore')
@@ -20,29 +22,6 @@ def cleanup_logs():
             os.remove(log_file)
         except Exception as e:
             print(f"Error deleting {log_file}: {e}")
-
-
-class OutputWriter:
-    def __init__(self, output_path="outputs/autobounds_output.txt"):
-        """
-        Initialize the OutputWriter with the given output path.
-
-        Args:
-            output_path (str, optional): The path to the output file. Defaults to "outputs/autobounds_output.txt".
-        """
-        self.output_path = output_path
-
-    def __call__(self, output, new=False):
-        """
-        Write the output to the file.
-
-        Args:
-            output (str): The output to write to the file.
-            new (bool, optional): Whether to write a new file or append to an existing one. Defaults to False
-        """
-        mode = "w" if new else "a"
-        with open(self.output_path, mode) as f:
-            f.write(output + "\n")
 
 
 def silent_run(func, output_file=None, new=False):
@@ -105,7 +84,7 @@ def autobounds_solver(
 
     # Setting up the file to write the output
     output_file = f"outputs/{test_name}/autobounds_{test_name}.txt"
-    write = OutputWriter(output_file)
+    write = OutputWriterAutobounds(output_file)
 
     # Calculating bounds
     problem.set_ate(ind=treatment, dep=outcome)
