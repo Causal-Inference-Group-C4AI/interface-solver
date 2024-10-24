@@ -1,0 +1,21 @@
+2
+teste_itau
+1
+T -> Y, T -> C, C -> Y, C -> E, D -> Y, D -> T, D -> C, E -> Y, F -> Y, F -> E, G -> E, G -> I, H -> Y, I -> Y, U -> Y, U -> T
+T
+Y
+-
+{'V0': 'Y', 'V1': 'T', 'V2': 'C', 'V3': 'D', 'V4': 'E', 'V5': 'F', 'V6': 'G', 'V7': 'H', 'V8': 'I', 'V9': 'U'}
+data/csv/teste_itau.csv
+data/uai/teste_itau.uai
+data/lcn/teste_itau.lcn
+teste_itau_tudo_observavel
+1
+T -> Y, T -> C, C -> Y, C -> E, D -> Y, D -> T, D -> C, E -> Y, F -> Y, F -> E, G -> E, G -> I, H -> Y, I -> Y, U -> Y, U -> T
+T
+Y
+U
+{'V0': 'Y', 'V1': 'T', 'V2': 'C', 'V3': 'D', 'V4': 'E', 'V5': 'F', 'V6': 'G', 'V7': 'H', 'V8': 'I', 'V9': 'U'}
+data/csv/teste_itau.csv
+data/uai/teste_itau.uai
+data/lcn/teste_itau.lcn
