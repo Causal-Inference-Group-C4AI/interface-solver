@@ -2,4 +2,4 @@
 
 ## How to run
 On root repository:
->> python3 automatic_interface.py tests/test-name.txt
+>> python3 automatic_interface tests/test-name.txt
