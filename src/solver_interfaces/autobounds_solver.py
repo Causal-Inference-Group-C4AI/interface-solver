@@ -5,8 +5,10 @@ import warnings
 
 import numpy as np
 import pandas as pd
+
 from autobounds.causalProblem import causalProblem
 from autobounds.DAG import DAG
+from utils.output_writer import OutputWriterAutobounds
 
 
 warnings.simplefilter(action='ignore')
@@ -14,25 +16,12 @@ warnings.simplefilter(action='ignore')
 
 def cleanup_logs():
     """Remove all log files in the current directory."""
-    log_files = glob.glob("*.log")
+    log_files = glob.glob(".*.log")
     for log_file in log_files:
         try:
             os.remove(log_file)
         except Exception as e:
             print(f"Error deleting {log_file}: {e}")
-
-
-def write_output(output, output_path="outputs/autobounds_output.txt", new=False):
-    """Write the output to a file.
-
-    Args:
-        output (str): The output to write to the file.
-        output_path (str, optional): The path to the output file. Defaults to "outputs/autobounds_output.txt".
-        new (bool, optional): Whether to write a new file or append to an existing one. Defaults to False.
-    """
-    mode = "w" if new else "a"
-    with open(output_path, mode) as f:
-        f.write(output + "\n")
 
 
 def silent_run(func, output_file=None, new=False):
@@ -54,13 +43,22 @@ def silent_run(func, output_file=None, new=False):
                 return func()
 
 
-def autobounds_solver(test_name, edges, unobservables, csv_path):
+def autobounds_solver(
+        test_name,
+        edges,
+        unobservables,
+        csv_path,
+        treatment,
+        outcome):
     """Solver for causal inference problem using AutoBounds.
 
     Args:
+        test_name (str): The name of the test case.
         edges (str): A string representing the edges of the causal graph.
         unobservables (str): A string representing the unobservables of the causal graph.
         csv_path (str): The path to the CSV file containing the data.
+        treatment (str): The treatment variable.
+        outcome (str): The outcome variable.
     """
     # Create a DAG object from the edges and unobservables
     dag = DAG()
@@ -84,25 +82,29 @@ def autobounds_solver(test_name, edges, unobservables, csv_path):
     # Adding problem constraints
     problem.add_prob_constraints()
 
+    # Setting up the file to write the output
     output_file = f"outputs/{test_name}/autobounds_{test_name}.txt"
+    write = OutputWriterAutobounds(output_file)
 
     # Calculating bounds
-    problem.set_ate(ind="X", dep="Y")
-    prog_ate = silent_run(lambda: problem.write_program(), output_file=output_file, new=True)
-    prog_ate_optim = silent_run(lambda: prog_ate.run_scip(), output_file=output_file)
+    problem.set_ate(ind=treatment, dep=outcome)
+    prog_ate = silent_run(lambda: problem.write_program(),
+                          output_file=output_file, new=True)
+    prog_ate_optim = silent_run(
+        lambda: prog_ate.run_scip(), output_file=output_file)
 
     # Extracting bounds
     lower_bound = np.round(prog_ate_optim[0]['dual'], 3)
     upper_bound = np.round(prog_ate_optim[1]['dual'], 3)
-    write_output("==============================================", output_path=output_file)
-    write_output(f"Causal effect lies in the interval [{lower_bound}, {upper_bound}]", output_path=output_file)
-    write_output("==============================================", output_path=output_file)
+    write("==============================================")
+    write(f"Causal effect lies in the interval [{lower_bound}, {upper_bound}]")
+    write("==============================================")
 
 
 # Example usage
 if __name__ == "__main__":
     edges = "Z -> X, X -> Y, Uxy -> X, Uxy -> Y"
     unobservables = "Uxy"
-    csv_path = 'autobounds_demo/balke_pearl.csv'
-    autobounds_solver(edges, unobservables, csv_path)
+    csv_path = 'data/csv/balke_pearl.csv'
+    autobounds_solver('balke_pearl', edges, unobservables, csv_path, 'X', 'Y')
     cleanup_logs()
