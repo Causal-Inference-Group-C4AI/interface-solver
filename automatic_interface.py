@@ -81,7 +81,7 @@ def automatic_interface(file_path):
             print(f"  Unobservable Variables: {test['unobservables']}")
             print(f"  CSV Path: {test['csv_path']}")
             autobounds_solver(test['test_name'], test['edges'],
-                              test['unobservables'], test['csv_path'])
+                              test['unobservables'], test['csv_path'], test['treatment'], test['outcome'])
             j += 1
 
 
