@@ -1,0 +1,28 @@
+10
+16
+T 2
+Y 2
+U 2
+C 2
+D 2
+E 2
+F 2
+G 2
+H 2
+I 2
+T Y
+T C
+C Y
+C E
+D Y
+D T
+D C
+E Y
+F Y
+F E
+G E
+G I
+H Y
+I Y
+U Y
+U T
