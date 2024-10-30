@@ -39,7 +39,7 @@ def uai_generator(
     _, _, unobCard = completeRelaxed(predefined_data=canonicalPartitions_data)
     cardinalities = obs_card + [int(unobCard)]*len(unobsorvables)
 
-    # Define edgesDon
+    # Define edges
     edges = [tuple(_.split(" -> ")) for _ in canonicalPartitions_data["edges"]]
     node_parents = {node: [] for node in nodes}
     for parent, child in edges:
@@ -47,6 +47,23 @@ def uai_generator(
     edges_per_node = np.arange(len(nodes)).tolist()
     for node, parents in node_parents.items():
         edges_per_node[mapping[node]] = [mapping[parent] for parent in parents]
+
+    # Define mechanisms
+    mechanisms = []
+    for i, node in enumerate(nodes):
+        if node in unobsorvables:
+            mechanism = [1/cardinalities[i]]*cardinalities[i]
+        elif not edges_per_node[i]:
+            values_count = df.value_counts(node).to_list()
+            n = df[node].count()
+            mechanism = list(map(lambda x: x/n, values_count))
+        else:
+            dims = [cardinalities[j] for j in edges_per_node[i]]
+            mechanism = np.zeros(dims)
+            # TODO
+
+        mechanisms.append(mechanism)
+    print(mechanisms)
 
 
 if __name__ == "__main__":
