@@ -55,8 +55,8 @@ def generateRelaxed(graph: Graph, latentCardinalities: list[int]):
     return relaxedGraph[2:], unob[2:], unobCardinalities
 
 
-def completeRelaxed(verbose=False):
-    graph = Graph.parse()
+def completeRelaxed(verbose=False, predefined_data=None):
+    graph = Graph.parse(predefined_data)
 
     CComponent.find_cComponents(graph)
 
@@ -71,7 +71,7 @@ def completeRelaxed(verbose=False):
 
 
 def main():
-    adjRelaxed, unobRelaxed, unobCard = completeRelaxed(verbose=True)
+    adjRelaxed, unobRelaxed, unobCard = completeRelaxed()
 
     print(
         f"Relaxed graph edges: {adjRelaxed} \n \n"

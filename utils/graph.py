@@ -18,9 +18,13 @@ class Graph:
         self.endogenous = endogenous
         self.exogenous = exogenous
 
-    def parse():
-        num_nodes = int(input())
-        num_edges = int(input())
+    def parse(predefined_data=None):
+        if predefined_data:
+            num_nodes = predefined_data['num_nodes']
+            num_edges = predefined_data['num_edges']
+        else:
+            num_nodes = int(input())
+            num_edges = int(input())
 
         label_to_index_ex: dict[str, int] = {}
         index_to_label_ex: dict[int, str] = {}
@@ -31,14 +35,20 @@ class Graph:
         endogenIndex: list[int] = []
         exogenIndex: list[int] = []
         for i in range(1, num_nodes + 1):
-            label, cardinality = input().split()
+            if predefined_data:
+                label, cardinality = predefined_data['nodes'][i - 1].split()
+            else:
+                label, cardinality = input().split()
             cardinality = int(cardinality)
             label_to_index_ex[label] = i
             index_to_label_ex[i] = label
             cardinalities_ex[i] = cardinality
 
         for _ in range(num_edges):
-            u, v = input().split()
+            if predefined_data:
+                u, v = predefined_data['edges'][_].split(" -> ")
+            else:
+                u, v = input().split()
             u_index = label_to_index_ex[u]
             v_index = label_to_index_ex[v]
             adj_ex[u_index].append(v_index)
