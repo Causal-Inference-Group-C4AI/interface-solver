@@ -142,18 +142,19 @@ def dataGen(graph: Graph, numSamp=int(1e3), csv_path='./data/csv/unobDataGenOutp
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Generates csv from a giving DAG.")
-    parser.add_argument('file_path',
-                        help='The path to the file you want to read')
-    args = parser.parse_args()
+    teste_simples_data_generation()
+    # parser = argparse.ArgumentParser(
+    #     description="Generates csv from a giving DAG.")
+    # parser.add_argument('file_path',
+    #                     help='The path to the file you want to read')
+    # args = parser.parse_args()
 
-    graph: Graph = Graph.parse(input_path=args.file_path)
-    # folder_name = Path(f"outputs/{test['test_name']}")
-    # folder_name.mkdir(parents=True, exist_ok=True)
+    # graph: Graph = Graph.parse(input_path=args.file_path)
+    # # folder_name = Path(f"outputs/{test['test_name']}")
+    # # folder_name.mkdir(parents=True, exist_ok=True)
 
-    for i in range(1, graph.num_nodes + 1):
-        if graph.cardinalities[i] < 1:
-            graph.cardinalities[i] = 2
+    # for i in range(1, graph.num_nodes + 1):
+    #     if graph.cardinalities[i] < 1:
+    #         graph.cardinalities[i] = 2
 
-    print(dataGen(graph=graph, numSamp=1000))
+    # print(dataGen(graph=graph, numSamp=1000))
