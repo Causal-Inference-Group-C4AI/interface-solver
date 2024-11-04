@@ -3,7 +3,6 @@ import warnings
 import pandas as pd
 from bcause.inference.causal.multi import EMCC
 from bcause.models.cmodel import StructuralCausalModel
-
 from utils.output_writer import OutputWriterBcause
 
 warnings.simplefilter(action='ignore')
@@ -19,7 +18,6 @@ def bcause_solver(test_name: str, uai_path: str, csv_path: str, treatment: str, 
     p_do0 = inf.causal_query(outcome, do={treatment: 0})
     p_do1 = inf.causal_query(outcome, do={treatment: 1})
 
-    # Extracting bounds
     lower_bound = p_do1.values[1] - p_do0.values[1]
     upper_bound = p_do1.values[3] - p_do0.values[3]
 

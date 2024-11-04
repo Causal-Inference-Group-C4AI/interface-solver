@@ -1,5 +1,6 @@
 from abc import abstractmethod
 
+
 class OutputWriter:
     def __init__(self, output_path="outputs/DEFAULT_OUTPUT.txt"):
         self.output_path = output_path
