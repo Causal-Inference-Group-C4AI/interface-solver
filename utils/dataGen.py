@@ -1,4 +1,5 @@
 import numpy as np
+
 from generator import generateMechanisms
 from graph import Graph
 from probabilityGen import distribution
