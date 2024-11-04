@@ -49,6 +49,16 @@ class OutputWriterAutobounds(OutputWriter):
         """
         super().__init__(output_path)
 
+class OutputWriterLCN(OutputWriter):
+    def __init__(self, output_path="outputs/lcn_output_NO_TEST_NAME.txt"):
+        """
+        Initialize the OutputWriter with the given output path.
+
+        Args:
+            output_path (str, optional): The path to the output file. Defaults to "outputs/lcn_output_NO_TEST_NAME.txt".
+        """
+        super().__init__(output_path)
+
 
 class OutputWriterDoWhy(OutputWriter):
     """
