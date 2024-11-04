@@ -72,7 +72,8 @@ def automatic_interface(file_path):
             print(f"  Edges: {test['edges']}")
             print(f"  .LCN Path: {test['lcn_path']}")
             print()
-            lcn_solver()
+            lcn_solver(test['test_name'], test['edges'],
+                              test['unobservables'], test['csv_path'], test['treatment'], test['outcome'])
             j += 1
 
         if '4' in test['solvers']:
