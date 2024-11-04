@@ -7,7 +7,7 @@ from graph import Graph
 from probabilityGen import distribution
 
 
-def teste_simples_data_generation():
+def teste_itau_simples_data_generation():
     # Set a random seed for reproducibility
     np.random.seed(42)
 
@@ -142,7 +142,7 @@ def dataGen(graph: Graph, numSamp=int(1e3), csv_path='./data/csv/unobDataGenOutp
 
 
 if __name__ == "__main__":
-    teste_simples_data_generation()
+    teste_itau_simples_data_generation()
     # parser = argparse.ArgumentParser(
     #     description="Generates csv from a giving DAG.")
     # parser.add_argument('file_path',
