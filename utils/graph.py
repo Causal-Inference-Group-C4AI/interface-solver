@@ -18,10 +18,12 @@ class Graph:
         self.endogenous = endogenous
         self.exogenous = exogenous
 
-    def parse(predefined_data=None):
+    def parse(predefined_data=None, input_path=None):
         if predefined_data:
             num_nodes = predefined_data['num_nodes']
             num_edges = predefined_data['num_edges']
+        elif input_path:
+            num_nodes, num_edges, nodes, nodes_cardinality, edges = file_parser(input_path)
         else:
             num_nodes = int(input())
             num_edges = int(input())
@@ -34,9 +36,12 @@ class Graph:
         parents_ex = [[] for _ in range(num_nodes + 1)]
         endogenIndex: list[int] = []
         exogenIndex: list[int] = []
+
         for i in range(1, num_nodes + 1):
             if predefined_data:
                 label, cardinality = predefined_data['nodes'][i - 1].split()
+            elif input_path:
+                label, cardinality = nodes[i-1], nodes_cardinality[i-1]
             else:
                 label, cardinality = input().split()
             cardinality = int(cardinality)
@@ -44,9 +49,12 @@ class Graph:
             index_to_label_ex[i] = label
             cardinalities_ex[i] = cardinality
 
-        for _ in range(num_edges):
+        for i in range(num_edges):
             if predefined_data:
-                u, v = predefined_data['edges'][_].split(" -> ")
+                u, v = predefined_data['edges'][i].split(" -> ")
+            elif (input_path):
+                print(edges[i])
+                u, v = edges[i]
             else:
                 u, v = input().split()
             u_index = label_to_index_ex[u]
@@ -74,3 +82,24 @@ class Graph:
             exogenous=exogenIndex,
             endogenous=endogenIndex
         )
+
+def file_parser(input_path):
+    with open(input_path, 'r') as file:
+        num_nodes = int(file.readline().strip())
+        num_edges = int(file.readline().strip())
+        nodes = []
+        nodes_cardinality = []
+
+        for _ in range(num_nodes):
+            tuple_node_cardinality = file.readline().strip().split(' ')
+            node = tuple_node_cardinality[0]
+            cardinality = int(tuple_node_cardinality[1])
+            nodes.append(node)
+            nodes_cardinality.append(cardinality)
+        edges = []
+        for _ in range(num_edges):
+            edge = file.readline().strip().split(' ')
+            origin_node = edge[0]
+            target_node = edge[1]
+            edges.append((origin_node, target_node))
+        return num_nodes, num_edges, nodes, nodes_cardinality, edges
