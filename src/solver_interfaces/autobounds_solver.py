@@ -24,7 +24,7 @@ def cleanup_logs():
             print(f"Error deleting {log_file}: {e}")
 
 
-def silent_run(func, output_file=None, new=False):
+def silent_run(func, output_file=None, new=False, ):
     """Run a function and redirect output to a specified file.
 
     Args:
