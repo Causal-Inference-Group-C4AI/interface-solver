@@ -5,11 +5,9 @@ import warnings
 
 import numpy as np
 import pandas as pd
-
 from autobounds.causalProblem import causalProblem
 from autobounds.DAG import DAG
 from utils.output_writer import OutputWriterAutobounds
-
 
 warnings.simplefilter(action='ignore')
 

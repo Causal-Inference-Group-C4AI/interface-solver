@@ -5,9 +5,8 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 from dowhy import CausalModel
-
-from utils.output_writer import OutputWriterDoWhy
 from utils.conversor import convert_str_edges_into_a_tuple_list
+from utils.output_writer import OutputWriterDoWhy
 
 warnings.filterwarnings('ignore', category=UserWarning)
 warnings.filterwarnings('ignore', category=FutureWarning)

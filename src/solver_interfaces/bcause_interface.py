@@ -3,7 +3,6 @@ import warnings
 import pandas as pd
 from bcause.inference.causal.multi import EMCC
 from bcause.models.cmodel import StructuralCausalModel
-
 from utils.output_writer import OutputWriterBcause
 
 warnings.simplefilter(action='ignore')
