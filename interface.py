@@ -1,49 +1,46 @@
 import argparse
-import json
 from pathlib import Path
+from typing import List
 
 from src.solver_interfaces.autobounds_solver import autobounds_solver
 from src.solver_interfaces.bcause_interface import bcause_solver
 from src.solver_interfaces.dowhy_interface import dowhy_solver
 from src.solver_interfaces.lcn_solver import lcn_solver
 from utils._enums import Solvers
-from utils.conversor import convert_str_edges_into_a_tuple_list
+from utils.validator import (get_valid_edges_in_string, get_valid_mapping,
+                             get_valid_number_of_tests, get_valid_path,
+                             get_valid_solver_list, get_valid_test_name,
+                             get_valid_unobservable, get_valid_variable)
 
 
-def process_test_data(file_path):
+def process_test_data(file_path: str) -> List:
     tests = []
-
     with open(file_path, 'r') as file:
-        num_tests = int(file.readline().strip())
+        num_tests = get_valid_number_of_tests(file.readline().strip())
 
         for _ in range(num_tests):
             test = {}
 
-            test['test_name'] = file.readline().strip()
-            test['solvers'] = file.readline().strip().lower().split(' ')
-            
+            test['test_name'] = get_valid_test_name(file.readline().strip())
+            test['solvers'] = get_valid_solver_list(file.readline().strip())
+
             test['edges'] = {}
-            edges_str = file.readline().strip().upper()
+            edges_str, edges_list = get_valid_edges_in_string(file.readline().strip())
             test['edges']['edges_str'] = edges_str
-            test['edges']['edges_list'] = convert_str_edges_into_a_tuple_list(edges_str)
+            test['edges']['edges_list'] = edges_list
 
-            test['treatment'] = file.readline().strip().upper()
-            test['outcome'] = file.readline().strip().upper()
+            test['treatment'] = get_valid_variable(file.readline().strip())
+            test['outcome'] = get_valid_variable(file.readline().strip())
+            test['unobservables'] = get_valid_unobservable(file.readline().strip())
 
-            unobservables = file.readline().strip().upper()
-            if unobservables == "-":
-                test['unobservables'] = None
-            else:
-                test['unobservables'] = unobservables
-            
-            test['mapping'] = json.loads(file.readline().strip().upper())
-            test['csv_path'] = file.readline().strip()
-            test['uai_path'] = file.readline().strip()
-            test['lcn_path'] = file.readline().strip()
+            test['mapping'] = get_valid_mapping(file.readline().strip())
+            test['csv_path'] = get_valid_path(file.readline().strip())
+            test['uai_path'] = get_valid_path(file.readline().strip())
+            test['lcn_path'] = get_valid_path(file.readline().strip())
 
             tests.append(test)
 
-    return tests
+        return tests
 
 
 def print_test_info(test_info: dict, test_number: int):
@@ -59,7 +56,7 @@ def print_test_info(test_info: dict, test_number: int):
     print()
 
 
-def interface(file_path):
+def interface(file_path: str):
     tests = process_test_data(file_path)
     for i, test in enumerate(tests, 1):
         print_test_info(test, i+1)
@@ -95,8 +92,13 @@ def interface(file_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Runs tests of Causal Effect under Partial-Observability.")
+        description="Runs tests of Causal Effect under Partial-Observability."
+    )
     parser.add_argument('file_path',
-                        help='The path to the file you want to read')
+                        help='The path to the file you want to read'
+    )
     args = parser.parse_args()
-    interface(args.file_path)
+    try:
+        interface(get_valid_path(args.file_path))
+    except Exception as e:
+        print(f"{type(e).__module__}.{type(e).__name__}: {e}")
