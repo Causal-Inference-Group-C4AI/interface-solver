@@ -5,11 +5,9 @@ import warnings
 
 import numpy as np
 import pandas as pd
-
 from autobounds.causalProblem import causalProblem
 from autobounds.DAG import DAG
 from utils.output_writer import OutputWriterAutobounds
-
 
 warnings.simplefilter(action='ignore')
 
@@ -44,12 +42,12 @@ def silent_run(func, output_file=None, new=False):
 
 
 def autobounds_solver(
-        test_name,
-        edges,
-        unobservables,
-        csv_path,
-        treatment,
-        outcome):
+        test_name: str,
+        edges: str,
+        unobservables: str,
+        csv_path: str,
+        treatment: str,
+        outcome: str):
     """Solver for causal inference problem using AutoBounds.
 
     Args:
@@ -62,7 +60,10 @@ def autobounds_solver(
     """
     # Create a DAG object from the edges and unobservables
     dag = DAG()
-    dag.from_structure(edges=edges, unob=unobservables)
+    if unobservables:
+        dag.from_structure(edges=edges, unob=unobservables)
+    else:
+        dag.from_structure(edges=edges)
 
     # Loading the data
     data = pd.read_csv(csv_path)

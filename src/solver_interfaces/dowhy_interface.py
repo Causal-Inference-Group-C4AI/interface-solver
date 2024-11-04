@@ -1,10 +1,11 @@
 import warnings
+from typing import List, Tuple
 
 import networkx as nx
 import numpy as np
 import pandas as pd
 from dowhy import CausalModel
-
+from utils.conversor import convert_str_edges_into_a_tuple_list
 from utils.output_writer import OutputWriterDoWhy
 
 warnings.filterwarnings('ignore', category=UserWarning)
@@ -14,7 +15,7 @@ warnings.filterwarnings('ignore', category=FutureWarning)
 def dowhy_solver(
     test_name: str,
     csv_path: str,
-    edges_str: str,
+    edges: List[Tuple[str, str]],
     treatment: str,
     outcome: str
 ) -> None:
@@ -33,7 +34,6 @@ def dowhy_solver(
 
     # Data and graph
     data = pd.read_csv(csv_path)
-    edges = [tuple(edge.split(' -> ')) for edge in edges_str.split(', ')]
     graph = nx.DiGraph(edges)
 
     # Step 1: Model
@@ -125,7 +125,7 @@ if __name__ == "__main__":
     dowhy_solver(
         test_name='balke_pearl',
         csv_path='data/csv/balke_pearl.csv',
-        edges_str="Z -> X, X -> Y",
+        edges=convert_str_edges_into_a_tuple_list("Z -> X, X -> Y"),
         treatment='X',
         outcome='Y'
     )

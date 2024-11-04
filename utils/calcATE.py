@@ -1,7 +1,8 @@
 import networkx as nx
 import pandas as pd
-from dataGen import dataGen
 from dowhy import CausalModel
+
+from dataGen import dataGen
 from graph import Graph
 
 
