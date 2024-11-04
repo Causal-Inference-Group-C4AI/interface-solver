@@ -1,0 +1,5 @@
+[('E0', 0.484), ('E1', 0.516)]
+LOWER BOUND: # -- Primal: nan / Dual: cutoff / Time: 0.0 ##
+UPPER BOUND: # -- Primal: nan / Dual: cutoff / Time: 0.0 ##
+Problem is infeasible. Returning without solutions
+Problem is infeasible. Returning without solutions

@@ -24,7 +24,7 @@ def cleanup_logs():
             print(f"Error deleting {log_file}: {e}")
 
 
-def silent_run(func, output_file=None, new=False):
+def silent_run(func, output_file=None, new=False, ):
     """Run a function and redirect output to a specified file.
 
     Args:
@@ -33,15 +33,14 @@ def silent_run(func, output_file=None, new=False):
         new (bool, optional): Whether to write a new file or append to an existing one. Defaults to False.
     """
     mode = "w" if new else "a"
-    # if output_file:
-    #     with open(output_file, mode) as f:
-    #         with contextlib.redirect_stdout(f), contextlib.redirect_stderr(f):
-    #             return func()
-    # else:
-    #     with open(os.devnull, 'w') as fnull:
-    #         with contextlib.redirect_stdout(fnull), contextlib.redirect_stderr(fnull):
-    #             return func()
-    return func()
+    if output_file:
+        with open(output_file, mode) as f:
+            with contextlib.redirect_stdout(f), contextlib.redirect_stderr(f):
+                return func()
+    else:
+        with open(os.devnull, 'w') as fnull:
+            with contextlib.redirect_stdout(fnull), contextlib.redirect_stderr(fnull):
+                return func()
 
 
 def autobounds_solver(
