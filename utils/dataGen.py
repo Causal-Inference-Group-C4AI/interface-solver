@@ -7,7 +7,7 @@ from graph import Graph
 from probabilityGen import distribution
 
 
-def teste_simples_data_generation():
+def teste_itau_simples_data_generation():
     # Set a random seed for reproducibility
     np.random.seed(42)
 
