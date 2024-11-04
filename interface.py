@@ -80,7 +80,8 @@ def interface(file_path: str):
 
         if Solvers.LCN.value in test['solvers']:
             print("TEST LCN")
-            lcn_solver()
+            lcn_solver(test['test_name'], test['edges'],
+                              test['unobservables'], test['csv_path'], test['treatment'], test['outcome'])
 
         if Solvers.AUTOBOUNDS.value in test['solvers']:
             print("TEST AUTOBOUNDS")

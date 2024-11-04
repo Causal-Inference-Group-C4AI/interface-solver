@@ -1,4 +1,3 @@
-import contextlib
 import glob
 import os
 import warnings
@@ -8,6 +7,7 @@ import pandas as pd
 from autobounds.causalProblem import causalProblem
 from autobounds.DAG import DAG
 from utils.output_writer import OutputWriterAutobounds
+from utils.silent_run import silent_run
 
 warnings.simplefilter(action='ignore')
 
@@ -20,26 +20,6 @@ def cleanup_logs():
             os.remove(log_file)
         except Exception as e:
             print(f"Error deleting {log_file}: {e}")
-
-
-def silent_run(func, output_file=None, new=False):
-    """Run a function and redirect output to a specified file.
-
-    Args:
-        func (function): The function to run.
-        output_file (str, optional): The file path to redirect output to. Defaults to None.
-        new (bool, optional): Whether to write a new file or append to an existing one. Defaults to False.
-    """
-    mode = "w" if new else "a"
-    if output_file:
-        with open(output_file, mode) as f:
-            with contextlib.redirect_stdout(f), contextlib.redirect_stderr(f):
-                return func()
-    else:
-        with open(os.devnull, 'w') as fnull:
-            with contextlib.redirect_stdout(fnull), contextlib.redirect_stderr(fnull):
-                return func()
-
 
 def autobounds_solver(
         test_name: str,
@@ -101,6 +81,8 @@ def autobounds_solver(
     write(f"Causal effect lies in the interval [{lower_bound}, {upper_bound}]")
     write("==============================================")
 
+    cleanup_logs()
+
 
 # Example usage
 if __name__ == "__main__":
@@ -108,4 +90,3 @@ if __name__ == "__main__":
     unobservables = "Uxy"
     csv_path = 'data/csv/balke_pearl.csv'
     autobounds_solver('balke_pearl', edges, unobservables, csv_path, 'X', 'Y')
-    cleanup_logs()

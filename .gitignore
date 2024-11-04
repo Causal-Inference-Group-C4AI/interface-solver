@@ -1,6 +1,9 @@
 # Autobounds code
 autobounds/
 
+#LCN code
+lcn/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

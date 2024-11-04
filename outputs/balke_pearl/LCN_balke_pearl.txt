@@ -1,0 +1,153 @@
+Parsed DAG: {'X': ['Z', 'U'], 'Z': [], 'Y': ['X', 'U'], 'U': []}
+Decompositions: {'U': {'X': 2, 'Y': 2}, 'Uaux_Z': {'Z': 1}}
+Total decompositions: {'U': 4, 'Uaux_Z': 1}
+considered exogenous subvariable mappings: {'U': ['U_1', 'U_2', 'U_3', 'U_4'], 'Uaux_Z': ['Uaux_Z_1']}
+exo_vars: ['U_1', 'U_2', 'U_3', 'U_4', 'Uaux_Z_1']
+considered DAG: {'X': ['Z', 'U_1', 'U_2'], 'Z': ['Uaux_Z_1'], 'Y': ['X', 'U_3', 'U_4'], 'U': []}
+considered unobserved variables: ['U_1', 'U_2', 'U_3', 'U_4', 'Uaux_Z_1']
+considered children: {'Z': ['X'], 'X': ['Y'], 'U': ['X', 'Y'], 'Uaux_Z': ['Z']}
+var: X
+dag[var]: ['Z', 'U_1', 'U_2']
+endogenous_parents: ['Z']
+exogenous_parents: ['U_1', 'U_2']
+var: Z
+dag[var]: ['Uaux_Z_1']
+endogenous_parents: []
+exogenous_parents: ['Uaux_Z_1']
+var: Y
+dag[var]: ['X', 'U_3', 'U_4']
+endogenous_parents: ['X']
+exogenous_parents: ['U_3', 'U_4']
+var: U
+dag[var]: []
+endogenous_parents: []
+exogenous_parents: []
+var: Y
+dag[var]: ['X', 'U_3', 'U_4']
+endogenous_parents: ['X']
+exogenous_parents: ['U_3', 'U_4']
+==============================================
+Parsed DAG: {'X': ['Z', 'U'], 'Z': [], 'Y': ['X', 'U'], 'U': []}
+Decompositions: {'U': {'X': 2, 'Y': 2}, 'Uaux_Z': {'Z': 1}}
+Total decompositions: {'U': 4, 'Uaux_Z': 1}
+considered exogenous subvariable mappings: {'U': ['U_1', 'U_2', 'U_3', 'U_4'], 'Uaux_Z': ['Uaux_Z_1']}
+exo_vars: ['U_1', 'U_2', 'U_3', 'U_4', 'Uaux_Z_1']
+considered DAG: {'X': ['Z', 'U_1', 'U_2'], 'Z': ['Uaux_Z_1'], 'Y': ['X', 'U_3', 'U_4'], 'U': []}
+considered unobserved variables: ['U_1', 'U_2', 'U_3', 'U_4', 'Uaux_Z_1']
+considered children: {'Z': ['X'], 'X': ['Y'], 'U': ['X', 'Y'], 'Uaux_Z': ['Z']}
+var: X
+dag[var]: ['Z', 'U_1', 'U_2']
+endogenous_parents: ['Z']
+exogenous_parents: ['U_1', 'U_2']
+var: Z
+dag[var]: ['Uaux_Z_1']
+endogenous_parents: []
+exogenous_parents: ['Uaux_Z_1']
+var: Y
+dag[var]: ['X', 'U_3', 'U_4']
+endogenous_parents: ['X']
+exogenous_parents: ['U_3', 'U_4']
+var: U
+dag[var]: []
+endogenous_parents: []
+exogenous_parents: []
+var: Y
+dag[var]: ['X', 'U_3', 'U_4']
+endogenous_parents: ['X']
+exogenous_parents: ['U_3', 'U_4']
+==============================================
+Parsed LCN format with 38 sentences.
+Build the LCN's primal graph.
+Build the LCN's structure graph.
+Build the LCN's independence assumptions (LMC).
+[Local Markov Condition: 10 independencies]
+(U_1 ⟂ Uaux_Z_1, Z, XL)
+(U_2 ⟂ Uaux_Z_1, Z, XL | U_1)
+(U_3 ⟂ X, Uaux_Z_1, Z, XL | U_1, U_2)
+(U_4 ⟂ X, Uaux_Z_1, Z, XL | U_1, U_3, U_2)
+(Uaux_Z_1 ⟂ YL, U_2, U_4, U_1, U_3, XL)
+(X ⟂ YL, Uaux_Z_1, U_4, U_3, XL | U_1, Z, U_2)
+(XL ⟂ U_2, X, Uaux_Z_1, U_4, Z, Y, U_1, U_3)
+(Y ⟂ YL, U_2, Uaux_Z_1, Z, U_1, XL | X, U_3, U_4)
+(YL ⟂ U_2, X, Uaux_Z_1, Z, Y, U_1 | U_3, U_4, XL)
+(Z ⟂ YL, U_2, U_4, U_1, U_3, XL | Uaux_Z_1)
+adding constraints for independence: (U_1 ⟂ Uaux_Z_1, Z, XL)
+adding constraints for independence: (U_2 ⟂ Uaux_Z_1, Z, XL | U_1)
+adding constraints for independence: (U_3 ⟂ X, Uaux_Z_1, Z, XL | U_1, U_2)
+adding constraints for independence: (U_4 ⟂ X, Uaux_Z_1, Z, XL | U_1, U_3, U_2)
+adding constraints for independence: (Uaux_Z_1 ⟂ YL, U_2, U_4, U_1, U_3, XL)
+adding constraints for independence: (X ⟂ YL, Uaux_Z_1, U_4, U_3, XL | U_1, Z, U_2)
+adding constraints for independence: (XL ⟂ U_2, X, Uaux_Z_1, U_4, Z, Y, U_1, U_3)
+adding constraints for independence: (Y ⟂ YL, U_2, Uaux_Z_1, Z, U_1, XL | X, U_3, U_4)
+adding constraints for independence: (YL ⟂ U_2, X, Uaux_Z_1, Z, Y, U_1 | U_3, U_4, XL)
+adding constraints for independence: (Z ⟂ YL, U_2, U_4, U_1, U_3, XL | Uaux_Z_1)
+Solver status: ok
+[Ipopt] objective=0.44999492486940185, optimal=True
+adding constraints for independence: (U_1 ⟂ Uaux_Z_1, Z, XL)
+adding constraints for independence: (U_2 ⟂ Uaux_Z_1, Z, XL | U_1)
+adding constraints for independence: (U_3 ⟂ X, Uaux_Z_1, Z, XL | U_1, U_2)
+adding constraints for independence: (U_4 ⟂ X, Uaux_Z_1, Z, XL | U_1, U_3, U_2)
+adding constraints for independence: (Uaux_Z_1 ⟂ YL, U_2, U_4, U_1, U_3, XL)
+adding constraints for independence: (X ⟂ YL, Uaux_Z_1, U_4, U_3, XL | U_1, Z, U_2)
+adding constraints for independence: (XL ⟂ U_2, X, Uaux_Z_1, U_4, Z, Y, U_1, U_3)
+adding constraints for independence: (Y ⟂ YL, U_2, Uaux_Z_1, Z, U_1, XL | X, U_3, U_4)
+adding constraints for independence: (YL ⟂ U_2, X, Uaux_Z_1, Z, Y, U_1 | U_3, U_4, XL)
+adding constraints for independence: (Z ⟂ YL, U_2, U_4, U_1, U_3, XL | Uaux_Z_1)
+Solver status: ok
+[Ipopt] objective=0.5200063547140812, optimal=True
+[ExactInference] Result for YL is: [ 0.44999492486940185, 0.5200063547140812 ]
+[ExactInference] Feasibility: lb=True, ub=True, all=True
+[ExactInference] Time elapsed: 554.5090572834015 sec
+==============================================
+Bounds for the first intervention
+[0.44999492486940185, 0.5200063547140812]
+==============================================
+Parsed LCN format with 38 sentences.
+Build the LCN's primal graph.
+Build the LCN's structure graph.
+Build the LCN's independence assumptions (LMC).
+[Local Markov Condition: 10 independencies]
+(U_1 ⟂ Uaux_Z_1, Z, XL)
+(U_2 ⟂ Uaux_Z_1, Z, XL | U_1)
+(U_3 ⟂ X, Uaux_Z_1, Z, XL | U_1, U_2)
+(U_4 ⟂ X, Uaux_Z_1, Z, XL | U_1, U_3, U_2)
+(Uaux_Z_1 ⟂ YL, U_2, U_4, U_1, U_3, XL)
+(X ⟂ YL, Uaux_Z_1, U_4, U_3, XL | U_1, Z, U_2)
+(XL ⟂ U_2, X, Uaux_Z_1, U_4, Z, Y, U_1, U_3)
+(Y ⟂ YL, U_2, Uaux_Z_1, Z, U_1, XL | X, U_3, U_4)
+(YL ⟂ U_2, X, Uaux_Z_1, Z, Y, U_1 | U_3, U_4, XL)
+(Z ⟂ YL, U_2, U_4, U_1, U_3, XL | Uaux_Z_1)
+adding constraints for independence: (U_1 ⟂ Uaux_Z_1, Z, XL)
+adding constraints for independence: (U_2 ⟂ Uaux_Z_1, Z, XL | U_1)
+adding constraints for independence: (U_3 ⟂ X, Uaux_Z_1, Z, XL | U_1, U_2)
+adding constraints for independence: (U_4 ⟂ X, Uaux_Z_1, Z, XL | U_1, U_3, U_2)
+adding constraints for independence: (Uaux_Z_1 ⟂ YL, U_2, U_4, U_1, U_3, XL)
+adding constraints for independence: (X ⟂ YL, Uaux_Z_1, U_4, U_3, XL | U_1, Z, U_2)
+adding constraints for independence: (XL ⟂ U_2, X, Uaux_Z_1, U_4, Z, Y, U_1, U_3)
+adding constraints for independence: (Y ⟂ YL, U_2, Uaux_Z_1, Z, U_1, XL | X, U_3, U_4)
+adding constraints for independence: (YL ⟂ U_2, X, Uaux_Z_1, Z, Y, U_1 | U_3, U_4, XL)
+adding constraints for independence: (Z ⟂ YL, U_2, U_4, U_1, U_3, XL | Uaux_Z_1)
+Solver status: ok
+[Ipopt] objective=0.6699957993729967, optimal=True
+adding constraints for independence: (U_1 ⟂ Uaux_Z_1, Z, XL)
+adding constraints for independence: (U_2 ⟂ Uaux_Z_1, Z, XL | U_1)
+adding constraints for independence: (U_3 ⟂ X, Uaux_Z_1, Z, XL | U_1, U_2)
+adding constraints for independence: (U_4 ⟂ X, Uaux_Z_1, Z, XL | U_1, U_3, U_2)
+adding constraints for independence: (Uaux_Z_1 ⟂ YL, U_2, U_4, U_1, U_3, XL)
+adding constraints for independence: (X ⟂ YL, Uaux_Z_1, U_4, U_3, XL | U_1, Z, U_2)
+adding constraints for independence: (XL ⟂ U_2, X, Uaux_Z_1, U_4, Z, Y, U_1, U_3)
+adding constraints for independence: (Y ⟂ YL, U_2, Uaux_Z_1, Z, U_1, XL | X, U_3, U_4)
+adding constraints for independence: (YL ⟂ U_2, X, Uaux_Z_1, Z, Y, U_1 | U_3, U_4, XL)
+adding constraints for independence: (Z ⟂ YL, U_2, U_4, U_1, U_3, XL | Uaux_Z_1)
+Solver status: ok
+[Ipopt] objective=0.6800008404444964, optimal=True
+[ExactInference] Result for YL is: [ 0.6699957993729967, 0.6800008404444964 ]
+[ExactInference] Feasibility: lb=True, ub=True, all=True
+[ExactInference] Time elapsed: 208.8945872783661 sec
+==============================================
+Bounds for the second intervention
+[0.6699957993729967, 0.6800008404444964]
+==============================================
+Bounds for the ATE
+[-0.23000591557509453, -0.1499894446589155]
+==============================================
