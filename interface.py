@@ -36,7 +36,6 @@ def process_test_data(file_path: str) -> List:
             test['mapping'] = get_valid_mapping(file.readline().strip())
             test['csv_path'] = get_valid_path(file.readline().strip())
             test['uai_path'] = get_valid_path(file.readline().strip())
-            test['lcn_path'] = get_valid_path(file.readline().strip())
 
             tests.append(test)
 
@@ -52,7 +51,6 @@ def print_test_info(test_info: dict, test_number: int):
     print(f"  Unobservable Variables: {test_info['unobservables']}")
     print(f"  CSV Path: {test_info['csv_path']}")
     print(f"  UAI Path: {test_info['uai_path']}")
-    print(f"  .LCN Path: {test_info['lcn_path']}")
     print()
 
 
@@ -80,7 +78,7 @@ def interface(file_path: str):
 
         if Solvers.LCN.value in test['solvers']:
             print("TEST LCN")
-            lcn_solver(test['test_name'], test['edges'],
+            lcn_solver(test['test_name'], test['edges']['edges_str'],
                               test['unobservables'], test['csv_path'], test['treatment'], test['outcome'])
 
         if Solvers.AUTOBOUNDS.value in test['solvers']:

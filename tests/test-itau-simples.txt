@@ -8,4 +8,3 @@ U
 {"V0": "Y", "V1": "T", "V2": "U", "V3": "D", "V4": "E"}
 data/csv/unob_itau_teste.csv
 data/uai/teste_itau.uai
-data/lcn/teste_itau.lcn
