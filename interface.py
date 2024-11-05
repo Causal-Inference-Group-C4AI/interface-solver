@@ -29,9 +29,9 @@ def process_test_data(file_path: str) -> List:
             test['edges']['edges_str'] = edges_str
             test['edges']['edges_list'] = edges_list
 
-            test['treatment'] = get_valid_variable(file.readline().strip())
-            test['outcome'] = get_valid_variable(file.readline().strip())
-            test['unobservables'] = get_valid_unobservable(file.readline().strip())
+            test['treatment'] = get_valid_variable(file.readline().strip(), edges_str)
+            test['outcome'] = get_valid_variable(file.readline().strip(), edges_str)
+            test['unobservables'] = get_valid_unobservable(file.readline().strip(), edges_str)
 
             test['mapping'] = get_valid_mapping(file.readline().strip())
             test['csv_path'] = get_valid_path(file.readline().strip())

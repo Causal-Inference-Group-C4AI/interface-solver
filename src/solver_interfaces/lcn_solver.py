@@ -6,8 +6,7 @@ import sys
 from lcn.inference.exact.marginal import ExactInferece
 from lcn.model import LCN
 from utils.output_writer import OutputWriterLCN
-from utils.lcn_file_generator import create_lcn
-from utils.silent_run import silent_run
+from utils.file_generators.lcn_file_generator import create_lcn
 
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../LCN'))
@@ -36,7 +35,7 @@ def lcn_solver(test_name, edges, unobservables, csv_path, treatment, outcome):
 
     # Setting up the file to write the output
     output_file = f"outputs/{test_name}/LCN_{test_name}.txt"
-    write = OutputWriterLCN(output_file)
+    writer = OutputWriterLCN(output_file)
 
     #Defining the first intervention
     intervention_input = (outcome, treatment, 1)
@@ -67,8 +66,8 @@ def lcn_solver(test_name, edges, unobservables, csv_path, treatment, outcome):
     # Creating the first LCN file
     output_file_1 = f"{test_name}_{treatment}1.lcn"
 
-    silent_run(lambda:create_lcn(edges, unobservables, intervention_input, empirical_distributions, var_order, output_file_1), output_file=output_file, new=True)
-    write("==============================================")
+    writer.silent_run(lambda:create_lcn(edges, unobservables, intervention_input, empirical_distributions, var_order, output_file_1), new=True)
+    writer("==============================================")
 
     # Defining the second intervention
     intervention_input = (outcome, treatment, 0)
@@ -76,45 +75,45 @@ def lcn_solver(test_name, edges, unobservables, csv_path, treatment, outcome):
     # Creating the second LCN file
     output_file_0 = f"{test_name}_{treatment}0.lcn"
 
-    silent_run(lambda:create_lcn(edges, unobservables, intervention_input, empirical_distributions, var_order, output_file_0), output_file=output_file)
-    write("==============================================")
+    writer.silent_run(lambda:create_lcn(edges, unobservables, intervention_input, empirical_distributions, var_order, output_file_0))
+    writer("==============================================")
 
     # Creating the first LCN object
     l1 = LCN()
-    silent_run(lambda:l1.from_lcn(file_name=output_file_1), output_file=output_file)
+    writer.silent_run(lambda:l1.from_lcn(file_name=output_file_1))
 
     # Defining the first query
     query = f"{outcome}L"
     algo1 = ExactInferece(lcn=l1)
 
     # Running the first query
-    silent_run(lambda: algo1.run(query_formula=query), output_file=output_file)
-    write("==============================================")
-    write("Bounds for the first intervention")
-    write(f"[{algo1.lower_bound}, {algo1.upper_bound}]")
-    write("==============================================")
+    writer.silent_run(lambda: algo1.run(query_formula=query))
+    writer("==============================================")
+    writer("Bounds for the first intervention")
+    writer(f"[{algo1.lower_bound}, {algo1.upper_bound}]")
+    writer("==============================================")
 
     # Creating the second LCN object
     l0 = LCN()
-    silent_run(lambda:l0.from_lcn(file_name=output_file_0), output_file=output_file)
+    writer.silent_run(lambda:l0.from_lcn(file_name=output_file_0))
 
     # Defining the second query
     algo0 = ExactInferece(lcn=l0)
 
     # Running the second query
-    silent_run(lambda: algo0.run(query_formula=query), output_file=output_file)
-    write("==============================================")
-    write("Bounds for the second intervention")
-    write(f"[{algo0.lower_bound}, {algo0.upper_bound}]")
-    write("==============================================")
+    writer.silent_run(lambda: algo0.run(query_formula=query))
+    writer("==============================================")
+    writer("Bounds for the second intervention")
+    writer(f"[{algo0.lower_bound}, {algo0.upper_bound}]")
+    writer("==============================================")
 
     # Calculating the bounds for the ATE
     ate_lower_bound = algo1.lower_bound - algo0.upper_bound
     ate_upper_bound = algo1.upper_bound - algo0.lower_bound
 
-    write("Bounds for the ATE")
-    write(f"[{ate_lower_bound}, {ate_upper_bound}]")
-    write("==============================================")
+    writer("Bounds for the ATE")
+    writer(f"[{ate_lower_bound}, {ate_upper_bound}]")
+    writer("==============================================")
 
     # Cleaning up the LCN files
     cleanup_lcn()

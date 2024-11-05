@@ -26,6 +26,7 @@ def is_valid_string(s: str) -> bool:
         return False
     if s.strip() == "":
         return False
+    return True
 
 
 '''

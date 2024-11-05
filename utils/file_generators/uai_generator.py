@@ -3,7 +3,7 @@ from itertools import product
 import numpy as np
 import pandas as pd
 
-from canonicalPartitions import completeRelaxed
+from utils.canonical_partitions.canonicalPartitions import completeRelaxed
 
 
 def uai_generator(

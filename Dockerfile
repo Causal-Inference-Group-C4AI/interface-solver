@@ -8,14 +8,11 @@ WORKDIR /app
 COPY . .
 
 # Optionally, install any required packages
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
+# RUN pip install --no-cache-dir -r requirements.txt
+# COPY . .
 
 # Set the default command to launch a shell
 CMD ["/bin/bash"]
-
-
 
 
 # # Use an official Python runtime as a parent image

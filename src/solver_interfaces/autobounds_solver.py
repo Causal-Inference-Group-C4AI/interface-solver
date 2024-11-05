@@ -7,7 +7,7 @@ import pandas as pd
 from autobounds.causalProblem import causalProblem
 from autobounds.DAG import DAG
 from utils.output_writer import OutputWriterAutobounds
-from utils.silent_run import silent_run
+
 
 warnings.simplefilter(action='ignore')
 
@@ -19,7 +19,8 @@ def cleanup_logs():
         try:
             os.remove(log_file)
         except Exception as e:
-            print(f"Error deleting {log_file}: {e}")
+            raise (f"Error deleting {log_file}: {e}")
+
 
 def autobounds_solver(
         test_name: str,
@@ -65,21 +66,19 @@ def autobounds_solver(
 
     # Setting up the file to write the output
     output_file = f"outputs/{test_name}/autobounds_{test_name}.txt"
-    write = OutputWriterAutobounds(output_file)
+    writer = OutputWriterAutobounds(output_file)
 
     # Calculating bounds
     problem.set_ate(ind=treatment, dep=outcome)
-    prog_ate = silent_run(lambda: problem.write_program(),
-                          output_file=output_file, new=True)
-    prog_ate_optim = silent_run(
-        lambda: prog_ate.run_scip(), output_file=output_file)
+    prog_ate = writer.silent_run(lambda: problem.write_program(), new=True)
+    prog_ate_optim = writer.silent_run(lambda: prog_ate.run_scip())
 
     # Extracting bounds
     lower_bound = np.round(prog_ate_optim[0]['dual'], 3)
     upper_bound = np.round(prog_ate_optim[1]['dual'], 3)
-    write("==============================================")
-    write(f"Causal effect lies in the interval [{lower_bound}, {upper_bound}]")
-    write("==============================================")
+    writer("==============================================")
+    writer(f"Causal effect lies in the interval [{lower_bound}, {upper_bound}]")
+    writer("==============================================")
 
     cleanup_logs()
 
