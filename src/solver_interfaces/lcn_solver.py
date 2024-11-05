@@ -33,7 +33,7 @@ def lcn_solver(test_name, edges, unobservables, csv_path, treatment, outcome):
         outcome (str): The outcome variable.
     """
 
-    # Setting up the file to writer the output
+    # Setting up the file to write the output
     output_file = f"outputs/{test_name}/LCN_{test_name}.txt"
     writer = OutputWriterLCN(output_file)
 
