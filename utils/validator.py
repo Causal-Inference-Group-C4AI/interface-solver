@@ -39,7 +39,6 @@ Test Name Validator
 
 
 def get_valid_test_name(test_name: str) -> str:
-    print(test_name)
     if not is_valid_string(test_name):
         raise Exception(f"Invalid test name: {test_name}.")
     return test_name
