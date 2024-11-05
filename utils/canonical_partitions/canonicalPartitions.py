@@ -1,8 +1,8 @@
 import math
 
-from c_component import CComponent
-from graph import Graph
-from logger import Logger
+from utils.canonical_partitions.c_component import CComponent
+from utils.canonical_partitions.graph import Graph
+from utils.canonical_partitions.logger import Logger
 
 
 def bound_canonical_partitions(

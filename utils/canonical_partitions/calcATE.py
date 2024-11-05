@@ -2,8 +2,8 @@ import networkx as nx
 import pandas as pd
 from dowhy import CausalModel
 
-from dataGen import dataGen
-from graph import Graph
+from utils.canonical_partitions.dataGen import dataGen
+from utils.canonical_partitions.graph import Graph
 
 
 def estimatedATE(graph: Graph, query: list[str]):

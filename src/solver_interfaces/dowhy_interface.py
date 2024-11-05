@@ -5,7 +5,7 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 from dowhy import CausalModel
-from utils.conversor import convert_str_edges_into_a_tuple_list
+from utils.validator import get_valid_edge_tuple_list
 from utils.output_writer import OutputWriterDoWhy
 
 warnings.filterwarnings('ignore', category=UserWarning)
@@ -125,7 +125,7 @@ if __name__ == "__main__":
     dowhy_solver(
         test_name='balke_pearl',
         csv_path='data/csv/balke_pearl.csv',
-        edges=convert_str_edges_into_a_tuple_list("Z -> X, X -> Y"),
+        edges=get_valid_edge_tuple_list("Z -> X, X -> Y"),
         treatment='X',
         outcome='Y'
     )

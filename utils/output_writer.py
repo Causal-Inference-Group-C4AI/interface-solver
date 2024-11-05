@@ -1,9 +1,11 @@
-from abc import abstractmethod
+import contextlib
+import os
 
+from utils.validator import get_valid_path
 
 class OutputWriter:
     def __init__(self, output_path="outputs/DEFAULT_OUTPUT.txt"):
-        self.output_path = output_path
+        self.output_path = get_valid_path(output_path)
         self.reset()
 
 
@@ -27,6 +29,32 @@ class OutputWriter:
                 file.write("")
         except IOError as e:
             print(f"Error resetting file {self.output_path}: {e}")
+
+
+    def silent_run(self, func, output_file=None, new=False):
+        """Run a function and redirect output to a specified file.
+
+        Args:
+            func (function): The function to run.
+            output_file (str, optional): The file path to redirect output to. Defaults to None.
+            new (bool, optional): Whether to write a new file or append to an existing one. Defaults to False.
+        """
+        mode = "w" if new else "a"
+        
+        if output_file is None:
+            with open(self.output_path, mode) as f:
+                with contextlib.redirect_stdout(f), contextlib.redirect_stderr(f):
+                    return func()
+
+        else:
+            with open(output_file, mode) as f:
+                with contextlib.redirect_stdout(f), contextlib.redirect_stderr(f):
+                    return func()
+        # else:
+        #     with open(os.devnull, 'w') as fnull:
+        #         with contextlib.redirect_stdout(fnull), contextlib.redirect_stderr(fnull):
+        #             return func()
+    
 
 
 class OutputWriterBcause(OutputWriter):

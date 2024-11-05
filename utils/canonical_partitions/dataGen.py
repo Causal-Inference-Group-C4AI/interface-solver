@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 import argparse
 
-from generator import generateMechanisms
-from graph import Graph
-from probabilityGen import distribution
+from utils.canonical_partitions.generator import generateMechanisms
+from utils.canonical_partitions.graph import Graph
+from utils.canonical_partitions.probabilityGen import distribution
 
 
 def teste_itau_simples_data_generation():
