@@ -8,7 +8,6 @@ variaveis nao observaveis (Se não houver variáveis não observaveis, colocar '
 Mapping de variáveis do UAI para as variáveis descritas 
 path/pra/csv
 path/pra/uai
-path/pro/.lcn
 
 nome do teste
 lista de solvers para esse teste: (escreva os solvers separador por espaço: 'dowhy bcause lcn autobounds')
@@ -19,7 +18,6 @@ variaveis nao observaveis (Se não houver variáveis não observaveis, colocar '
 Mapping de variáveis do UAI para as variáveis descritas 
 path/pra/csv
 path/pra/uai
-path/pro/.lcn
 ....
 Exemplo:
 2
