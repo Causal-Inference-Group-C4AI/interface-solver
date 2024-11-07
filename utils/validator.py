@@ -118,13 +118,15 @@ def get_valid_variable(var: str, edges: str) -> str:
     return var.upper()
 
 
-def get_valid_unobservable(var: str, edges: str) -> str:
-    if not is_valid_string(var):
-        raise InvalidVariableError(f"Invalid variable: '{var}'.")
-    if var == "-":
+def get_valid_unobservables(vars: str, edges: str) -> str:       
+    if not is_valid_string(vars):
+        raise InvalidVariableError(f"Invalid string of variables: '{var}'.")
+    if vars == "-":
         return None
-    if var.upper() not in edges:
-        raise InvalidVariableError(f"Invalid variable: '{var}'. Not present in the edges.")
+    unobs = vars.split(',')
+    for var in unobs:
+        if var.strip().upper() not in edges:
+            raise InvalidVariableError(f"Invalid variable: '{var}'. Not present in the edges.")
     return var.upper()
 
 
