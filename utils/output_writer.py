@@ -1,7 +1,5 @@
 import contextlib
-import os
 
-from utils.validator import get_valid_path
 
 class OutputWriter:
     """
@@ -34,14 +32,14 @@ class OutputWriter:
         self.output_path = output_path
         self.reset()
 
-
     def __call__(self, output, new=False):
         """
         Write the output to the file.
 
         Args:
             output (str): The output to write to the file.
-            new (bool, optional): Whether to write a new file or append to an existing one. Defaults to False
+            new (bool, optional): Whether to write a new file or append to an
+                existing one. Defaults to False
         """
         mode = "w" if new else "a"
         try:
@@ -65,8 +63,10 @@ class OutputWriter:
 
         Args:
             func (function): The function to run.
-            output_file (str, optional): The file path to redirect output to. Defaults to None.
-            new (bool, optional): Whether to write a new file or append to an existing one. Defaults to False.
+            output_file (str, optional): The file path to redirect output to.
+                Defaults to None.
+            new (bool, optional): Whether to write a new file or append to an
+                existing one. Defaults to False.
         """
         mode = "w" if new else "a"
         try:
@@ -92,6 +92,7 @@ class OutputWriterAutobounds(OutputWriter):
     def __init__(self, output_path="outputs/autobounds_output_NO_TEST_NAME.txt"):
         super().__init__(output_path)
 
+
 class OutputWriterLCN(OutputWriter):
     def __init__(self, output_path="outputs/lcn_output_NO_TEST_NAME.txt"):
         super().__init__(output_path)
@@ -100,7 +101,6 @@ class OutputWriterLCN(OutputWriter):
 class OutputWriterDoWhy(OutputWriter):
     def __init__(self, output_path: str = "outputs/dowhy_output_NO_TEST_NAME.txt") -> None:
         super().__init__(output_path)
-
 
     def __call__(self, text: str = "", end: str = "\n") -> None:
         if len(text) > 80 and text.count("\n") == 0:
