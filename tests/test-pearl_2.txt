@@ -1,10 +1,10 @@
 1
 balke_pearl_2
 bcause
-Z -> X, X -> Y, U -> X, U -> Y, A -> Z
+A -> Z, Z -> X, X -> Y, U -> X, U -> Y
 X
 Y
 U
 {"V0":"Z", "V1":"X", "V2": "Y", "V3": "A", "V4": "U"}
-data/csv/balke_pearl_2.csv
+data/csv/balke_pearl.csv
 data/uai/balke_pearl_2.uai

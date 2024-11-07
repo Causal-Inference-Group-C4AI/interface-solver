@@ -1,13 +1,10 @@
 import contextlib
-import os
 
-from utils.validator import get_valid_path
 
 class OutputWriter:
     def __init__(self, output_path="outputs/DEFAULT_OUTPUT.txt"):
-        self.output_path = get_valid_path(output_path)
+        self.output_path = output_path
         self.reset()
-
 
     def __call__(self, output, new=False):
         """
@@ -15,12 +12,12 @@ class OutputWriter:
 
         Args:
             output (str): The output to write to the file.
-            new (bool, optional): Whether to write a new file or append to an existing one. Defaults to False
+            new (bool, optional): Whether to write a new file or append to an
+                existing one. Defaults to False
         """
         mode = "w" if new else "a"
         with open(self.output_path, mode) as f:
             f.write(output + "\n")
-
 
     def reset(self) -> None:
         """Resets the output file by clearing its content."""
@@ -30,31 +27,34 @@ class OutputWriter:
         except IOError as e:
             print(f"Error resetting file {self.output_path}: {e}")
 
-
     def silent_run(self, func, output_file=None, new=False):
         """Run a function and redirect output to a specified file.
 
         Args:
             func (function): The function to run.
-            output_file (str, optional): The file path to redirect output to. Defaults to None.
-            new (bool, optional): Whether to write a new file or append to an existing one. Defaults to False.
+            output_file (str, optional): The file path to redirect output to.
+                Defaults to None.
+            new (bool, optional): Whether to write a new file or append to an
+                existing one. Defaults to False.
         """
         mode = "w" if new else "a"
-        
+
         if output_file is None:
             with open(self.output_path, mode) as f:
-                with contextlib.redirect_stdout(f), contextlib.redirect_stderr(f):
+                with contextlib.redirect_stdout(f), \
+                        contextlib.redirect_stderr(f):
                     return func()
 
         else:
             with open(output_file, mode) as f:
-                with contextlib.redirect_stdout(f), contextlib.redirect_stderr(f):
+                with contextlib.redirect_stdout(f), \
+                        contextlib.redirect_stderr(f):
                     return func()
         # else:
         #     with open(os.devnull, 'w') as fnull:
-        #         with contextlib.redirect_stdout(fnull), contextlib.redirect_stderr(fnull):
+        #         with contextlib.redirect_stdout(fnull), \
+        #              contextlib.redirect_stderr(fnull):
         #             return func()
-    
 
 
 class OutputWriterBcause(OutputWriter):
@@ -63,20 +63,25 @@ class OutputWriterBcause(OutputWriter):
         Initialize the OutputWriter with the given output path.
 
         Args:
-            output_path (str, optional): The path to the output file. Defaults to "outputs/bcause_output_NO_TEST_NAME.txt".
+            output_path (str, optional): The path to the output file.
+                Defaults to "outputs/bcause_output_NO_TEST_NAME.txt".
         """
         super().__init__(output_path)
 
 
 class OutputWriterAutobounds(OutputWriter):
-    def __init__(self, output_path="outputs/autobounds_output_NO_TEST_NAME.txt"):
+    def __init__(
+        self, output_path="outputs/autobounds_output_NO_TEST_NAME.txt"
+    ):
         """
         Initialize the OutputWriter with the given output path.
 
         Args:
-            output_path (str, optional): The path to the output file. Defaults to "outputs/autobounds_output_NO_TEST_NAME.txt".
+            output_path (str, optional): The path to the output file.
+                Defaults to "outputs/autobounds_output_NO_TEST_NAME.txt".
         """
         super().__init__(output_path)
+
 
 class OutputWriterLCN(OutputWriter):
     def __init__(self, output_path="outputs/lcn_output_NO_TEST_NAME.txt"):
@@ -84,7 +89,8 @@ class OutputWriterLCN(OutputWriter):
         Initialize the OutputWriter with the given output path.
 
         Args:
-            output_path (str, optional): The path to the output file. Defaults to "outputs/lcn_output_NO_TEST_NAME.txt".
+            output_path (str, optional): The path to the output file.
+                Defaults to "outputs/lcn_output_NO_TEST_NAME.txt".
         """
         super().__init__(output_path)
 
@@ -109,7 +115,9 @@ class OutputWriterDoWhy(OutputWriter):
             Resets the content of the output file by clearing it.
     """
 
-    def __init__(self, output_path: str = "outputs/dowhy_output_NO_TEST_NAME.txt") -> None:
+    def __init__(
+        self, output_path: str = "outputs/dowhy_output_NO_TEST_NAME.txt"
+    ) -> None:
         """Initializes the Output class and resets the file.
 
         Args:
@@ -117,7 +125,6 @@ class OutputWriterDoWhy(OutputWriter):
                 Defaults to "outputs/dowhy_output_NO_TEST_NAME.txt".
         """
         super().__init__(output_path)
-
 
     def __call__(self, text: str = "", end: str = "\n") -> None:
         """Prints a message and writes it to a file.
