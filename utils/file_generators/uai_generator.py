@@ -9,8 +9,6 @@ from utils.canonical_partitions.canonicalPartitions import completeRelaxed
 def uai_generator(
     test_name,
     edges_str,
-    treatment,
-    outcome,
     unobservables_str,
     csv_file
 ) -> None:
@@ -84,6 +82,11 @@ def uai_generator(
                 for unob_parent in unob_parents:
                     for indexes in r_index[unob_parent]:
                         mechanism += [*r[node][indexes[node]]]
+                num_columns = len(r[node][0])
+                reshaped_mechanism = np.array(
+                    mechanism).reshape(-1, num_columns).T
+                mechanism = reshaped_mechanism.flatten()
+
             else:
                 parents_values = [
                     list(np.arange(cardinalities[mapping[parent]]))

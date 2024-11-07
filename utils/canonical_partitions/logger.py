@@ -1,4 +1,4 @@
-from graph import Graph
+from utils.canonical_partitions.graph import Graph
 
 
 class Logger:
