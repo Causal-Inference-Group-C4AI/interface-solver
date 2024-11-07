@@ -96,6 +96,7 @@ class UAIParser:
             nx.relabel_nodes(self.graph, {i: title}, copy=False)
 
     def bayes_parser(self) -> None:
+        """Parse the network for a Bayesian network."""
         for i in range(self.num_variables):
             # Quantidade de entradas na tabela
             num_entries = int(self.info[self.index])
@@ -115,6 +116,7 @@ class UAIParser:
             self.tables.append(table)
 
     def causal_parser(self) -> None:
+        """Parse the network for a Causal network."""
         for i in range(self.num_variables):
             # Quantidade de entradas na tabela
             num_entries = int(self.info[self.index])

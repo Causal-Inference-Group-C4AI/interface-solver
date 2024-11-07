@@ -1,39 +1,48 @@
 import csv
-import pandas as pd
-
 from typing import List, Tuple
+
+import pandas as pd
 
 ArrayType = List[Tuple[List[int], float]]
 
-def probsHelper(header: str, probCombinations: ArrayType, filename: str = "", csv_flag: bool = True):
+
+def probsHelper(
+    header: str,
+    probCombinations: ArrayType,
+    filename: str = "",
+    csv_flag: bool = True
+) -> pd.DataFrame | None:
     maxDecimals: int = 0
     for _sublist, val in probCombinations:
         probStr: str = str(val)
         if "." in probStr:
-            maxDecimals = max(maxDecimals, len(probStr.split(".")[1]))    
+            maxDecimals = max(maxDecimals, len(probStr.split(".")[1]))
 
     if csv_flag:
-        with open("./csv_data_examples/" + filename + ".csv", mode="w", newline="") as file:
+        file_path = "./csv_data_examples/" + filename + ".csv"
+        with open(file_path, mode="w", newline="") as file:
             writer = csv.writer(file)
             writer.writerow(header)
             for sublist, val in probCombinations:
-                numberOfRows: int = (int)(val * pow(10, maxDecimals))            
+                numberOfRows: int = (int)(val * pow(10, maxDecimals))
                 for _ in range(numberOfRows):
                     writer.writerow(sublist)
     else:
         data: List[List[int]] = []
         for sublist, val in probCombinations:
-            numberOfRows: int = (int)(val * pow(10, maxDecimals))            
+            numberOfRows: int = (int)(val * pow(10, maxDecimals))
             for _ in range(numberOfRows):
                 data.append(sublist)
         df = pd.DataFrame(data, columns=header)
         return df
 
+
 if __name__ == "__main__":
     """
-    Generate a dataset in the csv format which is consistent with the specified distribution. As input, it needs: a header
-    row for the csv, the probability of each outcome of the variables and the csv filename.     
-    """    
+    Generate a dataset in the csv format which is consistent with the specified
+    distribution. As input, it needs: a header row for the csv, the probability
+    of each outcome of the variables and the csv filename.
+    """
     probabilities: ArrayType = [
         [[0, 0, 0], 0.288],
         [[0, 0, 1], 0.036],
