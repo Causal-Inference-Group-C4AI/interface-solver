@@ -1,6 +1,7 @@
 import argparse
 from pathlib import Path
 from typing import List
+import logging
 
 from src.solver_interfaces.autobounds_solver import autobounds_solver
 from src.solver_interfaces.bcause_interface import bcause_solver
@@ -10,7 +11,8 @@ from utils._enums import Solvers
 from utils.validator import (get_valid_edges_in_string, get_valid_mapping,
                              get_valid_number_of_tests, get_valid_path,
                              get_valid_solver_list, get_valid_test_name,
-                             get_valid_unobservable, get_valid_variable)
+                             get_valid_unobservables, get_valid_variable)
+
 
 
 def process_test_data(file_path: str) -> List:
@@ -31,7 +33,7 @@ def process_test_data(file_path: str) -> List:
 
             test['treatment'] = get_valid_variable(file.readline().strip(), edges_str)
             test['outcome'] = get_valid_variable(file.readline().strip(), edges_str)
-            test['unobservables'] = get_valid_unobservable(file.readline().strip(), edges_str)
+            test['unobservables'] = get_valid_unobservables(file.readline().strip(), edges_str)
 
             test['mapping'] = get_valid_mapping(file.readline().strip())
             test['csv_path'] = get_valid_path(file.readline().strip())
@@ -45,7 +47,7 @@ def process_test_data(file_path: str) -> List:
 def print_test_info(test_info: dict, test_number: int):
     print(f"Test Number {test_number}:")
     print(f"Test Name {test_info['test_name']}:")
-    print(f"  Edges: {test_info['edges']}")
+    print(f"  Edges: {test_info['edges']['edges_str']}")
     print(f"  Treatment: {test_info['treatment']}")
     print(f"  Outcome: {test_info['outcome']}")
     print(f"  Unobservable Variables: {test_info['unobservables']}")
@@ -96,8 +98,11 @@ if __name__ == "__main__":
     parser.add_argument('file_path',
                         help='The path to the file you want to read'
     )
+    parser.add_argument('-v', '--verbose', action='store_true', help="Show solver logs")
     args = parser.parse_args()
     try:
+        if not args.verbose:
+            logging.getLogger().setLevel(logging.CRITICAL)
         interface(get_valid_path(args.file_path))
     except Exception as e:
         print(f"{type(e).__module__}.{type(e).__name__}: {e}")
