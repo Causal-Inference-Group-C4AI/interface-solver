@@ -10,3 +10,5 @@ pyscipopt==5.1.1
 sympy
 scipy
 dowhy
+
+# TODO: COLOCAR PACOTES DO LCN
