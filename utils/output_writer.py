@@ -1,5 +1,5 @@
 import contextlib
-
+import logging
 
 class OutputWriter:
     """
@@ -107,7 +107,7 @@ class OutputWriterDoWhy(OutputWriter):
             self.__call__(text[:80])
             self.__call__(text[80:], end=end)
         else:
-            #print(text, end=end)
+            logging.getLogger().info(text)
             try:
                 with open(self.output_path, 'a') as file:
                     file.write(text + end)
