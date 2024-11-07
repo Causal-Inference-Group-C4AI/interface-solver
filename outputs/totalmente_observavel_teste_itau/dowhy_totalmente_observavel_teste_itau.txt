@@ -1,0 +1,101 @@
+Estimands found: backdoor
+--------------------------------------------------------------------------------
+Estimation using backdoor.linear_regression:
+ATE = 0.466806653884826
+P-value: [1.26117131e-33]
+Confidence interval: [0.3980579123139387, 0.5272950547566386]
+
+Refute: Use a Placebo Treatment
+Estimated effect:0.466806653884826
+New effect:0.0021029428916992943
+p value:0.96
+
+Refute: Use a subset of data
+Estimated effect:0.466806653884826
+New effect:0.4653479624061891
+p value:0.92
+
+Refute: Add a random common cause
+Estimated effect:0.466806653884826
+New effect:0.46715547160119414
+p value:0.72
+
+Refute: Use a Dummy Outcome
+Estimated effect:0
+New effect:-0.0017626930234125298
+p value:0.98
+--------------------------------------------------------------------------------
+Estimation using backdoor.propensity_score_matching:
+ATE = 0.756
+P-value: (0, 0.001)
+Confidence interval: [0.736, 1.609]
+
+Refute: Use a Placebo Treatment
+Estimated effect:0.756
+New effect:-0.016579999999999994
+p value:0.98
+
+Refute: Use a subset of data
+Estimated effect:0.756
+New effect:0.46908750000000005
+p value:0.26
+
+Refute: Add a random common cause
+Estimated effect:0.756
+New effect:0.7560000000000001
+p value:1.0
+
+Refute: Use a Dummy Outcome
+Estimated effect:0
+New effect:-0.013386686808603842
+p value:1.0
+--------------------------------------------------------------------------------
+Estimation using backdoor.propensity_score_stratification:
+ATE = 0.466847032136931
+P-value: (0, 0.001)
+Confidence interval: [0.4051587307593013, 0.5323273708797018]
+
+Refute: Use a Placebo Treatment
+Estimated effect:0.466847032136931
+New effect:-0.004348519282777825
+p value:0.78
+
+Refute: Use a subset of data
+Estimated effect:0.466847032136931
+New effect:0.46392083407537077
+p value:0.8
+
+Refute: Add a random common cause
+Estimated effect:0.466847032136931
+New effect:0.4668470321369311
+p value:1.0
+
+Refute: Use a Dummy Outcome
+Estimated effect:0
+New effect:-0.0009540041093266728
+p value:0.8999999999999999
+--------------------------------------------------------------------------------
+Estimation using backdoor.propensity_score_weighting:
+ATE = 0.46773682204135414
+P-value: (0, 0.001)
+Confidence interval: [0.4122245187768462, 0.5254372203369309]
+
+Refute: Use a Placebo Treatment
+Estimated effect:0.46773682204135414
+New effect:-0.11789067564812403
+p value:0.0
+
+Refute: Use a subset of data
+Estimated effect:0.46773682204135414
+New effect:0.46995090687790314
+p value:0.8600000000000001
+
+Refute: Add a random common cause
+Estimated effect:0.46773682204135414
+New effect:0.46773682204135414
+p value:1.0
+
+Refute: Use a Dummy Outcome
+Estimated effect:0
+New effect:-0.0007998603516991984
+p value:0.98

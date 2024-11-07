@@ -1,0 +1,13 @@
+5 
+6
+U 0
+T 2
+D 2
+Y 2
+E 2
+T Y
+T D
+U Y
+U T
+D Y
+E D
