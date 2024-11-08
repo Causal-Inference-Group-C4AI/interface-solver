@@ -20,35 +20,28 @@ else
 fi
 
 
-echo "Creating a virtual environment with Python 3.10..."
-python3.10 -m venv venv
+echo "Creating a Bcause virtual environment with Python 3.10..."
+python3.10 -m venv venv_bcause
 
 
-echo "Activating the virtual environment..."
-source venv/bin/activate
+echo "Activating the Bcause virtual environment..."
+source venv_bcause/bin/activate
 
 
 if [[ "$VIRTUAL_ENV" != "" ]]; then
-    echo "Virtual environment activated."
+    echo "Bcause virtual environment activated."
 else
-    echo "Error: Failed to activate the virtual environment."
-    exit 1
-fi
-
-
-echo "Installing dependencies from requirements.txt..."
-if ! pip install -r requirements.txt; then
-    echo "Error: Failed to install dependencies from requirements.txt."
+    echo "Error: Failed to activate the Bcause virtual environment."
     exit 1
 fi
 
 
 echo "Installing bcause..."
-if ! pip install bcause; then
+if ! pip install --no-cache-dir --use-feature=fast-deps bcause; then
     echo "Error: Failed to install bcause."
     exit 1
 fi
 
-echo "All packages installed successfully in the virtual environment."
-source venv/bin/activate
+echo "All Bcause packages installed successfully in the Bcause virtual environment."
 
+deactivate
