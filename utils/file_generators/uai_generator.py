@@ -1,4 +1,5 @@
 from itertools import product
+from typing import Dict, List, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -6,106 +7,163 @@ import pandas as pd
 from utils.canonical_partitions.canonicalPartitions import completeRelaxed
 
 
-def get_edges(edges_str: str) -> list:
+def get_edges(edges_str: str) -> List[Tuple[str, str]]:
+    """
+    Parses a string of edges and returns a list of tuples representing the
+    edges.
+
+    Args:
+        edges_str (str): A string representing the edges of the graph,
+            where each edge is in the format "parent -> child" and edges
+            are separated by commas.
+
+    Returns:
+        List: A list of tuples where each Tuple represents an
+        edge in the format (parent, child).
+
+    Example:
+        >>> edges_str = "A -> B, A -> C, B -> D"
+        >>> edges = get_edges(edges_str)
+        >>> edges
+        [('A', 'B'), ('A', 'C'), ('B', 'D')]
+    """
     return [tuple(_.split(" -> ")) for _ in edges_str.split(", ")]
 
 
-def get_nodes(edges: list) -> tuple[list, dict, dict]:
+def get_nodes(
+    edges: List[Tuple[str, str]]
+) -> Tuple[List[str], Dict[str, List[str]], Dict[str, List[str]]]:
+    """
+    Extracts nodes, their parents, and their children from a list of edges.
+
+    Args:
+        edges (List[Tuple[str, str]]): A list of tuples where each tuple
+            represents an edge in the format (parent, child).
+
+    Returns:
+        Tuple:
+            - nodes (List[str]): A list of all unique nodes in the graph.
+            - node_parents (Dict[str, List[str]]): A dictionary where keys
+              are nodes and values are lists of parent nodes.
+            - node_children (Dict[str, List[str]]): A dictionary where keys
+              are nodes and values are lists of child nodes.
+
+    Example:
+        >>> edges = [("A", "B"), ("A", "C"), ("B", "D")]
+        >>> nodes, node_parents, node_children = get_nodes(edges)
+        >>> nodes
+        ['A', 'B', 'C', 'D']
+        >>> node_parents
+        {'B': ['A'], 'C': ['A'], 'D': ['B']}
+        >>> node_children
+        {'A': ['B', 'C'], 'B': ['D']}
+    """
     node_parents = {}
     node_children = {}
-    nodes = []
+    nodes = set()
     for parent, child in edges:
-        if node_parents.get(child) is None:
-            node_parents[child] = []
-        node_parents[child].append(parent)
-        if node_children.get(parent) is None:
-            node_children[parent] = []
-        node_children[parent].append(child)
-        if parent not in nodes:
-            nodes.append(parent)
-        if child not in nodes:
-            nodes.append(child)
+        node_parents.setdefault(child, []).append(parent)
+        node_children.setdefault(parent, []).append(child)
+        nodes.update([parent, child])
 
-    return nodes, node_parents, node_children
+    return list(nodes), node_parents, node_children
 
 
-def uai_generator(
-    test_name,
-    edges_str,
-    csv_file
-) -> None:
-    # Load data
-    df = pd.read_csv(csv_file)
-    df = df.drop(columns=["E"])
-    df.to_csv(f"data/csv/{test_name}.csv", index=False)
+def define_nodes(
+    nodes: List[str],
+    node_parents: Dict[str, List[str]]
+) -> Tuple[List[str], List[str]]:
+    """Define endogenous and exogenous nodes
 
-    # Define edges
-    edges = get_edges(edges_str)
+    Args:
+        nodes (List[str]): List of all unique nodes in the graph.
+        node_parents (Dict[str, List[str]]): A dictionary where keys are nodes
+            and values are lists of parent nodes.
 
-    # Define nodes
-    nodes, node_parents, node_children = get_nodes(edges)
-    endogenous, exogenous = [], []
-    for node in nodes:
-        if node in node_parents:
-            endogenous.append(node)
-        else:
-            exogenous.append(node)
+    Returns:
+        Tuple:
+            - endogenous (List[str]): A list of endogenous nodes.
+            - exogenous (List[str]): A list of exogenous nodes.
 
-    # Define endogenous nodes cardinality
-    end_card = []
-    for node in endogenous:
-        end_card.append(len(df[node].unique()))
+    Example:
+        >>> nodes = ['A', 'B', 'C', 'D']
+        >>> node_parents = {'B': ['A'], 'C': ['A'], 'D': ['B']}
+        >>> endogenous, exogenous = define_nodes(nodes, node_parents)
+        >>> endogenous
+        ['B', 'C', 'D']
+        >>> exogenous
+        ['A']
+    """
+    endogenous = [node for node in nodes if node in node_parents]
+    exogenous = [node for node in nodes if node not in node_parents]
+    return endogenous, exogenous
 
-    # Define canonical partitions and relaxed graph
-    canonicalPartitions_data = {
-        "num_nodes": len(nodes),
-        "num_edges": len(edges_str.split(", ")),
-        "nodes": [],
-        "edges": edges_str.split(", ")
-    }
-    for i, node in enumerate(endogenous):
-        canonicalPartitions_data["nodes"].append(f"{node} {end_card[i]}")
 
-    for node in exogenous:
-        canonicalPartitions_data["nodes"].append(f"{node} 0")
+def define_mechanisms(
+    df: pd.DataFrame,
+    node_parents: Dict[str, List[str]],
+    node_children: Dict[str, List[str]],
+    cardinalities: List[int],
+    mapping: Dict[str, int],
+    endogenous: List[str],
+    exogenous: List[str]
+) -> Dict[str, List[Union[int, float]]]:
+    """
+    Defines the mechanisms for endogenous and exogenous nodes in the graph.
 
-    relaxed, ex, ex_card = completeRelaxed(
-        predefined_data=canonicalPartitions_data
-    )
-    edges = get_edges(relaxed)
-    nodes, node_parents, node_children = get_nodes(edges)
-    exogenous = ex.split(", ")
-    endogenous = [node for node in nodes if node not in exogenous]
-    nodes = endogenous + exogenous  # Reorder nodes
+    Args:
+        df (pd.DataFrame): The DataFrame containing the data.
+        node_parents (Dict[str, List[str]]): A dictionary where keys are nodes
+            and values are lists of parent nodes.
+        node_children (Dict[str, List[str]]): A dictionary where keys are nodes
+            and values are lists of child nodes.
+        cardinalities (List[int]): List of cardinalities for each node.
+        mapping (Dict[str, int]): A dictionary mapping node names to their
+            indices.
+        endogenous (List[str]): List of endogenous nodes.
+        exogenous (List[str]): List of exogenous nodes.
 
-    # Define cardinalities, mapping and edges per node
-    ex_card = list(map(int, ex_card.split(", ")))
-    cardinalities = end_card + ex_card
-    mapping = {node: i for i, node in enumerate(nodes)}
-    edges_per_node = np.arange(len(nodes)).tolist()
-    for end, parents in node_parents.items():
-        edges_per_node[mapping[end]] = [mapping[parent] for parent in parents]
-        edges_per_node[mapping[end]].sort()
+    Returns:
+        Dict: A dictionary where keys are nodes and values are their
+        corresponding mechanisms.
 
-    for ex in exogenous:
-        edges_per_node[mapping[ex]] = []
-
+    Example:
+        >>> df = pd.DataFrame({
+        ...     'A': [0, 1, 0, 1],
+        ...     'B': [0, 0, 1, 1],
+        ...     'C': [1, 0, 1, 0]
+        ... })
+        >>> nodes = ['A', 'B', 'C']
+        >>> node_parents = {'B': ['A'], 'C': ['A', 'B']}
+        >>> node_children = {'A': ['B', 'C'], 'B': ['C']}
+        >>> cardinalities = [2, 2, 2]
+        >>> mapping = {'A': 0, 'B': 1, 'C': 2}
+        >>> exogenous = ['A']
+        >>> endogenous = ['B', 'C']
+        >>> mechanisms = define_mechanisms(
+        ...     df, node_parents, node_children,
+        ...     cardinalities, mapping, endogenous, exogenous
+        ... )
+        >>> mechanisms
+        {'A': [0.5, 0.5], 'B': [...], 'C': [...]}
+    """
     # Define r functions
     r = {}
     for end in endogenous:
-        multiplier = 1
+        mult = 1
         for parent in node_parents[end]:
             if parent in endogenous:
-                multiplier *= cardinalities[mapping[parent]]
+                mult *= cardinalities[mapping[parent]]
 
         r[end] = list(
-            product(*[list(np.arange(cardinalities[i]))]*multiplier))
+            product(*[list(np.arange(cardinalities[mapping[end]]))]*mult))
 
     # Define exogenous mechanisms and r functions indexing
-    mechanisms = {}
+    mechanisms: Dict[str, List[Union[int, float]]] = {}
     r_index = {}
-    for i, ex in enumerate(exogenous):
-        mechanisms[ex] = [1/ex_card[i]]*ex_card[i]
+    for ex in exogenous:
+        i = mapping[ex]
+        mechanisms[ex] = [1/cardinalities[i]]*cardinalities[i]
         combinations = list(product(*[list(np.arange(len(r[child])))
                                       for child in node_children[ex]]))
         r_index[ex] = [{child: combination[i] for i, child in enumerate(
@@ -136,8 +194,28 @@ def uai_generator(
                                   if not rows.empty else [0])
 
         mechanisms[end] = mechanism
-    print(mapping)
-    # Write UAI file
+
+    return mechanisms
+
+
+def write_uai_file(
+    test_name: str,
+    nodes: List[str],
+    cardinalities: List[int],
+    edges_per_node: List[List[int]],
+    mechanisms: Dict[str, List[Union[int, float]]]
+) -> None:
+    """
+    Writes the UAI file with the specified parameters.
+
+    Args:
+        test_name (str): The name of the test.
+        nodes (List[str]): List of all unique nodes in the graph.
+        cardinalities (List[int]): List of cardinalities for each node.
+        edges_per_node (List[List[int]]): List of edges for each node.
+        mechanisms (Dict[str, List[Union[int, float]]]): A dictionary where
+            keys are nodes and values are their corresponding mechanisms.
+    """
     with open(f"data/uai/{test_name}.uai", "w") as uai:
         uai.write("CAUSAL\n")
         uai.write(f"{len(nodes)}\n")
@@ -151,6 +229,68 @@ def uai_generator(
         for node in nodes:
             mechanism = mechanisms[node]
             uai.write(f"{len(mechanism)}   {' '.join(map(str, mechanism))}\n")
+
+
+def uai_generator(
+    test_name: str,
+    edges_str: str,
+    csv_file: str
+) -> None:
+    """
+    Generates a UAI file based on the provided parameters.
+
+    Args:
+        test_name (str): The name of the test.
+        edges_str (str): A string representing the edges of the graph.
+        csv_file (str): The path to the CSV file containing the data.
+    """
+    # Load data
+    df = pd.read_csv(csv_file)
+
+    # Define edges
+    edges = get_edges(edges_str)
+
+    # Define nodes
+    nodes, node_parents, node_children = get_nodes(edges)
+    endogenous, exogenous = define_nodes(nodes, node_parents)
+
+    # Define endogenous nodes cardinality
+    end_card = [len(df[node].unique()) for node in endogenous]
+
+    # Define canonical partitions and relaxed graph
+    canonicalPartitions_data = {
+        "num_nodes": len(nodes),
+        "num_edges": len(edges_str.split(", ")),
+        "nodes": [f"{end} {end_card[i]}" for i, end in enumerate(endogenous)]
+        + [f"{ex} 0" for ex in exogenous],
+        "edges": edges_str.split(", ")
+    }
+
+    relaxed, ex, ex_card = completeRelaxed(
+        predefined_data=canonicalPartitions_data
+    )
+    edges = get_edges(relaxed)
+    nodes, node_parents, node_children = get_nodes(edges)
+    endogenous, exogenous = define_nodes(nodes, node_parents)
+    nodes = endogenous + exogenous  # Reorder nodes
+
+    # Define cardinalities, mapping and edges per node
+    ex_card = list(map(int, ex_card.split(", ")))
+    cardinalities = end_card + ex_card
+    mapping = {node: i for i, node in enumerate(nodes)}
+    edges_per_node = [
+        sorted([mapping[parent] for parent in node_parents.get(node, [])])
+        for node in nodes
+    ]
+
+    # Define mechanisms
+    mechanisms = define_mechanisms(
+        df, node_parents, node_children, cardinalities,
+        mapping, endogenous, exogenous
+    )
+
+    # Write UAI file
+    write_uai_file(test_name, nodes, cardinalities, edges_per_node, mechanisms)
 
 
 # Example
