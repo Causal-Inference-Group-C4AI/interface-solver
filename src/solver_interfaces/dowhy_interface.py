@@ -4,7 +4,7 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 from dowhy import CausalModel
-from utils.validator import get_valid_edge_tuple_list
+from utils.validator import Validator
 from utils.output_writer import OutputWriterDoWhy
 
 
@@ -119,10 +119,11 @@ def dowhy_solver(
     print("DoWhy solver Done.")
 
 if __name__ == "__main__":
+    validator = Validator()
     dowhy_solver(
         test_name='balke_pearl',
         csv_path='data/csv/balke_pearl.csv',
-        edges=get_valid_edge_tuple_list("Z -> X, X -> Y"),
+        edges=validator.get_valid_edge_tuple_list("Z -> X, X -> Y"),
         treatment='X',
         outcome='Y'
     )
