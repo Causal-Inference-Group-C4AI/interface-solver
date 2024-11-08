@@ -21,6 +21,7 @@ class OutputWriter:
             Resets the content of the output file by clearing it.
     """
 
+
     def __init__(self, output_path="outputs/DEFAULT_OUTPUT.txt"):
         """
         Initialize the OutputWriter with the given output path.
@@ -31,6 +32,7 @@ class OutputWriter:
         
         self.output_path = output_path
         self.reset()
+
 
     def __call__(self, output, new=False):
         """
