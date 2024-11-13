@@ -103,8 +103,7 @@ def define_mechanisms(
     df: pd.DataFrame,
     node_parents: Dict[str, List[str]],
     node_children: Dict[str, List[str]],
-    cardinalities: List[int],
-    mapping: Dict[str, int],
+    cardinalities: Dict[str, int],
     endogenous: List[str],
     exogenous: List[str]
 ) -> Dict[str, List[Union[int, float]]]:
@@ -117,9 +116,7 @@ def define_mechanisms(
             and values are lists of parent nodes.
         node_children (Dict[str, List[str]]): A dictionary where keys are nodes
             and values are lists of child nodes.
-        cardinalities (List[int]): List of cardinalities for each node.
-        mapping (Dict[str, int]): A dictionary mapping node names to their
-            indices.
+        cardinalities (Dict[str, int]): List of cardinalities for each node.
         endogenous (List[str]): List of endogenous nodes.
         exogenous (List[str]): List of exogenous nodes.
 
@@ -153,17 +150,16 @@ def define_mechanisms(
         mult = 1
         for parent in node_parents[end]:
             if parent in endogenous:
-                mult *= cardinalities[mapping[parent]]
+                mult *= cardinalities[parent]
 
         r[end] = list(
-            product(*[list(np.arange(cardinalities[mapping[end]]))]*mult))
+            product(*[list(np.arange(cardinalities[end]))]*mult))
 
     # Define exogenous mechanisms and r functions indexing
     mechanisms: Dict[str, List[Union[int, float]]] = {}
     r_index = {}
     for ex in exogenous:
-        i = mapping[ex]
-        mechanisms[ex] = [1/cardinalities[i]]*cardinalities[i]
+        mechanisms[ex] = [1/cardinalities[ex]]*cardinalities[ex]
         combinations = list(product(*[list(np.arange(len(r[child])))
                                       for child in node_children[ex]]))
         r_index[ex] = [{child: combination[i] for i, child in enumerate(
@@ -184,14 +180,14 @@ def define_mechanisms(
             mechanism = reshaped_mechanism.flatten().tolist()
         else:
             parents_values = [
-                list(np.arange(cardinalities[mapping[parent]]))
+                list(np.arange(cardinalities[parent]))
                 for parent in node_parents[end]
             ]
             parents_combinations = list(product(*parents_values))
             for combination in parents_combinations:
                 rows = df[(df[node_parents[end]] == combination).all(1)]
-                mechanism += list(rows[end].unique()
-                                  if not rows.empty else [0])
+                mechanism += [rows[end].value_counts().idxmax()
+                              ] if not rows.empty else [0]
 
         mechanisms[end] = mechanism
 
@@ -201,7 +197,7 @@ def define_mechanisms(
 def write_uai_file(
     test_name: str,
     nodes: List[str],
-    cardinalities: List[int],
+    cardinalities: Dict[str, int],
     edges_per_node: List[List[int]],
     mechanisms: Dict[str, List[Union[int, float]]]
 ) -> None:
@@ -211,7 +207,7 @@ def write_uai_file(
     Args:
         test_name (str): The name of the test.
         nodes (List[str]): List of all unique nodes in the graph.
-        cardinalities (List[int]): List of cardinalities for each node.
+        cardinalities (Dict[str, int]): List of cardinalities for each node.
         edges_per_node (List[List[int]]): List of edges for each node.
         mechanisms (Dict[str, List[Union[int, float]]]): A dictionary where
             keys are nodes and values are their corresponding mechanisms.
@@ -219,7 +215,7 @@ def write_uai_file(
     with open(f"data/uai/{test_name}.uai", "w") as uai:
         uai.write("CAUSAL\n")
         uai.write(f"{len(nodes)}\n")
-        uai.write(" ".join(map(str, cardinalities)) + "\n")
+        uai.write(" ".join(map(str, cardinalities.values())) + "\n")
         uai.write(f"{len(nodes)}\n")
         for i, edges in enumerate(edges_per_node):
             uai.write(
@@ -254,14 +250,22 @@ def uai_generator(
     nodes, node_parents, node_children = get_nodes(edges)
     endogenous, exogenous = define_nodes(nodes, node_parents)
 
+    # Create dummy variable for exogenous observed nodes
+    for ex in exogenous:
+        if ex in df.columns:
+            exogenous.append(f"{ex}_dummy")
+            endogenous.append(ex)
+            exogenous.remove(ex)
+            edges_str += f", {ex}_dummy -> {ex}"
+
     # Define endogenous nodes cardinality
-    end_card = [len(df[node].unique()) for node in endogenous]
+    end_card = {end: len(df[end].unique()) for end in endogenous}
 
     # Define canonical partitions and relaxed graph
     canonicalPartitions_data = {
-        "num_nodes": len(nodes),
+        "num_nodes": len(endogenous) + len(exogenous),
         "num_edges": len(edges_str.split(", ")),
-        "nodes": [f"{end} {end_card[i]}" for i, end in enumerate(endogenous)]
+        "nodes": [f"{end} {end_card[end]}" for end in endogenous]
         + [f"{ex} 0" for ex in exogenous],
         "edges": edges_str.split(", ")
     }
@@ -276,8 +280,10 @@ def uai_generator(
 
     # Define cardinalities, mapping and edges per node
     ex_card = list(map(int, ex_card.split(", ")))
-    cardinalities = end_card + ex_card
+    cardinalities = {**end_card, **
+                     {f"U{i}": card for i, card in enumerate(ex_card)}}
     mapping = {node: i for i, node in enumerate(nodes)}
+    print(mapping)
     edges_per_node = [
         sorted([mapping[parent] for parent in node_parents.get(node, [])])
         for node in nodes
@@ -285,8 +291,7 @@ def uai_generator(
 
     # Define mechanisms
     mechanisms = define_mechanisms(
-        df, node_parents, node_children, cardinalities,
-        mapping, endogenous, exogenous
+        df, node_parents, node_children, cardinalities, endogenous, exogenous
     )
 
     # Write UAI file
@@ -296,7 +301,9 @@ def uai_generator(
 # Example
 if __name__ == "__main__":
     uai_generator(
-        "balke_pearl_2",
-        "Z -> X, X -> Y, U -> X, U -> Y, A -> Z",
-        "data/csv/balke_pearl_2.csv"
+        "itau_teste",
+        "E -> D, T -> D, T -> Y, D -> Y, U -> T, U -> Y",
+        "data/csv/unob_itau_teste.csv"
     )
+
+# Implementar criação de variável dummy para lidar com exogenas observaveis
