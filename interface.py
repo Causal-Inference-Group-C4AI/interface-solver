@@ -2,7 +2,7 @@ import argparse
 import logging
 from io import TextIOWrapper
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, Tuple, Union
 
 from src.solvers.autobounds_solver import autobounds_solver
 from src.solvers.bcause_solver import bcause_solver
@@ -50,12 +50,11 @@ def get_files(
     return uai_mapping, csv_path, uai_path
 
 
-def process_test_data(file_path: str) -> List:
+def process_test_data(file_path: str) -> Dict:
     validator = Validator()
     validator.get_valid_path(file_path)
+    test = {}
     with open(file_path, 'r') as file:
-        test = {}
-
         test['test_name'] = validator.get_valid_test_name(
             file.readline().strip())
         test['solvers'] = validator.get_valid_solver_list(
