@@ -1,14 +1,11 @@
-import warnings
-
 import pandas as pd
 from bcause.inference.causal.multi import EMCC
 from bcause.models.cmodel import StructuralCausalModel
 from utils.output_writer import OutputWriterBcause
 
-warnings.simplefilter(action='ignore')
-
 
 def bcause_solver(test_name: str, uai_path: str, csv_path: str, treatment: str, outcome: str, mapping: dict):
+    print("Bcause solver running...")
     model = StructuralCausalModel.read(uai_path)
     renamed_model = model.rename_vars(mapping)
 
@@ -29,3 +26,5 @@ def bcause_solver(test_name: str, uai_path: str, csv_path: str, treatment: str, 
     writer(f'P({outcome}=1|do({treatment}=1)) = {[p_do1.values[1], p_do1.values[3]]}')
     writer(f"Causal effect lies in the interval [{lower_bound}, {upper_bound}]")
     writer("==============================================")
+
+    print("Bcause solver Done.")

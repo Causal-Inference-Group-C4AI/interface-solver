@@ -1,41 +1,41 @@
 import argparse
 from pathlib import Path
 from typing import List
+import logging
 
-from src.solver_interfaces.autobounds_solver import autobounds_solver
-from src.solver_interfaces.bcause_interface import bcause_solver
-from src.solver_interfaces.dowhy_interface import dowhy_solver
-from src.solver_interfaces.lcn_solver import lcn_solver
+from src.solvers.autobounds_solver import autobounds_solver
+from src.solvers.bcause_solver import bcause_solver
+from src.solvers.dowhy_solver import dowhy_solver
+from src.solvers.lcn_solver import lcn_solver
 from utils._enums import Solvers
-from utils.validator import (get_valid_edges_in_string, get_valid_mapping,
-                             get_valid_number_of_tests, get_valid_path,
-                             get_valid_solver_list, get_valid_test_name,
-                             get_valid_unobservable, get_valid_variable)
+from utils.validator import Validator
 
 
 def process_test_data(file_path: str) -> List:
     tests = []
+    validator = Validator()
+    validator.get_valid_path(file_path)
     with open(file_path, 'r') as file:
-        num_tests = get_valid_number_of_tests(file.readline().strip())
+        num_tests = validator.get_valid_number_of_tests(file.readline().strip())
 
         for _ in range(num_tests):
             test = {}
 
-            test['test_name'] = get_valid_test_name(file.readline().strip())
-            test['solvers'] = get_valid_solver_list(file.readline().strip())
+            test['test_name'] = validator.get_valid_test_name(file.readline().strip())
+            test['solvers'] = validator.get_valid_solver_list(file.readline().strip())
 
             test['edges'] = {}
-            edges_str, edges_list = get_valid_edges_in_string(file.readline().strip())
+            edges_str, edges_list = validator.get_valid_edges_in_string(file.readline().strip())
             test['edges']['edges_str'] = edges_str
             test['edges']['edges_list'] = edges_list
 
-            test['treatment'] = get_valid_variable(file.readline().strip(), edges_str)
-            test['outcome'] = get_valid_variable(file.readline().strip(), edges_str)
-            test['unobservables'] = get_valid_unobservable(file.readline().strip(), edges_str)
+            test['treatment'] = validator.get_valid_variable(file.readline().strip(), edges_str)
+            test['outcome'] = validator.get_valid_variable(file.readline().strip(), edges_str)
+            test['unobservables'] = validator.get_valid_unobservables(file.readline().strip(), edges_str)
 
-            test['mapping'] = get_valid_mapping(file.readline().strip())
-            test['csv_path'] = get_valid_path(file.readline().strip())
-            test['uai_path'] = get_valid_path(file.readline().strip())
+            test['mapping'] = validator.get_valid_mapping(file.readline().strip())
+            test['csv_path'] = validator.get_valid_path(file.readline().strip())
+            test['uai_path'] = validator.get_valid_path(file.readline().strip())
 
             tests.append(test)
 
@@ -45,7 +45,7 @@ def process_test_data(file_path: str) -> List:
 def print_test_info(test_info: dict, test_number: int):
     print(f"Test Number {test_number}:")
     print(f"Test Name {test_info['test_name']}:")
-    print(f"  Edges: {test_info['edges']}")
+    print(f"  Edges: {test_info['edges']['edges_str']}")
     print(f"  Treatment: {test_info['treatment']}")
     print(f"  Outcome: {test_info['outcome']}")
     print(f"  Unobservable Variables: {test_info['unobservables']}")
@@ -96,8 +96,11 @@ if __name__ == "__main__":
     parser.add_argument('file_path',
                         help='The path to the file you want to read'
     )
+    parser.add_argument('-v', '--verbose', action='store_true', help="Show solver logs")
     args = parser.parse_args()
     try:
-        interface(get_valid_path(args.file_path))
+        if not args.verbose:
+            logging.getLogger().setLevel(logging.CRITICAL)
+        interface(args.file_path)
     except Exception as e:
         print(f"{type(e).__module__}.{type(e).__name__}: {e}")

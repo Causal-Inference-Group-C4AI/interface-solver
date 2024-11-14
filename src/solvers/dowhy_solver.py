@@ -1,15 +1,11 @@
-import warnings
 from typing import List, Tuple
 
 import networkx as nx
 import numpy as np
 import pandas as pd
 from dowhy import CausalModel
-from utils.validator import get_valid_edge_tuple_list
+from utils.validator import Validator
 from utils.output_writer import OutputWriterDoWhy
-
-warnings.filterwarnings('ignore', category=UserWarning)
-warnings.filterwarnings('ignore', category=FutureWarning)
 
 
 def dowhy_solver(
@@ -28,9 +24,10 @@ def dowhy_solver(
         treatment (str): Name of the treatment variable.
         outcome (str): Name of the outcome variable.
     """
+    print("DoWhy solver running...")
     # Configure output
     output_file = f"outputs/{test_name}/dowhy_{test_name}.txt"
-    output = OutputWriterDoWhy(output_file)
+    writer = OutputWriterDoWhy(output_file)
 
     # Data and graph
     data = pd.read_csv(csv_path)
@@ -50,7 +47,7 @@ def dowhy_solver(
     for estimand, value in identified_estimand.estimands.items():
         if estimand in ["backdoor", "iv", "frontdoor"] and value is not None:
             estimands.append(estimand)
-    output("Estimands found: "+", ".join(estimands))
+    writer("Estimands found: "+", ".join(estimands))
 
     # Step 3 + 4: Estimate and Refute (for each estimand)
     estimation_methods = {
@@ -76,7 +73,7 @@ def dowhy_solver(
     for estimand in estimands:
         for method in estimation_methods[estimand]:
             method_name = f"{estimand}.{method}"
-            output("-" * 80)
+            writer("-" * 80)
             try:
                 estimate = model.estimate_effect(
                     identified_estimand,
@@ -84,12 +81,12 @@ def dowhy_solver(
                     test_significance=True,
                     confidence_intervals=True
                 )
-                output(f"Estimation using {method_name}:")
-                output(f"ATE = {estimate.value}")
+                writer(f"Estimation using {method_name}:")
+                writer(f"ATE = {estimate.value}")
 
                 # output the p-value
                 p_value = estimate.test_stat_significance()["p_value"]
-                output(f"P-value: {p_value}")
+                writer(f"P-value: {p_value}")
 
                 # output the confidence interval
                 confidence_intervals = estimate.get_confidence_intervals()
@@ -100,7 +97,7 @@ def dowhy_solver(
                     confidence_intervals = [float(_)
                                             for _ in confidence_intervals]
 
-                output(f"Confidence interval: {confidence_intervals}\n")
+                writer(f"Confidence interval: {confidence_intervals}\n")
 
                 # Step 4: Refute
                 for refuter in refutation_methods:
@@ -111,21 +108,22 @@ def dowhy_solver(
                         placebo_type="permute"
                     )
                     if refuter != refutation_methods[-1]:
-                        output(str(ref))
+                        writer(str(ref))
                     else:
-                        output(str(ref[0]), end="")
+                        writer(str(ref[0]), end="")
 
             except KeyError as e:
-                output(f"Failed to refute using {refuter}. Error:{str(e)}")
+                writer(f"Failed to refute using {refuter}. Error:{str(e)}")
             except Exception as e:
-                output(f"Failed to estimate using {method_name}: {str(e)}")
-
+                writer(f"Failed to estimate using {method_name}: {str(e)}")
+    print("DoWhy solver Done.")
 
 if __name__ == "__main__":
+    validator = Validator()
     dowhy_solver(
         test_name='balke_pearl',
         csv_path='data/csv/balke_pearl.csv',
-        edges=get_valid_edge_tuple_list("Z -> X, X -> Y"),
+        edges=validator.get_valid_edge_tuple_list("Z -> X, X -> Y"),
         treatment='X',
         outcome='Y'
     )
