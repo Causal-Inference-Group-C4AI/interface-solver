@@ -1,7 +1,8 @@
 import argparse
 import logging
+from io import TextIOWrapper
 from pathlib import Path
-from typing import List
+from typing import Any, Dict, List, Tuple, Union
 
 from src.solvers.autobounds_solver import autobounds_solver
 from src.solvers.bcause_solver import bcause_solver
@@ -15,7 +16,10 @@ from utils.validator import Validator
 
 
 @suppress_print
-def get_files(test, file):
+def get_files(
+    test: Dict[str, Any],
+    file: TextIOWrapper
+) -> Tuple[Union[Dict, None], str, Union[str, None]]:
     val = Validator()
     first_line = val.get_valid_path(file.readline().strip())
     if first_line.endswith('.csv'):
