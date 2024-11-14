@@ -5,18 +5,15 @@ arestas
 treatment
 outcome
 variaveis nao observaveis (Se não houver variáveis não observaveis, colocar '-', se houver mais de uma, colocar elas separadas por vírgulas 'A, B, C')
-Mapping de variáveis do UAI para as variáveis descritas 
-path/pra/csv
+path/pra/csv (pode colocar apenas um path, se utilizar ambos, csv vem primeiro)
 path/pra/uai
-
 nome do teste
 lista de solvers para esse teste: (escreva os solvers separador por espaço: 'dowhy bcause lcn autobounds')
 arestas
 treatment
 outcome
 variaveis nao observaveis (Se não houver variáveis não observaveis, colocar '-', se houver mais de uma, colocar elas separadas por vírgulas 'A, B, C')
-Mapping de variáveis do UAI para as variáveis descritas 
-path/pra/csv
+path/pra/csv (pode colocar apenas um path, se utilizar ambos, csv vem primeiro)
 path/pra/uai
 ....
 Exemplo:
@@ -27,17 +24,13 @@ Z -> X, X -> Y, U -> X, U -> Y
 X
 Y
 U
-{"V0":"Z", "V1":"X", "V2": "Y"}
 data/csv/balke_pearl.csv
 data/uai/balke_pearl.uai
-data/lcn/balke_pearl.lcn
 balke_pearl_com_nao_observavel_em_Z
 dowhy autobounds
 Z -> X, X -> Y, U -> X, U -> Y, A -> Z
 X
 Y
 U, A
-{"V0":"Z", "V1":"X", "V2": "Y", "V3": "A", "V4": "U"}
 data/csv/balke_pearl_2.csv
 data/uai/balke_pearl_2.uai
-data/lcn/balke_pearl.lcn

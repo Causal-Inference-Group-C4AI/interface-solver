@@ -5,12 +5,41 @@ from typing import List
 from src.solver_interfaces.autobounds_solver import autobounds_solver
 from src.solver_interfaces.bcause_interface import bcause_solver
 from src.solver_interfaces.dowhy_interface import dowhy_solver
-from src.solver_interfaces.lcn_solver import lcn_solver
 from utils._enums import Solvers
+from utils.file_generators.uai_generator import UaiGenerator
+# from src.solver_interfaces.lcn_solver import lcn_solver
+from utils.suppress_print import suppress_print
 from utils.validator import (get_valid_edges_in_string, get_valid_mapping,
                              get_valid_number_of_tests, get_valid_path,
                              get_valid_solver_list, get_valid_test_name,
                              get_valid_unobservable, get_valid_variable)
+
+
+# @suppress_print
+def get_files(test, file):
+    first_path = get_valid_path(file.readline().strip())
+    pos = file.tell()  # Save the position of the file
+    second_path = file.readline().strip()
+    if '.csv' in first_path:
+        csv_path = first_path
+        if 'bcause' in test['solvers']:
+            if not ('.' in second_path):
+                uai = UaiGenerator(test['test_name'], test['edges']
+                                   ['edges_str'], csv_path)
+                uai_path = get_valid_path(uai.uai_path)
+                uai_mapping = get_valid_mapping(uai.get_mapping_str())
+                file.seek(pos)  # Go back to the position of the file
+            else:
+                # TODO: If user inputs uai_path, must input mapping
+                pass
+        else:
+            uai_path = None
+            uai_mapping = None
+    elif 'uai' in first_path:
+        # TODO: Implement csv generation
+        pass
+
+    return uai_mapping, csv_path, uai_path
 
 
 def process_test_data(file_path: str) -> List:
@@ -25,17 +54,20 @@ def process_test_data(file_path: str) -> List:
             test['solvers'] = get_valid_solver_list(file.readline().strip())
 
             test['edges'] = {}
-            edges_str, edges_list = get_valid_edges_in_string(file.readline().strip())
+            edges_str, edges_list = get_valid_edges_in_string(
+                file.readline().strip())
             test['edges']['edges_str'] = edges_str
             test['edges']['edges_list'] = edges_list
 
-            test['treatment'] = get_valid_variable(file.readline().strip(), edges_str)
-            test['outcome'] = get_valid_variable(file.readline().strip(), edges_str)
-            test['unobservables'] = get_valid_unobservable(file.readline().strip(), edges_str)
+            test['treatment'] = get_valid_variable(
+                file.readline().strip(), edges_str)
+            test['outcome'] = get_valid_variable(
+                file.readline().strip(), edges_str)
+            test['unobservables'] = get_valid_unobservable(
+                file.readline().strip(), edges_str)
 
-            test['mapping'] = get_valid_mapping(file.readline().strip())
-            test['csv_path'] = get_valid_path(file.readline().strip())
-            test['uai_path'] = get_valid_path(file.readline().strip())
+            test['mapping'], test['csv_path'], test['uai_path'] = get_files(
+                test, file)
 
             tests.append(test)
 
@@ -56,7 +88,7 @@ def print_test_info(test_info: dict, test_number: int):
 
 def interface(file_path: str):
     tests = process_test_data(file_path)
-    for i, test in enumerate(tests, 1):
+    for i, test in enumerate(tests):
         print_test_info(test, i+1)
 
         folder_name = Path(f"outputs/{test['test_name']}")
@@ -65,7 +97,8 @@ def interface(file_path: str):
         if Solvers.DOWHY.value in test['solvers']:
             print("TEST DOWHY")
             dowhy_solver(
-                test['test_name'], test['csv_path'], test['edges']['edges_list'],
+                test['test_name'], test['csv_path'],
+                test['edges']['edges_list'],
                 test['treatment'], test['outcome']
             )
 
@@ -74,19 +107,20 @@ def interface(file_path: str):
             bcause_solver(test['test_name'], test['uai_path'],
                           test['csv_path'], test['treatment'],
                           test['outcome'], test['mapping']
-            )
+                          )
 
         if Solvers.LCN.value in test['solvers']:
             print("TEST LCN")
             lcn_solver(test['test_name'], test['edges']['edges_str'],
-                              test['unobservables'], test['csv_path'], test['treatment'], test['outcome'])
+                       test['unobservables'], test['csv_path'],
+                       test['treatment'], test['outcome'])
 
         if Solvers.AUTOBOUNDS.value in test['solvers']:
             print("TEST AUTOBOUNDS")
             autobounds_solver(test['test_name'], test['edges']['edges_str'],
                               test['unobservables'], test['csv_path'],
                               test['treatment'], test['outcome']
-            )
+                              )
 
 
 if __name__ == "__main__":
@@ -95,7 +129,7 @@ if __name__ == "__main__":
     )
     parser.add_argument('file_path',
                         help='The path to the file you want to read'
-    )
+                        )
     args = parser.parse_args()
     try:
         interface(get_valid_path(args.file_path))
