@@ -1,6 +1,5 @@
-1
 nao_observavel_teste_itau
- autobounds 
+autobounds 
 T -> Y, T -> D, U -> Y, U -> T, D -> Y, E -> D
 T
 Y
