@@ -9,7 +9,7 @@ from utils.output_writer import OutputWriterLCN
 from utils.file_generators.lcn_file_generator import create_lcn
 
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../LCN'))
+# sys.path.append(os.path.join(os.path.dirname(__file__), '../../LCN'))
 
 def cleanup_lcn():
     """Remove all LCN files in the current directory."""

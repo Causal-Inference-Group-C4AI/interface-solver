@@ -1,15 +1,11 @@
 import glob
 import os
-import warnings
 
 import numpy as np
 import pandas as pd
 from autobounds.causalProblem import causalProblem
 from autobounds.DAG import DAG
 from utils.output_writer import OutputWriterAutobounds
-
-
-warnings.simplefilter(action='ignore')
 
 
 def cleanup_logs():
@@ -19,7 +15,7 @@ def cleanup_logs():
         try:
             os.remove(log_file)
         except Exception as e:
-            raise (f"Error deleting {log_file}: {e}")
+            raise Exception(f"Error deleting {log_file}: {e}")
 
 
 def autobounds_solver(

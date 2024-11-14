@@ -1,0 +1,9 @@
+nao_observavel_teste_itau
+autobounds 
+T -> Y, T -> D, U -> Y, U -> T, D -> Y, E -> D
+T
+Y
+U
+{"V0": "Y", "V1": "T", "V2": "U", "V3": "D", "V4": "E"}
+data/csv/unob_itau_teste.csv
+data/uai/teste_itau.uai

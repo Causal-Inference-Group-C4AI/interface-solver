@@ -1,4 +1,4 @@
-Nome do teste
+nome do teste
 lista de solvers para esse teste: (escreva os solvers separador por espaço: 'dowhy bcause lcn autobounds')
 arestas
 treatment
