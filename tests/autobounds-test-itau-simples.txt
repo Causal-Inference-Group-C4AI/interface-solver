@@ -1,6 +1,6 @@
 1
 nao_observavel_teste_itau
-dowhy bcause autobounds lcn
+ autobounds 
 T -> Y, T -> D, U -> Y, U -> T, D -> Y, E -> D
 T
 Y
