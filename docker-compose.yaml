@@ -1,0 +1,76 @@
+version: '3'
+services:
+  # Postgres: The database used by Airflow to store metadata. 
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    networks:
+      - airflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Redis: A caching and message broker service, useful if you decide to scale the Airflow workers using CeleryExecutor.
+  redis:
+    image: redis:latest
+    networks:
+      - airflow
+
+  airflow-webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: airflow_image:latest
+    container_name: airflow-webserver
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+    ports:
+      - "8080:8080"
+    networks:
+      - airflow
+    depends_on:
+      - postgres
+      - redis
+
+  airflow-scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: airflow_image:latest
+    container_name: airflow-scheduler
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+    networks:
+      - airflow
+    depends_on:
+      - postgres
+      - redis
+
+  airflow-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: airflow_image:latest
+    container_name: airflow-worker
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+    networks:
+      - airflow
+    depends_on:
+      - postgres
+      - redis
+
+networks:
+  airflow:
+    driver: bridge
+
+volumes:
+  postgres_data:

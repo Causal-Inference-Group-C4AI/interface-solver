@@ -3,7 +3,7 @@ import os
 import glob
 import sys
 
-from lcn.inference.exact.marginal import ExactInferece
+from lcn.inference.exact_marginal import ExactInferece
 from lcn.model import LCN
 from utils.output_writer import OutputWriterLCN
 from utils.file_generators.lcn_file_generator import create_lcn
