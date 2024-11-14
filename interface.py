@@ -6,9 +6,10 @@ from typing import List
 from src.solvers.autobounds_solver import autobounds_solver
 from src.solvers.bcause_solver import bcause_solver
 from src.solvers.dowhy_solver import dowhy_solver
-# from src.solvers.lcn_solver import lcn_solver
+from src.solvers.lcn_solver import lcn_solver
 from utils._enums import Solvers
-from utils.file_generators.uai_generator import UaiGenerator
+from utils.file_generators.parser_uai import UAIParser
+from utils.file_generators.uai_generator import UAIGenerator
 from utils.suppress_print import suppress_print
 from utils.validator import Validator
 
@@ -22,7 +23,7 @@ def get_files(test, file):
         if 'bcause' in test['solvers']:
             second_line = file.readline().strip()
             if not ('.' in second_line):
-                uai = UaiGenerator(test['test_name'], test['edges']
+                uai = UAIGenerator(test['test_name'], test['edges']
                                    ['edges_str'], csv_path)
                 uai_path = val.get_valid_uai_path(uai.uai_path)
                 uai_mapping = val.get_valid_mapping(
@@ -34,8 +35,13 @@ def get_files(test, file):
             uai_path = None
             uai_mapping = None
     else:
-        # TODO: Implement csv generation
-        pass
+        uai_path = val.get_valid_uai_path(first_line, False)
+        uai_mapping = val.get_valid_mapping(file.readline().strip())
+        nodes = list(uai_mapping.values())
+        parser = UAIParser(first_line, nodes)
+        parser.parse()
+        csv_path = val.get_valid_csv_path(
+            parser.generate_data(test['test_name']))
 
     return uai_mapping, csv_path, uai_path
 
@@ -103,11 +109,11 @@ def interface(file_path: str):
                       test['outcome'], test['mapping']
                       )
 
-    # if Solvers.LCN.value in test['solvers']:
-    #     print("TEST LCN")
-    #     lcn_solver(test['test_name'], test['edges']['edges_str'],
-    #                test['unobservables'], test['csv_path'],
-    #                test['treatment'], test['outcome'])
+    if Solvers.LCN.value in test['solvers']:
+        print("TEST LCN")
+        lcn_solver(test['test_name'], test['edges']['edges_str'],
+                   test['unobservables'], test['csv_path'],
+                   test['treatment'], test['outcome'])
 
     if Solvers.AUTOBOUNDS.value in test['solvers']:
         print("TEST AUTOBOUNDS")

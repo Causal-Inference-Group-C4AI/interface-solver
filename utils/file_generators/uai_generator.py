@@ -194,7 +194,7 @@ def define_mechanisms(
     return mechanisms
 
 
-class UaiGenerator:
+class UAIGenerator:
     """
     A class to generate UAI files for causal inference.
 
@@ -347,7 +347,7 @@ class UaiGenerator:
 
 # Example
 if __name__ == "__main__":
-    uai = UaiGenerator(
+    uai = UAIGenerator(
         "itau_teste",
         "E -> D, T -> D, T -> Y, D -> Y, U -> T, U -> Y",
         "data/csv/unob_itau_teste.csv"

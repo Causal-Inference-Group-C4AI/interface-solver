@@ -131,16 +131,18 @@ class Validator:
                 f"Invalid path: '{path}'. Please provide a valid path.")
         return path
 
-    def get_valid_csv_path(self, path: str) -> str:
-        self.get_valid_path(path)
+    def get_valid_csv_path(self, path: str, check_path: bool = True) -> str:
+        if check_path:
+            self.get_valid_path(path)
         if not path.endswith('.csv'):
             raise InvalidCsvPathError(
                 f"Invalid CSV path: '{path}'. "
                 f"Please provide a valid CSV path.")
         return path
 
-    def get_valid_uai_path(self, path: str) -> str:
-        self.get_valid_path(path)
+    def get_valid_uai_path(self, path: str, check_path: bool = True) -> str:
+        if check_path:
+            self.get_valid_path(path)
         if not path.endswith('.uai'):
             raise InvalidUaiPathError(
                 f"Invalid UAI path: '{path}'. "

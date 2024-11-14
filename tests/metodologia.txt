@@ -6,7 +6,7 @@ outcome
 variaveis nao observaveis (Se não houver variáveis não observaveis, colocar '-', se houver mais de uma, colocar elas separadas por vírgulas 'A, B, C')
 path/pra/csv (pode colocar apenas um path, se utilizar ambos, csv vem primeiro)
 path/pra/uai (caso coloque path para uai, deve botar o mapping)
-mapping (apenas junto com uai)
+mapping (apenas junto com uai, sem as nao observaveis)
 
 Exemplos:
 balke_pearl
@@ -25,7 +25,7 @@ Y
 U, A
 data/csv/balke_pearl_2.csv
 data/uai/balke_pearl_2.uai
-{"V0": "Z", "V1": "X", "V2": "Y", "V3": "U", "V4": "A"}
+{"V0": "Z", "V1": "X", "V2": "Y"}
 
 balke_pearl
 dowhy bcause lcn autobounds
@@ -34,4 +34,4 @@ X
 Y
 U
 data/csv/balke_pearl.uai
-{"V0": "Z", "V1": "X", "V2": "Y", "V3": "U"}
+{"V0": "Z", "V1": "X", "V2": "Y"}

@@ -2,8 +2,9 @@ import itertools
 
 import networkx as nx
 import numpy as np
-from csv_generator import probsHelper
 from pandas import DataFrame
+
+from utils.file_generators.csv_generator import probsHelper
 
 
 class UAIParser:
@@ -41,7 +42,6 @@ class UAIParser:
         self.parents = []
         self.tables = []
         self.graph = nx.DiGraph()
-        self.data = []
         self.index = 0
 
     def parse(self) -> None:
@@ -179,7 +179,9 @@ class UAIParser:
             probabilities.append(prob)
         return probabilities
 
-    def generate_data(self) -> DataFrame:
+    def generate_data(
+        self, test_name: str, csv_flag: bool = True
+    ) -> str | DataFrame:
         """
         Generate data from the network.
 
@@ -191,8 +193,7 @@ class UAIParser:
         probs = self.calculate_probabilities_for_outcomes(outcomes)
         probabilities = [[sublist, val]
                          for sublist, val in zip(outcomes, probs)]
-        self.data = probsHelper(self.nodes, probabilities, csv_flag=False)
-        return self.data
+        return probsHelper(self.nodes, probabilities, test_name, csv_flag)
 
     def display(self) -> None:
         """
