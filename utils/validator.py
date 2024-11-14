@@ -39,13 +39,6 @@ class Validator:
         return True
 
 
-    def get_valid_number_of_tests(self, num_tests: str) -> int:
-        try:
-            return int(num_tests)
-        except Exception as e:
-            raise Exception(f"Invalid number of tests: '{num_tests}'. {e}")
-
-
     def get_valid_test_name(self, test_name: str) -> str:
         if not self.is_valid_string(test_name):
             raise Exception(f"Invalid test name: {test_name}.")

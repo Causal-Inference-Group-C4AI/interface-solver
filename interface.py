@@ -1,6 +1,6 @@
 import argparse
 from pathlib import Path
-from typing import List
+from typing import Dict
 import logging
 
 from src.solvers.autobounds_solver import autobounds_solver
@@ -11,35 +11,28 @@ from utils._enums import Solvers
 from utils.validator import Validator
 
 
-def process_test_data(file_path: str) -> List:
-    tests = []
+def process_test_data(file_path: str) -> Dict:
     validator = Validator()
     validator.get_valid_path(file_path)
+    test = {}
     with open(file_path, 'r') as file:
-        num_tests = validator.get_valid_number_of_tests(file.readline().strip())
+        test['test_name'] = validator.get_valid_test_name(file.readline().strip())
+        test['solvers'] = validator.get_valid_solver_list(file.readline().strip())
 
-        for _ in range(num_tests):
-            test = {}
+        test['edges'] = {}
+        edges_str, edges_list = validator.get_valid_edges_in_string(file.readline().strip())
+        test['edges']['edges_str'] = edges_str
+        test['edges']['edges_list'] = edges_list
 
-            test['test_name'] = validator.get_valid_test_name(file.readline().strip())
-            test['solvers'] = validator.get_valid_solver_list(file.readline().strip())
+        test['treatment'] = validator.get_valid_variable(file.readline().strip(), edges_str)
+        test['outcome'] = validator.get_valid_variable(file.readline().strip(), edges_str)
+        test['unobservables'] = validator.get_valid_unobservables(file.readline().strip(), edges_str)
 
-            test['edges'] = {}
-            edges_str, edges_list = validator.get_valid_edges_in_string(file.readline().strip())
-            test['edges']['edges_str'] = edges_str
-            test['edges']['edges_list'] = edges_list
+        test['mapping'] = validator.get_valid_mapping(file.readline().strip())
+        test['csv_path'] = validator.get_valid_path(file.readline().strip())
+        test['uai_path'] = validator.get_valid_path(file.readline().strip())
 
-            test['treatment'] = validator.get_valid_variable(file.readline().strip(), edges_str)
-            test['outcome'] = validator.get_valid_variable(file.readline().strip(), edges_str)
-            test['unobservables'] = validator.get_valid_unobservables(file.readline().strip(), edges_str)
-
-            test['mapping'] = validator.get_valid_mapping(file.readline().strip())
-            test['csv_path'] = validator.get_valid_path(file.readline().strip())
-            test['uai_path'] = validator.get_valid_path(file.readline().strip())
-
-            tests.append(test)
-
-        return tests
+        return test
 
 
 def print_test_info(test_info: dict, test_number: int):
@@ -55,38 +48,37 @@ def print_test_info(test_info: dict, test_number: int):
 
 
 def interface(file_path: str):
-    tests = process_test_data(file_path)
-    for i, test in enumerate(tests, 1):
-        print_test_info(test, i+1)
+    test = process_test_data(file_path)
+    print_test_info(test, 1)
 
-        folder_name = Path(f"outputs/{test['test_name']}")
-        folder_name.mkdir(parents=True, exist_ok=True)
+    folder_name = Path(f"outputs/{test['test_name']}")
+    folder_name.mkdir(parents=True, exist_ok=True)
 
-        if Solvers.DOWHY.value in test['solvers']:
-            print("TEST DOWHY")
-            dowhy_solver(
-                test['test_name'], test['csv_path'], test['edges']['edges_list'],
-                test['treatment'], test['outcome']
-            )
+    if Solvers.DOWHY.value in test['solvers']:
+        print("TEST DOWHY")
+        dowhy_solver(
+            test['test_name'], test['csv_path'], test['edges']['edges_list'],
+            test['treatment'], test['outcome']
+        )
 
-        if Solvers.BCAUSE.value in test['solvers']:
-            print("TEST BCAUSE")
-            bcause_solver(test['test_name'], test['uai_path'],
-                          test['csv_path'], test['treatment'],
-                          test['outcome'], test['mapping']
-            )
+    if Solvers.BCAUSE.value in test['solvers']:
+        print("TEST BCAUSE")
+        bcause_solver(test['test_name'], test['uai_path'],
+                        test['csv_path'], test['treatment'],
+                        test['outcome'], test['mapping']
+        )
 
-        if Solvers.LCN.value in test['solvers']:
-            print("TEST LCN")
-            lcn_solver(test['test_name'], test['edges']['edges_str'],
-                              test['unobservables'], test['csv_path'], test['treatment'], test['outcome'])
+    if Solvers.LCN.value in test['solvers']:
+        print("TEST LCN")
+        lcn_solver(test['test_name'], test['edges']['edges_str'],
+                            test['unobservables'], test['csv_path'], test['treatment'], test['outcome'])
 
-        if Solvers.AUTOBOUNDS.value in test['solvers']:
-            print("TEST AUTOBOUNDS")
-            autobounds_solver(test['test_name'], test['edges']['edges_str'],
-                              test['unobservables'], test['csv_path'],
-                              test['treatment'], test['outcome']
-            )
+    if Solvers.AUTOBOUNDS.value in test['solvers']:
+        print("TEST AUTOBOUNDS")
+        autobounds_solver(test['test_name'], test['edges']['edges_str'],
+                            test['unobservables'], test['csv_path'],
+                            test['treatment'], test['outcome']
+        )
 
 
 if __name__ == "__main__":
