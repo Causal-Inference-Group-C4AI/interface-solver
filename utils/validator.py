@@ -20,6 +20,14 @@ class InvalidPathError(Exception):
     pass
 
 
+class InvalidCsvPathError(InvalidPathError):
+    pass
+
+
+class InvalidUaiPathError(InvalidPathError):
+    pass
+
+
 class InvalidMappingFormatError(Exception):
     pass
 
@@ -52,7 +60,9 @@ class Validator:
             raise InvalidSolversFormatError(
                 f"Invalid solvers format: {solvers_str}.{e}.") from e
 
-    def get_valid_edge_tuple_list(self, edges_str: str) -> List[Tuple[str, str]]:
+    def get_valid_edge_tuple_list(
+        self, edges_str: str
+    ) -> List[Tuple[str, str]]:
         edges = []
         for edge in edges_str.split(', '):
             nodes = edge.split(' -> ')
@@ -62,7 +72,9 @@ class Validator:
             edges.append((nodes[0].strip(), nodes[1].strip()))
         return edges
 
-    def get_valid_edges_in_string(self, edges_str: str) -> Tuple[str, List[Tuple[str, str]]]:
+    def get_valid_edges_in_string(
+        self, edges_str: str
+    ) -> Tuple[str, List[Tuple[str, str]]]:
         if not self.is_valid_string(edges_str):
             raise InvalidEdgeFormatError(
                 f"Invalid edges format: '{edges_str}'.")
@@ -100,9 +112,9 @@ class Validator:
             return json.loads(mapping.upper())
         except json.JSONDecodeError as e:
             raise InvalidMappingFormatError(
-                    f"Invalid format for mapping variables from input: "
-                    f"'{mapping}'. {e}"
-                ) from e
+                f"Invalid format for mapping variables from input: "
+                f"'{mapping}'. {e}"
+            ) from e
         except Exception as e:
             raise InvalidMappingFormatError(
                 f"An unexpected error occurred while processing the mapping: "
@@ -117,4 +129,20 @@ class Validator:
         if not self.is_valid_path(path):
             raise InvalidPathError(
                 f"Invalid path: '{path}'. Please provide a valid path.")
+        return path
+
+    def get_valid_csv_path(self, path: str) -> str:
+        self.get_valid_path(path)
+        if not path.endswith('.csv'):
+            raise InvalidCsvPathError(
+                f"Invalid CSV path: '{path}'. "
+                f"Please provide a valid CSV path.")
+        return path
+
+    def get_valid_uai_path(self, path: str) -> str:
+        self.get_valid_path(path)
+        if not path.endswith('.uai'):
+            raise InvalidUaiPathError(
+                f"Invalid UAI path: '{path}'. "
+                f"Please provide a valid UAI path.")
         return path

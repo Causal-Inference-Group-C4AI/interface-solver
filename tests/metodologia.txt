@@ -5,7 +5,8 @@ treatment
 outcome
 variaveis nao observaveis (Se não houver variáveis não observaveis, colocar '-', se houver mais de uma, colocar elas separadas por vírgulas 'A, B, C')
 path/pra/csv (pode colocar apenas um path, se utilizar ambos, csv vem primeiro)
-path/pra/uai
+path/pra/uai (caso coloque path para uai, deve botar o mapping)
+mapping (apenas junto com uai)
 
 Exemplos:
 balke_pearl
@@ -15,7 +16,6 @@ X
 Y
 U
 data/csv/balke_pearl.csv
-data/uai/balke_pearl.uai
 
 balke_pearl_com_nao_observavel_em_Z
 dowhy autobounds
@@ -25,3 +25,13 @@ Y
 U, A
 data/csv/balke_pearl_2.csv
 data/uai/balke_pearl_2.uai
+{"V0": "Z", "V1": "X", "V2": "Y", "V3": "U", "V4": "A"}
+
+balke_pearl
+dowhy bcause lcn autobounds
+Z -> X, X -> Y, U -> X, U -> Y
+X
+Y
+U
+data/csv/balke_pearl.uai
+{"V0": "Z", "V1": "X", "V2": "Y", "V3": "U"}

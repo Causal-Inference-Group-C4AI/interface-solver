@@ -16,24 +16,24 @@ from utils.validator import Validator
 @suppress_print
 def get_files(test, file):
     val = Validator()
-    first_path = val.get_valid_path(file.readline().strip())
-    second_path = file.readline().strip()
-    if '.csv' in first_path:
-        csv_path = first_path
+    first_line = val.get_valid_path(file.readline().strip())
+    if first_line.endswith('.csv'):
+        csv_path = first_line
         if 'bcause' in test['solvers']:
-            if not ('.' in second_path):
+            second_line = file.readline().strip()
+            if not ('.' in second_line):
                 uai = UaiGenerator(test['test_name'], test['edges']
                                    ['edges_str'], csv_path)
-                uai_path = val.get_valid_path(uai.uai_path)
+                uai_path = val.get_valid_uai_path(uai.uai_path)
                 uai_mapping = val.get_valid_mapping(
                     uai.get_mapping_str())
             else:
-                # TODO: If user inputs uai_path, must input mapping
-                pass
+                uai_path = val.get_valid_uai_path(second_line)
+                uai_mapping = val.get_valid_mapping(file.readline().strip())
         else:
             uai_path = None
             uai_mapping = None
-    elif 'uai' in first_path:
+    else:
         # TODO: Implement csv generation
         pass
 
@@ -103,11 +103,11 @@ def interface(file_path: str):
                       test['outcome'], test['mapping']
                       )
 
-    if Solvers.LCN.value in test['solvers']:
-        print("TEST LCN")
-        lcn_solver(test['test_name'], test['edges']['edges_str'],
-                   test['unobservables'], test['csv_path'],
-                   test['treatment'], test['outcome'])
+    # if Solvers.LCN.value in test['solvers']:
+    #     print("TEST LCN")
+    #     lcn_solver(test['test_name'], test['edges']['edges_str'],
+    #                test['unobservables'], test['csv_path'],
+    #                test['treatment'], test['outcome'])
 
     if Solvers.AUTOBOUNDS.value in test['solvers']:
         print("TEST AUTOBOUNDS")

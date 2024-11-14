@@ -5,3 +5,5 @@ T
 Y
 U
 data/csv/unob_itau_teste.csv
+data/uai/nao_observavel_teste_itau.uai
+{"V0": "T", "V1": "E", "V2": "Y", "V3": "D", "V4": "U1", "V5": "U0"}
