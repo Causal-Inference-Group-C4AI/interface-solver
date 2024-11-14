@@ -1,14 +1,5 @@
-2
 nao_observavel_teste_itau
 bcause
-T -> Y, T -> D, U -> Y, U -> T, D -> Y, E -> D
-T
-Y
-U
-data/csv/unob_itau_teste.csv
-
-testando teste
-dowhy
 T -> Y, T -> D, U -> Y, U -> T, D -> Y, E -> D
 T
 Y

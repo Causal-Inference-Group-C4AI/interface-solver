@@ -12,13 +12,6 @@ Test Name Validator
 '''
 
 
-def get_valid_number_of_tests(num_tests: str) -> int:
-    try:
-        return int(num_tests)
-    except Exception as e:
-        raise Exception(f"Invalid number of tests: '{num_tests}'. {e}")
-
-
 def is_valid_string(s: str) -> bool:
     if s is None:
         return False
