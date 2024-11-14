@@ -3,10 +3,10 @@ from pathlib import Path
 from typing import List
 import logging
 
-from src.solver_interfaces.autobounds_solver import autobounds_solver
-from src.solver_interfaces.bcause_interface import bcause_solver
-from src.solver_interfaces.dowhy_interface import dowhy_solver
-from src.solver_interfaces.lcn_solver import lcn_solver
+from src.solvers.autobounds_solver import autobounds_solver
+from src.solvers.bcause_solver import bcause_solver
+from src.solvers.dowhy_solver import dowhy_solver
+from src.solvers.lcn_solver import lcn_solver
 from utils._enums import Solvers
 from utils.validator import Validator
 
