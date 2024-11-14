@@ -6,6 +6,6 @@ matplotlib
 wheel
 numpy
 plotnine
-pyscipopt==4.4
+pyscipopt==5.0.1
 sympy
 scipy
