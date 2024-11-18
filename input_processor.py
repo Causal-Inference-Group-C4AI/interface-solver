@@ -1,4 +1,7 @@
+import os
+import argparse
 from typing import Dict
+import json
 
 from utils.validator import Validator
 
@@ -30,3 +33,19 @@ class InputProcessor:
             test['csv_path'] = validator.get_valid_path(file.readline().strip())
             test['uai_path'] = validator.get_valid_path(file.readline().strip())
             return test
+
+
+def generate_common_data(output_path, input_path):
+    processed_data = InputProcessor(input_path)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(processed_data.data_test, f)
+    print(f"Data generated at {output_path}")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output", required=True, help="Path to output the processed data")
+    parser.add_argument("--input", required=True, help="Path to input data")
+    
+    args = parser.parse_args()
+    generate_common_data(args.output, args.input)

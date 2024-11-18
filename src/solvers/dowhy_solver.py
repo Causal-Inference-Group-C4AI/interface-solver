@@ -1,4 +1,6 @@
+import argparse
 from typing import List, Tuple
+import os
 
 import networkx as nx
 import numpy as np
@@ -6,6 +8,7 @@ import pandas as pd
 from dowhy import CausalModel
 from utils.validator import Validator
 from utils.output_writer import OutputWriterDoWhy
+from utils.get_common_data import get_common_data
 
 
 def dowhy_solver(
@@ -119,11 +122,16 @@ def dowhy_solver(
     print("DoWhy solver Done.")
 
 if __name__ == "__main__":
+    print(sys.path)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--common_data", required=True, help="Path to common data")
+    args = parser.parse_args()
     validator = Validator()
+    data = get_common_data(validator.get_valid_path(args.common_data))
     dowhy_solver(
-        test_name='balke_pearl',
-        csv_path='data/csv/balke_pearl.csv',
-        edges=validator.get_valid_edge_tuple_list("Z -> X, X -> Y"),
-        treatment='X',
-        outcome='Y'
+        test_name=data['test_name'],
+        csv_path=data['csv_path'],
+        edges=data['edges']['edges_str'],
+        treatment=data['treatment'],
+        outcome=data['outcome']
     )
