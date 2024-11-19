@@ -74,9 +74,7 @@ class InputProcessor:
             test['outcome'] = validator.get_valid_variable(file.readline().strip(), edges_str)
             test['unobservables'] = validator.get_valid_unobservables(file.readline().strip(), edges_str)
 
-            test['mapping'] = validator.get_valid_mapping(file.readline().strip())
-            test['csv_path'] = validator.get_valid_path(file.readline().strip())
-            test['uai_path'] = validator.get_valid_path(file.readline().strip())
+            test['mapping'], test['csv_path'], test['uai_path'] = self.get_files(test, file)
             return test
 
 
