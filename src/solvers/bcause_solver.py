@@ -13,7 +13,6 @@ from utils.validator import Validator
 
 
 def bcause_solver(test_name: str, uai_path: str, csv_path: str, treatment: str, outcome: str, mapping: dict):
-    print("Bcause solver running...")
     model = StructuralCausalModel.read(uai_path)
     renamed_model = model.rename_vars(mapping)
 
@@ -35,16 +34,15 @@ def bcause_solver(test_name: str, uai_path: str, csv_path: str, treatment: str, 
     writer(f"Causal effect lies in the interval [{lower_bound}, {upper_bound}]")
     writer("==============================================")
 
-    print("Bcause solver Done.")
 
 if __name__ == "__main__":
+    print("Bcause solver running...")
     logging.getLogger().setLevel(logging.CRITICAL)
     parser = argparse.ArgumentParser()
     parser.add_argument("--common_data", required=True, help="Path to common data")
     args = parser.parse_args()
     validator = Validator()
     data = get_common_data(validator.get_valid_path(args.common_data))
-    print(data)
     bcause_solver(
         test_name=data['test_name'],
         uai_path=data['uai_path'],
@@ -53,3 +51,4 @@ if __name__ == "__main__":
         outcome=data['outcome'],
         mapping=data['mapping'],
     )
+    print("Bcause solver Done.")

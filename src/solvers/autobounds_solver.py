@@ -13,16 +13,6 @@ from utils.validator import Validator
 from utils.get_common_data import get_common_data
 
 
-def cleanup_logs():
-    """Remove all log files in the current directory."""
-    log_files = glob.glob(".*.log")
-    for log_file in log_files:
-        try:
-            os.remove(log_file)
-        except Exception as e:
-            raise Exception(f"Error deleting {log_file}: {e}")
-
-
 def autobounds_solver(
         test_name: str,
         edges: str,
@@ -87,8 +77,6 @@ def autobounds_solver(
             pass
         else:
             raise Exception(e)
-
-    cleanup_logs()
 
     print("Autobounds solver Done.")
 

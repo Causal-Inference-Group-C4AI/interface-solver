@@ -15,16 +15,6 @@ from utils.output_writer import OutputWriterLCN
 from utils.file_generators.lcn_file_generator import create_lcn
 
 
-def cleanup_lcn():
-    """Remove all LCN files in the current directory."""
-    lcn_files = glob.glob("*.lcn")
-    for lcn_file in lcn_files:
-        try:
-            os.remove(lcn_file)
-        except Exception as e:
-            print(f"Error deleting {lcn_file}: {e}")
-
-
 def lcn_solver(test_name, edges, unobservables, csv_path, treatment, outcome):
     """Solver for causal inference problem using LCN.
 
@@ -119,9 +109,6 @@ def lcn_solver(test_name, edges, unobservables, csv_path, treatment, outcome):
     writer("Bounds for the ATE")
     writer(f"[{ate_lower_bound}, {ate_upper_bound}]")
     writer("==============================================")
-
-    # Cleaning up the LCN files
-    cleanup_lcn()
 
     print("LCN solver Done.")
 
