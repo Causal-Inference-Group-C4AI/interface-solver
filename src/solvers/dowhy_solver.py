@@ -31,6 +31,7 @@ def dowhy_solver(
         outcome (str): Name of the outcome variable.
     """
     print("DoWhy solver running...")
+    
     # Configure output
     output_file = f"outputs/{test_name}/dowhy_{test_name}.txt"
     writer = OutputWriterDoWhy(output_file)

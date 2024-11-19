@@ -36,6 +36,7 @@ def lcn_solver(test_name, edges, unobservables, csv_path, treatment, outcome):
         treatment (str): The treatment variable.
         outcome (str): The outcome variable.
     """
+    print("LCN solver running...")
 
     # Setting up the file to write the output
     output_file = f"outputs/{test_name}/LCN_{test_name}.txt"

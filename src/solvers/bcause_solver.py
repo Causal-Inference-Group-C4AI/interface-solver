@@ -44,6 +44,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     validator = Validator()
     data = get_common_data(validator.get_valid_path(args.common_data))
+    print(data)
     bcause_solver(
         test_name=data['test_name'],
         uai_path=data['uai_path'],

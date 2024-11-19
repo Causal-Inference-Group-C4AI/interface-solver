@@ -2,7 +2,6 @@ import glob
 import argparse
 import os
 import sys
-import logging
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 import numpy as np
@@ -41,6 +40,7 @@ def autobounds_solver(
         treatment (str): The treatment variable.
         outcome (str): The outcome variable.
     """
+    print("Autobounds solver running...")
     # Create a DAG object from the edges and unobservables
     dag = DAG()
     if unobservables:
@@ -70,17 +70,23 @@ def autobounds_solver(
     output_file = f"outputs/{test_name}/autobounds_{test_name}.txt"
     writer = OutputWriterAutobounds(output_file)
 
-    # Calculating bounds
-    problem.set_ate(ind=treatment, dep=outcome)
-    prog_ate = writer.silent_run(lambda: problem.write_program(), new=True)
-    prog_ate_optim = writer.silent_run(lambda: prog_ate.run_scip())
+    try:
+        # Calculating bounds
+        problem.set_ate(ind=treatment, dep=outcome)
+        prog_ate = writer.silent_run(lambda: problem.write_program(), new=True)
+        prog_ate_optim = writer.silent_run(lambda: prog_ate.run_scip())
 
-    # Extracting bounds
-    lower_bound = np.round(prog_ate_optim[0]['dual'], 3)
-    upper_bound = np.round(prog_ate_optim[1]['dual'], 3)
-    writer("==============================================")
-    writer(f"Causal effect lies in the interval [{lower_bound}, {upper_bound}]")
-    writer("==============================================")
+        # Extracting bounds
+        lower_bound = np.round(prog_ate_optim[0]['dual'], 3)
+        upper_bound = np.round(prog_ate_optim[1]['dual'], 3)
+        writer("==============================================")
+        writer(f"Causal effect lies in the interval [{lower_bound}, {upper_bound}]")
+        writer("==============================================")
+    except Exception as e:
+        if "unsupported operand type(s) for -: 'str' and 'str'" in str(e):
+            pass
+        else:
+            raise Exception(e)
 
     cleanup_logs()
 

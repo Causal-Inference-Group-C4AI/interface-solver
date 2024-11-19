@@ -58,17 +58,18 @@ if __name__ == "__main__":
                 args=["--common_data", common_data_path]
             )
 
-        if Solvers.AUTOBOUNDS.value in data["solvers"]:
-            run_task(
-                "src/solvers/autobounds_solver.py",
-                env_path="venv_autobounds",
-                args=["--common_data", common_data_path]
-            )
 
         if Solvers.LCN.value in data["solvers"]:
             run_task(
                 "src/solvers/lcn_solver.py",
                 env_path="venv_lcn",
+                args=["--common_data", common_data_path]
+            )
+
+        if Solvers.AUTOBOUNDS.value in data["solvers"]:
+            run_task(
+                "src/solvers/autobounds_solver.py",
+                env_path="venv_autobounds",
                 args=["--common_data", common_data_path]
             )
 
