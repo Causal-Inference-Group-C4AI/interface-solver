@@ -1,9 +1,0 @@
-FROM python:3.10-slim
-
-WORKDIR /app
-
-RUN pip install --no-cache-dir --use-feature=fast-deps dowhy
-
-COPY src/solvers/dowhy_solver.py /app/dowhy_solver.py
-
-CMD ["python", "dowhy_solver.py"]
