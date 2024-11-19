@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 from typing import List, Tuple
+import warnings
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
@@ -126,7 +127,10 @@ def dowhy_solver(
                 writer(f"Failed to estimate using {method_name}: {str(e)}")
     print("DoWhy solver Done.")
 
+
 if __name__ == "__main__":
+    warnings.filterwarnings("ignore", category=UserWarning)
+    logging.getLogger().setLevel(logging.CRITICAL)
     parser = argparse.ArgumentParser()
     parser.add_argument("--common_data", required=True, help="Path to common data")
     args = parser.parse_args()

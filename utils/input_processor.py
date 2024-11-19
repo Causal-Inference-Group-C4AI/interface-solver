@@ -13,14 +13,14 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 from utils.validator import Validator
 from utils.file_generators.parser_uai import UAIParser
 from utils.file_generators.uai_generator import UAIGenerator
-# from utils.suppress_print import suppress_print
+from utils.suppress_print import suppress_print
 
 class InputProcessor:
     def __init__(self, input_path: str):
         self.input_path = input_path
         self.data_test = self.process_test_data()
 
-    # @suppress_print
+    @suppress_print
     def get_files(
         self,
         test: Dict[str, Any],
