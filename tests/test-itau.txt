@@ -1,4 +1,4 @@
-nao_observavel_teste_itau
+teste_itau
 dowhy bcause autobounds lcn
 T -> Y, T -> D, U -> Y, U -> T, D -> Y, E -> D
 T
