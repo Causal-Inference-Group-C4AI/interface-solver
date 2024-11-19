@@ -1,16 +1,16 @@
-import glob
 import argparse
 import os
 import sys
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 import numpy as np
 import pandas as pd
 from autobounds.causalProblem import causalProblem
 from autobounds.DAG import DAG
+from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriterAutobounds
 from utils.validator import Validator
-from utils.get_common_data import get_common_data
 
 
 def autobounds_solver(

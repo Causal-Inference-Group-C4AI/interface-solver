@@ -1,17 +1,18 @@
-from typing import List, Tuple
-import logging
 import argparse
+import logging
 import os
 import sys
+from typing import List, Tuple
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 import networkx as nx
 import numpy as np
 import pandas as pd
 from dowhy import CausalModel
-from utils.validator import Validator
-from utils.output_writer import OutputWriterDoWhy
 from utils.get_common_data import get_common_data
+from utils.output_writer import OutputWriterDoWhy
+from utils.validator import Validator
 
 
 def dowhy_solver(

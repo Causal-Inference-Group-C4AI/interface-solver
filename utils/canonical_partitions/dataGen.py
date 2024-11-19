@@ -1,6 +1,7 @@
+import argparse
+
 import numpy as np
 import pandas as pd
-import argparse
 
 from utils.canonical_partitions.generator import generateMechanisms
 from utils.canonical_partitions.graph import Graph
