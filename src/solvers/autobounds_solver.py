@@ -1,11 +1,17 @@
 import glob
+import argparse
 import os
+import sys
+import logging
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 import numpy as np
 import pandas as pd
 from autobounds.causalProblem import causalProblem
 from autobounds.DAG import DAG
 from utils.output_writer import OutputWriterAutobounds
+from utils.validator import Validator
+from utils.get_common_data import get_common_data
 
 
 def cleanup_logs():
@@ -78,10 +84,20 @@ def autobounds_solver(
 
     cleanup_logs()
 
+    print("Autobounds solver Done.")
 
-# Example usage
+
 if __name__ == "__main__":
-    edges = "Z -> X, X -> Y, Uxy -> X, Uxy -> Y"
-    unobservables = "Uxy"
-    csv_path = 'data/csv/balke_pearl.csv'
-    autobounds_solver('balke_pearl', edges, unobservables, csv_path, 'X', 'Y')
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--common_data", required=True, help="Path to common data")
+    args = parser.parse_args()
+    validator = Validator()
+    data = get_common_data(validator.get_valid_path(args.common_data))
+    autobounds_solver(
+        test_name=data['test_name'],
+        edges=data['edges']['edges_str'],
+        unobservables=data['unobservables'],
+        csv_path=data['csv_path'],
+        treatment=data['treatment'],
+        outcome=data['outcome'],
+    )

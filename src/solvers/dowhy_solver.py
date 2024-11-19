@@ -1,6 +1,9 @@
-import argparse
 from typing import List, Tuple
+import logging
+import argparse
 import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 import networkx as nx
 import numpy as np
@@ -122,7 +125,6 @@ def dowhy_solver(
     print("DoWhy solver Done.")
 
 if __name__ == "__main__":
-    print(sys.path)
     parser = argparse.ArgumentParser()
     parser.add_argument("--common_data", required=True, help="Path to common data")
     args = parser.parse_args()
@@ -131,7 +133,7 @@ if __name__ == "__main__":
     dowhy_solver(
         test_name=data['test_name'],
         csv_path=data['csv_path'],
-        edges=data['edges']['edges_str'],
+        edges=data['edges']['edges_list'],
         treatment=data['treatment'],
         outcome=data['outcome']
     )

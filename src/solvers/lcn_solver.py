@@ -2,14 +2,18 @@ import pandas as pd
 import os
 import glob
 import sys
+import os
+import argparse
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 from lcn.inference.exact_marginal import ExactInferece
 from lcn.model import LCN
+from utils.validator import Validator
+from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriterLCN
 from utils.file_generators.lcn_file_generator import create_lcn
 
-
-# sys.path.append(os.path.join(os.path.dirname(__file__), '../../LCN'))
 
 def cleanup_lcn():
     """Remove all LCN files in the current directory."""
@@ -118,12 +122,20 @@ def lcn_solver(test_name, edges, unobservables, csv_path, treatment, outcome):
     # Cleaning up the LCN files
     cleanup_lcn()
 
+    print("LCN solver Done.")
+
+
 if __name__ == "__main__":
-    # Example usage
-    edges = "Z -> X, X -> Y, Uxy -> X, Uxy -> Y"
-    unobservables = "U"
-    csv_path = 'data/csv/balke_pearl.csv'
-    test_name = "balke_pearl"
-    treatment = "X"
-    outcome = "Y"
-    lcn_solver(test_name, edges, unobservables, csv_path, treatment, outcome)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--common_data", required=True, help="Path to common data")
+    args = parser.parse_args()
+    validator = Validator()
+    data = get_common_data(validator.get_valid_path(args.common_data))
+    lcn_solver(
+        test_name=data['test_name'],
+        edges=data['edges']['edges_str'],
+        unobservables=data['unobservables'],
+        csv_path=data['csv_path'],
+        treatment=data['treatment'],
+        outcome=data['outcome'],
+    )
