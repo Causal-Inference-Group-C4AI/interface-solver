@@ -1,5 +1,5 @@
 import argparse
-import glob
+from pathlib import Path
 import logging
 import os
 import subprocess
@@ -45,6 +45,9 @@ if __name__ == "__main__":
         )
 
         data = get_common_data(common_data_path)
+
+        folder_name = Path(f"outputs/{data['test_name']}")
+        folder_name.mkdir(parents=True, exist_ok=True)
 
         if Solvers.DOWHY.value in data["solvers"]:
             run_task(
