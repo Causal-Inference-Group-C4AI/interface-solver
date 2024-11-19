@@ -9,9 +9,9 @@ ArrayType = List[Tuple[List[int], float]]
 def probsHelper(
     header: str,
     probCombinations: ArrayType,
-    filename: str = "",
+    test_name: str,
     csv_flag: bool = True
-) -> pd.DataFrame | None:
+) -> str | pd.DataFrame:
     maxDecimals: int = 0
     for _sublist, val in probCombinations:
         probStr: str = str(val)
@@ -19,7 +19,7 @@ def probsHelper(
             maxDecimals = max(maxDecimals, len(probStr.split(".")[1]))
 
     if csv_flag:
-        file_path = "./csv_data_examples/" + filename + ".csv"
+        file_path = f"data/csv/{test_name}.csv"
         with open(file_path, mode="w", newline="") as file:
             writer = csv.writer(file)
             writer.writerow(header)
@@ -27,6 +27,7 @@ def probsHelper(
                 numberOfRows: int = (int)(val * pow(10, maxDecimals))
                 for _ in range(numberOfRows):
                     writer.writerow(sublist)
+        return file_path
     else:
         data: List[List[int]] = []
         for sublist, val in probCombinations:
