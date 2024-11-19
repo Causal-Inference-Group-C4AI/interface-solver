@@ -3,11 +3,13 @@ import logging
 import os
 import sys
 import subprocess
+import glob
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 from utils.get_common_data import get_common_data
 from utils._enums import Solvers
+from utils.data_cleaner import DataCleaner
 
 
 def run_task(script, env_path=None, args=None):
@@ -73,7 +75,13 @@ if __name__ == "__main__":
                 args=["--common_data", common_data_path]
             )
 
-
     except Exception as e:
         print(f"{type(e).__module__}.{type(e).__name__}: {e}")
-        
+    
+    data_cleaner = DataCleaner()
+    data_cleaner.cleanup_file(common_data_path)
+    print("Shared data successfully deleted.")
+    data_cleaner.cleanup_logs()
+    print("Logs successfully deleted.")
+    data_cleaner.cleanup_lcn()
+    print(".LCN successfully deleted.")
