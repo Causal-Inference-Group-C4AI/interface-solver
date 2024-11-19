@@ -2,6 +2,7 @@
 
 from itertools import product
 
+
 def parse_input(edges_str, unob_str):
     edges = edges_str.split(", ")
     unob = unob_str.split(", ") if unob_str else []

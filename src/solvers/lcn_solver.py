@@ -1,18 +1,17 @@
-import pandas as pd
-import os
-import glob
-import sys
-import os
 import argparse
+import os
+import sys
+
+import pandas as pd
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 from lcn.inference.exact_marginal import ExactInferece
 from lcn.model import LCN
-from utils.validator import Validator
+from utils.file_generators.lcn_file_generator import create_lcn
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriterLCN
-from utils.file_generators.lcn_file_generator import create_lcn
+from utils.validator import Validator
 
 
 def lcn_solver(test_name, edges, unobservables, csv_path, treatment, outcome):

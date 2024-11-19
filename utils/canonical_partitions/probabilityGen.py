@@ -1,7 +1,6 @@
 import random as rand
 
 import numpy as np
-
 from graph import Graph
 
 

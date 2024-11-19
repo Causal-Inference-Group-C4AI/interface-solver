@@ -1,5 +1,6 @@
-import os
 import glob
+import os
+
 
 class DataCleaner:
     def __init__(self):

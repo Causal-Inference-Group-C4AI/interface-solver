@@ -1,9 +1,10 @@
-import os
-import logging
 import argparse
-from typing import Dict
 import json
+import logging
+import os
 import sys
+from typing import Dict
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
 

@@ -1,15 +1,14 @@
 import argparse
 import logging
 import os
-import sys
 import subprocess
-import glob
+import sys
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
-from utils.get_common_data import get_common_data
 from utils._enums import Solvers
 from utils.data_cleaner import DataCleaner
+from utils.get_common_data import get_common_data
 
 
 def run_task(script, env_path=None, args=None):
