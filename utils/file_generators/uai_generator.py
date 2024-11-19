@@ -1,3 +1,4 @@
+import json
 from itertools import product
 from typing import Dict, List, Tuple, Union
 
@@ -44,9 +45,9 @@ def get_nodes(
         Tuple:
             - nodes (List[str]): A list of all unique nodes in the graph.
             - node_parents (Dict[str, List[str]]): A dictionary where keys
-              are nodes and values are lists of parent nodes.
+            are nodes and values are lists of parent nodes.
             - node_children (Dict[str, List[str]]): A dictionary where keys
-              are nodes and values are lists of child nodes.
+            are nodes and values are lists of child nodes.
 
     Example:
         >>> edges = [("A", "B"), ("A", "C"), ("B", "D")]
@@ -133,13 +134,12 @@ def define_mechanisms(
         >>> nodes = ['A', 'B', 'C']
         >>> node_parents = {'B': ['A'], 'C': ['A', 'B']}
         >>> node_children = {'A': ['B', 'C'], 'B': ['C']}
-        >>> cardinalities = [2, 2, 2]
-        >>> mapping = {'A': 0, 'B': 1, 'C': 2}
+        >>> cardinalities = ['A': 2, 'B': 2, 'C': 2]
         >>> exogenous = ['A']
         >>> endogenous = ['B', 'C']
         >>> mechanisms = define_mechanisms(
         ...     df, node_parents, node_children,
-        ...     cardinalities, mapping, endogenous, exogenous
+        ...     cardinalities, endogenous, exogenous
         ... )
         >>> mechanisms
         {'A': [0.5, 0.5], 'B': [...], 'C': [...]}
@@ -161,7 +161,7 @@ def define_mechanisms(
     for ex in exogenous:
         mechanisms[ex] = [1/cardinalities[ex]]*cardinalities[ex]
         combinations = list(product(*[list(np.arange(len(r[child])))
-                                      for child in node_children[ex]]))
+                                    for child in node_children[ex]]))
         r_index[ex] = [{child: combination[i] for i, child in enumerate(
             node_children[ex])} for combination in combinations]
 
@@ -194,113 +194,160 @@ def define_mechanisms(
     return mechanisms
 
 
-def write_uai_file(
-    test_name: str,
-    nodes: List[str],
-    cardinalities: Dict[str, int],
-    edges_per_node: List[List[int]],
-    mechanisms: Dict[str, List[Union[int, float]]]
-) -> None:
+class UAIGenerator:
     """
-    Writes the UAI file with the specified parameters.
+    A class to generate UAI files for causal inference.
 
-    Args:
-        test_name (str): The name of the test.
-        nodes (List[str]): List of all unique nodes in the graph.
-        cardinalities (Dict[str, int]): List of cardinalities for each node.
-        edges_per_node (List[List[int]]): List of edges for each node.
-        mechanisms (Dict[str, List[Union[int, float]]]): A dictionary where
-            keys are nodes and values are their corresponding mechanisms.
+    This class provides methods to parse edges, define nodes, and mechanisms,
+    and write UAI files based on the provided parameters.
     """
-    with open(f"data/uai/{test_name}.uai", "w") as uai:
-        uai.write("CAUSAL\n")
-        uai.write(f"{len(nodes)}\n")
-        uai.write(" ".join(map(str, cardinalities.values())) + "\n")
-        uai.write(f"{len(nodes)}\n")
-        for i, edges in enumerate(edges_per_node):
+
+    def __init__(self, test_name: str, edges_str: str, csv_file: str) -> None:
+        """
+        Initializes the UaiGenerator with the given test name, edges string,
+        and CSV file path.
+
+        Args:
+            test_name (str): The name of the test.
+            edges_str (str): A string representing the edges of the graph,
+                where each edge is in the format "parent -> child" and edges
+                are separated by commas.
+            csv_file (str): The path to the CSV file containing the data.
+        """
+        self.test_name: str = test_name
+        self.edges_str: str = edges_str
+        self.csv_file: str = csv_file
+        self.uai_path: str = f"data/uai/{self.test_name}.uai"
+        self.mapping: Dict[str, int] = {}
+        self.generate()
+
+    def write_uai_file(
+        self,
+        nodes: List[str],
+        cardinalities: Dict[str, int],
+        edges_per_node: Dict[str, List[int]],
+        mechanisms: Dict[str, List[Union[int, float]]]
+    ) -> None:
+        """
+        Writes the UAI file with the specified parameters.
+
+        Args:
+            nodes (List[str]): List of all unique nodes in the graph.
+            cardinalities (Dict[str, int]): List of cardinalities for each
+                node.
+            edges_per_node (Dict[str, List[int]]): Dict of edges for each node.
+            mechanisms (Dict[str, List[Union[int, float]]]): A dictionary where
+                keys are nodes and values are their corresponding mechanisms.
+        """
+        with open(self.uai_path, "w") as uai:
+            uai.write("CAUSAL\n")
+            uai.write(f"{len(nodes)}\n")
             uai.write(
-                f"{len(list(edges))+1}   {' '.join(map(str, edges+[i]))}\n")
+                " ".join(
+                    map(str, [cardinalities[node] for node in nodes])
+                ) + "\n"
+            )
+            uai.write(f"{len(nodes)}\n")
+            for node, node_i in self.mapping.items():
+                node_edges = edges_per_node[node]
+                uai.write(
+                    f"{len(node_edges)+1}   "
+                    f"{' '.join(map(str, node_edges+[node_i]))}\n"
+                )
 
-        uai.write("\n")
-        for node in nodes:
-            mechanism = mechanisms[node]
-            uai.write(f"{len(mechanism)}   {' '.join(map(str, mechanism))}\n")
+            uai.write("\n")
+            for node in nodes:
+                mechanism = mechanisms[node]
+                uai.write(
+                    f"{len(mechanism)}   {' '.join(map(str, mechanism))}\n")
 
+    def get_mapping_str(self) -> str:
+        """
+        Returns the mapping of nodes to their corresponding variable names as a
+        JSON string.
 
-def uai_generator(
-    test_name: str,
-    edges_str: str,
-    csv_file: str
-) -> None:
-    """
-    Generates a UAI file based on the provided parameters.
+        This method creates a new mapping where each node is assigned a
+        variable name in the format "V{i}", where {i} is the index of the
+        node in the original mapping.
 
-    Args:
-        test_name (str): The name of the test.
-        edges_str (str): A string representing the edges of the graph.
-        csv_file (str): The path to the CSV file containing the data.
-    """
-    # Load data
-    df = pd.read_csv(csv_file)
+        Returns:
+            str: A JSON string representing the new mapping of variable names 
+            to nodes.
+        """
+        new_mapping = {f"V{i}": node for i, node in enumerate(self.mapping)}
+        return json.dumps(new_mapping)
 
-    # Define edges
-    edges = get_edges(edges_str)
+    def generate(self) -> None:
+        """
+        Generates a UAI file based on the provided parameters.
+        """
+        # Load data
+        df = pd.read_csv(self.csv_file)
 
-    # Define nodes
-    nodes, node_parents, node_children = get_nodes(edges)
-    endogenous, exogenous = define_nodes(nodes, node_parents)
+        # Define edges
+        edges = get_edges(self.edges_str)
 
-    # Create dummy variable for exogenous observed nodes
-    for ex in exogenous:
-        if ex in df.columns:
-            exogenous.append(f"{ex}_dummy")
-            endogenous.append(ex)
-            exogenous.remove(ex)
-            edges_str += f", {ex}_dummy -> {ex}"
+        # Define nodes
+        nodes, node_parents, node_children = get_nodes(edges)
+        endogenous, exogenous = define_nodes(nodes, node_parents)
 
-    # Define endogenous nodes cardinality
-    end_card = {end: len(df[end].unique()) for end in endogenous}
+        # Create dummy variable for exogenous observed nodes
+        for ex in exogenous:
+            if ex in df.columns:
+                exogenous.append(f"{ex}_dummy")
+                endogenous.append(ex)
+                exogenous.remove(ex)
+                self.edges_str += f", {ex}_dummy -> {ex}"
 
-    # Define canonical partitions and relaxed graph
-    canonicalPartitions_data = {
-        "num_nodes": len(endogenous) + len(exogenous),
-        "num_edges": len(edges_str.split(", ")),
-        "nodes": [f"{end} {end_card[end]}" for end in endogenous]
-        + [f"{ex} 0" for ex in exogenous],
-        "edges": edges_str.split(", ")
-    }
+        # Define endogenous nodes cardinality
+        end_card = {end: len(df[end].unique()) for end in endogenous}
 
-    relaxed, ex, ex_card = completeRelaxed(
-        predefined_data=canonicalPartitions_data
-    )
-    edges = get_edges(relaxed)
-    nodes, node_parents, node_children = get_nodes(edges)
-    endogenous, exogenous = define_nodes(nodes, node_parents)
-    nodes = endogenous + exogenous  # Reorder nodes
+        # Define canonical partitions and relaxed graph
+        canonicalPartitions_data = {
+            "num_nodes": len(endogenous) + len(exogenous),
+            "num_edges": len(self.edges_str.split(", ")),
+            "nodes": [f"{end} {end_card[end]}" for end in endogenous]
+            + [f"{ex} 0" for ex in exogenous],
+            "edges": self.edges_str.split(", ")
+        }
 
-    # Define cardinalities, mapping and edges per node
-    ex_card = list(map(int, ex_card.split(", ")))
-    cardinalities = {**end_card, **
-                     {f"U{i}": card for i, card in enumerate(ex_card)}}
-    mapping = {node: i for i, node in enumerate(nodes)}
-    print(mapping)
-    edges_per_node = [
-        sorted([mapping[parent] for parent in node_parents.get(node, [])])
-        for node in nodes
-    ]
+        relaxed, ex, ex_card = completeRelaxed(
+            predefined_data=canonicalPartitions_data
+        )
+        edges = get_edges(relaxed)
+        nodes, node_parents, node_children = get_nodes(edges)
+        endogenous, exogenous = define_nodes(nodes, node_parents)
+        nodes = endogenous + exogenous  # Reorder nodes
 
-    # Define mechanisms
-    mechanisms = define_mechanisms(
-        df, node_parents, node_children, cardinalities, endogenous, exogenous
-    )
+        # Define cardinalities, mapping and edges per node
+        ex_card = list(map(int, ex_card.split(", ")))
+        cardinalities = {**end_card, **
+                         {f"U{i}": card for i, card in enumerate(ex_card)}}
+        self.mapping = {node: i for i, node in enumerate(nodes)}
+        print(self.mapping)
+        edges_per_node = {
+            node:
+            sorted([self.mapping[parent]
+                    for parent in node_parents.get(node, [])])
+            for node in nodes
+        }
 
-    # Write UAI file
-    write_uai_file(test_name, nodes, cardinalities, edges_per_node, mechanisms)
+        # Define mechanisms
+        mechanisms = define_mechanisms(
+            df, node_parents, node_children,
+            cardinalities, endogenous, exogenous
+        )
+
+        # Write UAI file
+        uai_path = self.write_uai_file(
+            nodes, cardinalities, edges_per_node, mechanisms)
+
+        return uai_path
 
 
 # Example
 if __name__ == "__main__":
-    uai_generator(
+    uai = UAIGenerator(
         "itau_teste",
         "E -> D, T -> D, T -> Y, D -> Y, U -> T, U -> Y",
         "data/csv/unob_itau_teste.csv"
