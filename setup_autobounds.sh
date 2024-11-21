@@ -19,9 +19,13 @@ else
     echo "Python 3.10 is already installed."
 fi
 
-
-echo "Creating a Autobounds virtual environment with Python 3.10..."
-python3.10 -m venv venv_autobounds
+# Check if the virtual environment already exists
+if [ -d "venv_autobounds" ]; then
+    echo "Autobounds virtual environment already exists."
+else
+    echo "Creating a Autobounds virtual environment with Python 3.10..."
+    python3.10 -m venv venv_autobounds
+fi
 
 
 echo "Activating the Autobounds virtual environment..."
