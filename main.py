@@ -35,9 +35,9 @@ def main(args):
 
         data = get_common_data(common_data_path)
 
-        print(f"Creating output directory for test: {data['test_name']}")
         folder_name = Path(f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}")
         folder_name.mkdir(parents=True, exist_ok=True)
+        print(f"Created output directory for test: {data['test_name']}")
 
         if Solvers.DOWHY.value in data["solvers"]:
             run_task(

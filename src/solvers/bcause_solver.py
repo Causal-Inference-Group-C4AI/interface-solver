@@ -52,5 +52,5 @@ if __name__ == "__main__":
         csv_path=data['csv_path'],
         treatment=data['treatment'],
         outcome=data['outcome'],
-        mapping=data['mapping'],
+        mapping=data['uai_mapping'],
     )

@@ -4,6 +4,10 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 
 
+class InvalidInputFormatError(Exception):
+    pass
+
+
 class InvalidSolversFormatError(Exception):
     pass
 

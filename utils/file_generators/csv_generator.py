@@ -16,6 +16,15 @@ def probsHelper(
     test_name: str,
     csv_flag: bool = True
 ) -> str | pd.DataFrame:
+    """
+    Generate a dataset in the csv format which is consistent with the specified
+    distribution. As input, it needs: a header row for the csv, the probability
+    of each outcome of the variables and the csv filename.
+    Returns:
+        str: Path to the csv generated
+    or
+        DataFrame: DataFrame with the generated data
+    """
     maxDecimals: int = 0
     for _sublist, val in probCombinations:
         probStr: str = str(val)
