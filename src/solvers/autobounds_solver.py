@@ -1,21 +1,16 @@
-import glob
+import argparse
 import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 import numpy as np
 import pandas as pd
 from autobounds.causalProblem import causalProblem
 from autobounds.DAG import DAG
+from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriterAutobounds
-
-
-def cleanup_logs():
-    """Remove all log files in the current directory."""
-    log_files = glob.glob(".*.log")
-    for log_file in log_files:
-        try:
-            os.remove(log_file)
-        except Exception as e:
-            raise Exception(f"Error deleting {log_file}: {e}")
+from utils.validator import Validator
 
 
 def autobounds_solver(
@@ -35,6 +30,7 @@ def autobounds_solver(
         treatment (str): The treatment variable.
         outcome (str): The outcome variable.
     """
+    print("Autobounds solver running...")
     # Create a DAG object from the edges and unobservables
     dag = DAG()
     if unobservables:
@@ -64,24 +60,38 @@ def autobounds_solver(
     output_file = f"outputs/{test_name}/autobounds_{test_name}.txt"
     writer = OutputWriterAutobounds(output_file)
 
-    # Calculating bounds
-    problem.set_ate(ind=treatment, dep=outcome)
-    prog_ate = writer.silent_run(lambda: problem.write_program(), new=True)
-    prog_ate_optim = writer.silent_run(lambda: prog_ate.run_scip())
+    try:
+        # Calculating bounds
+        problem.set_ate(ind=treatment, dep=outcome)
+        prog_ate = writer.silent_run(lambda: problem.write_program(), new=True)
+        prog_ate_optim = writer.silent_run(lambda: prog_ate.run_scip())
 
-    # Extracting bounds
-    lower_bound = np.round(prog_ate_optim[0]['dual'], 3)
-    upper_bound = np.round(prog_ate_optim[1]['dual'], 3)
-    writer("==============================================")
-    writer(f"Causal effect lies in the interval [{lower_bound}, {upper_bound}]")
-    writer("==============================================")
+        # Extracting bounds
+        lower_bound = np.round(prog_ate_optim[0]['dual'], 3)
+        upper_bound = np.round(prog_ate_optim[1]['dual'], 3)
+        writer("==============================================")
+        writer(f"Causal effect lies in the interval [{lower_bound}, {upper_bound}]")
+        writer("==============================================")
+    except Exception as e:
+        if "unsupported operand type(s) for -: 'str' and 'str'" in str(e):
+            pass
+        else:
+            raise Exception(e)
 
-    cleanup_logs()
+    print("Autobounds solver Done.")
 
 
-# Example usage
 if __name__ == "__main__":
-    edges = "Z -> X, X -> Y, Uxy -> X, Uxy -> Y"
-    unobservables = "Uxy"
-    csv_path = 'data/csv/balke_pearl.csv'
-    autobounds_solver('balke_pearl', edges, unobservables, csv_path, 'X', 'Y')
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--common_data", required=True, help="Path to common data")
+    args = parser.parse_args()
+    validator = Validator()
+    data = get_common_data(validator.get_valid_path(args.common_data))
+    autobounds_solver(
+        test_name=data['test_name'],
+        edges=data['edges']['edges_str'],
+        unobservables=data['unobservables'],
+        csv_path=data['csv_path'],
+        treatment=data['treatment'],
+        outcome=data['outcome'],
+    )

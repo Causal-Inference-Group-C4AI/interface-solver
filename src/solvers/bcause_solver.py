@@ -1,7 +1,16 @@
+import argparse
+import logging
+import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+
 import pandas as pd
 from bcause.inference.causal.multi import EMCC
 from bcause.models.cmodel import StructuralCausalModel
+from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriterBcause
+from utils.validator import Validator
 
 
 def bcause_solver(test_name: str, uai_path: str, csv_path: str, treatment: str, outcome: str, mapping: dict):
@@ -26,5 +35,21 @@ def bcause_solver(test_name: str, uai_path: str, csv_path: str, treatment: str, 
     writer(f'P({outcome}=1|do({treatment}=1)) = {[p_do1.values[1], p_do1.values[3]]}')
     writer(f"Causal effect lies in the interval [{lower_bound}, {upper_bound}]")
     writer("==============================================")
-
     print("Bcause solver Done.")
+
+
+if __name__ == "__main__":
+    logging.getLogger().setLevel(logging.CRITICAL)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--common_data", required=True, help="Path to common data")
+    args = parser.parse_args()
+    validator = Validator()
+    data = get_common_data(validator.get_valid_path(args.common_data))
+    bcause_solver(
+        test_name=data['test_name'],
+        uai_path=data['uai_path'],
+        csv_path=data['csv_path'],
+        treatment=data['treatment'],
+        outcome=data['outcome'],
+        mapping=data['mapping'],
+    )

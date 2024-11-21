@@ -1,11 +1,19 @@
+import argparse
+import logging
+import os
+import sys
 from typing import List, Tuple
+import warnings
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 import networkx as nx
 import numpy as np
 import pandas as pd
 from dowhy import CausalModel
-from utils.validator import Validator
+from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriterDoWhy
+from utils.validator import Validator
 
 
 def dowhy_solver(
@@ -25,6 +33,7 @@ def dowhy_solver(
         outcome (str): Name of the outcome variable.
     """
     print("DoWhy solver running...")
+    
     # Configure output
     output_file = f"outputs/{test_name}/dowhy_{test_name}.txt"
     writer = OutputWriterDoWhy(output_file)
@@ -118,12 +127,19 @@ def dowhy_solver(
                 writer(f"Failed to estimate using {method_name}: {str(e)}")
     print("DoWhy solver Done.")
 
+
 if __name__ == "__main__":
+    warnings.filterwarnings("ignore", category=UserWarning)
+    logging.getLogger().setLevel(logging.CRITICAL)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--common_data", required=True, help="Path to common data")
+    args = parser.parse_args()
     validator = Validator()
+    data = get_common_data(validator.get_valid_path(args.common_data))
     dowhy_solver(
-        test_name='balke_pearl',
-        csv_path='data/csv/balke_pearl.csv',
-        edges=validator.get_valid_edge_tuple_list("Z -> X, X -> Y"),
-        treatment='X',
-        outcome='Y'
+        test_name=data['test_name'],
+        csv_path=data['csv_path'],
+        edges=data['edges']['edges_list'],
+        treatment=data['treatment'],
+        outcome=data['outcome']
     )

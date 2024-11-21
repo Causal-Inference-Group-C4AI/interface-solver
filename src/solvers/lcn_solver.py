@@ -1,24 +1,17 @@
-import pandas as pd
+import argparse
 import os
-import glob
 import sys
 
-from lcn.inference.exact.marginal import ExactInferece
+import pandas as pd
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+
+from lcn.inference.exact_marginal import ExactInferece
 from lcn.model import LCN
-from utils.output_writer import OutputWriterLCN
 from utils.file_generators.lcn_file_generator import create_lcn
-
-
-# sys.path.append(os.path.join(os.path.dirname(__file__), '../../LCN'))
-
-def cleanup_lcn():
-    """Remove all LCN files in the current directory."""
-    lcn_files = glob.glob("*.lcn")
-    for lcn_file in lcn_files:
-        try:
-            os.remove(lcn_file)
-        except Exception as e:
-            print(f"Error deleting {lcn_file}: {e}")
+from utils.get_common_data import get_common_data
+from utils.output_writer import OutputWriterLCN
+from utils.validator import Validator
 
 
 def lcn_solver(test_name, edges, unobservables, csv_path, treatment, outcome):
@@ -32,6 +25,7 @@ def lcn_solver(test_name, edges, unobservables, csv_path, treatment, outcome):
         treatment (str): The treatment variable.
         outcome (str): The outcome variable.
     """
+    print("LCN solver running...")
 
     # Setting up the file to write the output
     output_file = f"outputs/{test_name}/LCN_{test_name}.txt"
@@ -115,15 +109,20 @@ def lcn_solver(test_name, edges, unobservables, csv_path, treatment, outcome):
     writer(f"[{ate_lower_bound}, {ate_upper_bound}]")
     writer("==============================================")
 
-    # Cleaning up the LCN files
-    cleanup_lcn()
+    print("LCN solver Done.")
+
 
 if __name__ == "__main__":
-    # Example usage
-    edges = "Z -> X, X -> Y, Uxy -> X, Uxy -> Y"
-    unobservables = "U"
-    csv_path = 'data/csv/balke_pearl.csv'
-    test_name = "balke_pearl"
-    treatment = "X"
-    outcome = "Y"
-    lcn_solver(test_name, edges, unobservables, csv_path, treatment, outcome)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--common_data", required=True, help="Path to common data")
+    args = parser.parse_args()
+    validator = Validator()
+    data = get_common_data(validator.get_valid_path(args.common_data))
+    lcn_solver(
+        test_name=data['test_name'],
+        edges=data['edges']['edges_str'],
+        unobservables=data['unobservables'],
+        csv_path=data['csv_path'],
+        treatment=data['treatment'],
+        outcome=data['outcome'],
+    )

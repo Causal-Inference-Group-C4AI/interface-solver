@@ -1,6 +1,7 @@
 import contextlib
 import logging
 
+
 class OutputWriter:
     """
     A utility class for managing output to both the console and a file.

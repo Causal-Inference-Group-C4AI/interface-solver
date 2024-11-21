@@ -1,8 +1,7 @@
 import random as rd
 
-import numpy as np
-
 import canonicalPartitions
+import numpy as np
 from graph import Graph
 
 
