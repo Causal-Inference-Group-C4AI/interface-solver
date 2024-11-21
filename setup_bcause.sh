@@ -19,9 +19,13 @@ else
     echo "Python 3.10 is already installed."
 fi
 
-
-echo "Creating a Bcause virtual environment with Python 3.10..."
-python3.10 -m venv venv_bcause
+# Check if the virtual environment already exists
+if [ -d "venv_bcause" ]; then
+    echo "Bcause virtual environment already exists."
+else
+    echo "Creating a Bcause virtual environment with Python 3.10..."
+    python3.10 -m venv venv_bcause
+fi
 
 
 echo "Activating the Bcause virtual environment..."

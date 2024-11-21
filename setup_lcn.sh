@@ -19,9 +19,13 @@ else
     echo "Python 3.10 is already installed."
 fi
 
-
-echo "Creating a LCN virtual environment with Python 3.10..."
-python3.10 -m venv venv_lcn
+# Check if the virtual environment already exists
+if [ -d "venv_lcn" ]; then
+    echo "LCN virtual environment already exists."
+else
+    echo "Creating a LCN virtual environment with Python 3.10..."
+    python3.10 -m venv venv_lcn
+fi
 
 
 echo "Activating the LCN virtual environment..."
