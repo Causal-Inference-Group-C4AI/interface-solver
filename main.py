@@ -68,17 +68,16 @@ def main(args):
                 args=["--common_data", common_data_path]
             )
 
+        data_cleaner = DataCleaner()
+        data_cleaner.cleanup_file(common_data_path)
+        print("Shared data successfully deleted.")
+        data_cleaner.cleanup_logs()
+        print("Logs successfully deleted.")
+        data_cleaner.cleanup_lcn()
+        print(".LCN successfully deleted.")
+
     except Exception as e:
         print(f"{type(e).__module__}.{type(e).__name__}: {e}")
-    
-    data_cleaner = DataCleaner()
-    data_cleaner.cleanup_file(common_data_path)
-    print("Shared data successfully deleted.")
-    data_cleaner.cleanup_logs()
-    print("Logs successfully deleted.")
-    data_cleaner.cleanup_lcn()
-    print(".LCN successfully deleted.")
-
 
 
 if __name__ == "__main__":

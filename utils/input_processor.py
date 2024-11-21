@@ -24,14 +24,15 @@ class InputProcessor:
     def process_input_data(self) -> Dict:
         data_test = self.get_input_data()
         validator = Validator()
+
         if data_test['csv_path'] is None:
             nodes = list(data_test['uai_mapping'].values())
             parser = UAIParser(data_test["uai_path"], nodes)
             parser.parse()
-            data_test['csv_path'] = validator.get_valid_csv_path(
-                parser.generate_data(data_test['test_name']))
+            csv_path = parser.generate_data(data_test['test_name'])
+            data_test['csv_path'] = validator.get_valid_csv_path(csv_path)
 
-        if data_test['uai_path'] is None and Solvers.BCAUSE.value in data_test['solvers']:
+        if (data_test['uai_path'] is None) and (Solvers.BCAUSE.value in data_test['solvers']):
             uai = UAIGenerator(data_test['test_name'], data_test['edges']
                                 ['edges_str'], data_test['csv_path'])
             data_test['uai_path'] = validator.get_valid_uai_path(uai.uai_path)
@@ -57,21 +58,21 @@ class InputProcessor:
                 data_test['outcome'] = validator.get_valid_variable(file.readline().strip(), edges_str)
                 data_test['unobservables'] = validator.get_valid_unobservables(file.readline().strip(), edges_str)
 
-                first_file_line = validator.get_valid_path(file.readline().strip())
-                if first_file_line.endswith('.csv'):
-                    data_test['csv_path'] = first_file_line
-                    next_file_line = file.readline()
-                    if next_file_line == "" or next_file_line == "\n":
-                        data_test['uai_path'], data_test['uai_mapping'] = None, None
-                    else:
-                        data_test['uai_path'] = validator.get_valid_uai_path(file.readline())
-                        data_test['uai_mapping'] = validator.get_valid_mapping(file.readline().strip())
-                else:
-                    data_test['csv_path'] = None
-                    data_test['uai_path'] = validator.get_valid_uai_path(first_file_line, False)
-                    data_test['uai_mapping'] = validator.get_valid_mapping(file.readline().strip())
+                data_test['csv_path'], data_test['uai_path'], data_test['uai_mapping'] = None, None, None
+                for _ in range(3):
+                    line = file.readline().strip()
+                    if line.endswith('.csv'):
+                        data_test['csv_path'] = validator.get_valid_csv_path(line)
+                    elif line.endswith('.uai'):
+                        data_test['uai_path'] = validator.get_valid_uai_path(line)
+                    elif line != "" and line != "\n":
+                        data_test['uai_mapping'] = validator.get_valid_mapping(line)
 
-                return data_test
+                if not data_test['csv_path'] and not data_test['uai_path']:
+                    raise InvalidInputFormatError(f"Invalid input format: There should be at least a .csv or a .uai file path.")
+                if (data_test['uai_mapping'] is None) ^ (data_test['uai_path'] is None):
+                    raise InvalidInputFormatError(f"Invalid input format: .uai file and uai mapping should come together.")
+            return data_test
 
         except Exception as e:
             raise InvalidInputFormatError(f"Invalid input format: {e}.") from e
