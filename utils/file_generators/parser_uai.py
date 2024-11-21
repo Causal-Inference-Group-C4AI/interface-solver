@@ -5,6 +5,7 @@ import numpy as np
 from pandas import DataFrame
 
 from utils.file_generators.csv_generator import probsHelper
+from utils._enums import DirectoryPaths
 
 
 class UAIParser:
@@ -212,7 +213,7 @@ class UAIParser:
 
 if __name__ == "__main__":
     # Parsing the UAI file
-    model_uai = UAIParser("data/uai/variation_1.uai",
+    model_uai = UAIParser(f"{DirectoryPaths.UAI.value}/variation_1.uai",
                           ["X1", "X2", "U1", "U2", "U3"])
     model_uai.parse()
 

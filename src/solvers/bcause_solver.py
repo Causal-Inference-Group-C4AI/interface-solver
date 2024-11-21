@@ -11,6 +11,7 @@ from bcause.models.cmodel import StructuralCausalModel
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriterBcause
 from utils.validator import Validator
+from utils._enums import DirectoryPaths
 
 
 def bcause_solver(test_name: str, uai_path: str, csv_path: str, treatment: str, outcome: str, mapping: dict):
@@ -27,7 +28,7 @@ def bcause_solver(test_name: str, uai_path: str, csv_path: str, treatment: str, 
     lower_bound = p_do1.values[1] - p_do0.values[1]
     upper_bound = p_do1.values[3] - p_do0.values[3]
 
-    output_file = f"outputs/{test_name}/bcause_{test_name}.txt"
+    output_file = f"{DirectoryPaths.OUTPUTS.value}/{test_name}/bcause_{test_name}.txt"
     writer = OutputWriterBcause(output_file)
     
     writer("==============================================")

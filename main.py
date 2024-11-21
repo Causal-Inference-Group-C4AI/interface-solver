@@ -7,7 +7,7 @@ import sys
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
-from utils._enums import Solvers
+from utils._enums import Solvers, FilePaths, DirectoryPaths
 from utils.data_cleaner import DataCleaner
 from utils.get_common_data import get_common_data
 
@@ -21,60 +21,50 @@ def run_task(script, env_path=None, args=None):
     subprocess.run(command, cwd="./", check=True)
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Runs tests of Causal Effect under Partial-Observability."
-    )
-    parser.add_argument('file_path',
-                        help='The path to the file you want to read'
-    )
-    parser.add_argument('-v', '--verbose', action='store_true', help="Show solver logs")
-    args = parser.parse_args()
-
-    common_data_path = "shared/common_data.json"
-
+def main(args):
+    common_data_path = FilePaths.SHARED_DATA.value
     try:
         if not args.verbose:
             logging.getLogger().setLevel(logging.CRITICAL)
 
         run_task(
-            "utils/input_processor.py",
-            # TODO: REVER O ENV DAQUI 
-            env_path="venv_bcause",
+            FilePaths.INPUT_PROCESSOR_SCRIPT.value,
+            env_path=FilePaths.INPUT_PROCESSOR_VENV.value,
             args=["--output", common_data_path, "--input", args.file_path]
         )
 
         data = get_common_data(common_data_path)
 
-        folder_name = Path(f"outputs/{data['test_name']}")
+        print(f"Creating output directory for test: {data['test_name']}")
+        folder_name = Path(f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}")
         folder_name.mkdir(parents=True, exist_ok=True)
 
         if Solvers.DOWHY.value in data["solvers"]:
             run_task(
-                "src/solvers/dowhy_solver.py",
-                env_path="venv_dowhy",
+                FilePaths.DOWHY_SOLVER.value,
+                env_path=FilePaths.DOWHY_VENV.value,
                 args=["--common_data", common_data_path]
             )
 
         if Solvers.BCAUSE.value in data['solvers']:
             run_task(
-                "src/solvers/bcause_solver.py",
-                env_path="venv_bcause",
+                FilePaths.BCAUSE_SOLVER.value,
+                env_path=FilePaths.BCAUSE_VENV.value,
                 args=["--common_data", common_data_path]
             )
 
 
         if Solvers.LCN.value in data["solvers"]:
             run_task(
-                "src/solvers/lcn_solver.py",
-                env_path="venv_lcn",
+                FilePaths.LCN_SOLVER.value,
+                env_path=FilePaths.LCN_VENV.value,
                 args=["--common_data", common_data_path]
             )
 
         if Solvers.AUTOBOUNDS.value in data["solvers"]:
             run_task(
-                "src/solvers/autobounds_solver.py",
-                env_path="venv_autobounds",
+                FilePaths.AUTOBOUNDS_SOLVER.value,
+                env_path=FilePaths.AUTOBOUNDS_VENV.value,
                 args=["--common_data", common_data_path]
             )
 
@@ -88,3 +78,16 @@ if __name__ == "__main__":
     print("Logs successfully deleted.")
     data_cleaner.cleanup_lcn()
     print(".LCN successfully deleted.")
+
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Runs tests of Causal Effect under Partial-Observability."
+    )
+    parser.add_argument('file_path',
+                        help='The path to the file you want to read'
+    )
+    parser.add_argument('-v', '--verbose', action='store_true', help="Show solver logs")
+    args = parser.parse_args()
+    main(args)

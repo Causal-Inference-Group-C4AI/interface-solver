@@ -11,6 +11,7 @@ from autobounds.DAG import DAG
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriterAutobounds
 from utils.validator import Validator
+from utils._enums import DirectoryPaths
 
 
 def autobounds_solver(
@@ -57,7 +58,7 @@ def autobounds_solver(
     problem.add_prob_constraints()
 
     # Setting up the file to write the output
-    output_file = f"outputs/{test_name}/autobounds_{test_name}.txt"
+    output_file = f"{DirectoryPaths.OUTPUTS.value}/{test_name}/autobounds_{test_name}.txt"
     writer = OutputWriterAutobounds(output_file)
 
     try:

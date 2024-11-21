@@ -3,6 +3,10 @@ from typing import List, Tuple
 
 import pandas as pd
 
+
+from utils._enums import DirectoryPaths
+
+
 ArrayType = List[Tuple[List[int], float]]
 
 
@@ -19,7 +23,7 @@ def probsHelper(
             maxDecimals = max(maxDecimals, len(probStr.split(".")[1]))
 
     if csv_flag:
-        file_path = f"data/csv/{test_name}.csv"
+        file_path = f"{DirectoryPaths.CSV.value}/{test_name}.csv"
         with open(file_path, mode="w", newline="") as file:
             writer = csv.writer(file)
             writer.writerow(header)

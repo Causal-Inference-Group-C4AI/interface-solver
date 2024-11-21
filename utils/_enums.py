@@ -6,3 +6,26 @@ class Solvers(Enum):
     BCAUSE = 'bcause'
     AUTOBOUNDS = 'autobounds'
     LCN = 'lcn'
+
+
+class DirectoryPaths(Enum):
+    OUTPUTS = 'data/outputs'
+    INPUTS = 'data/inputs'
+    CSV = 'data/inputs/csv'
+    LCN = 'data/inputs/lcn'
+    UAI = 'data/inputs/uai'
+
+
+class FilePaths(Enum):
+    SHARED_DATA = "data/shared/common_data.json"
+    INPUT_PROCESSOR_SCRIPT = "utils/input_processor.py"
+    DOWHY_SOLVER = "src/solvers/dowhy_solver.py"
+    BCAUSE_SOLVER = "src/solvers/bcause_solver.py"
+    LCN_SOLVER = "src/solvers/lcn_solver.py"
+    AUTOBOUNDS_SOLVER = "src/solvers/autobounds_solver.py"
+    DOWHY_VENV = "venv_dowhy"
+    BCAUSE_VENV = "venv_bcause"
+    LCN_VENV = "venv_lcn"
+    AUTOBOUNDS_VENV = "venv_autobounds"
+    # TODO: REVER O ENV DAQUI 
+    INPUT_PROCESSOR_VENV = "venv_dowhy"

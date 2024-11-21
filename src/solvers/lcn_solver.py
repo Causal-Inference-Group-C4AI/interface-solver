@@ -12,6 +12,7 @@ from utils.file_generators.lcn_file_generator import create_lcn
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriterLCN
 from utils.validator import Validator
+from utils._enums import DirectoryPaths
 
 
 def lcn_solver(test_name, edges, unobservables, csv_path, treatment, outcome):
@@ -28,7 +29,7 @@ def lcn_solver(test_name, edges, unobservables, csv_path, treatment, outcome):
     print("LCN solver running...")
 
     # Setting up the file to write the output
-    output_file = f"outputs/{test_name}/LCN_{test_name}.txt"
+    output_file = f"{DirectoryPaths.OUTPUTS.value}/{test_name}/LCN_{test_name}.txt"
     writer = OutputWriterLCN(output_file)
 
     #Defining the first intervention
