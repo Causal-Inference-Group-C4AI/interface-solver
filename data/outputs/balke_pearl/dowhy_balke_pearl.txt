@@ -3,16 +3,16 @@ Estimands found: iv
 Estimation using iv.instrumental_variable:
 ATE = -1.3636363636363638
 P-value: (0, 0.001)
-Confidence interval: [-1.6268035660414653, -0.8864781823572223]
+Confidence interval: [-1.6393957060091884, -0.8978245826485598]
 
 Refute: Use a Placebo Treatment
 Estimated effect:-1.3636363636363638
-New effect:-0.010101010101010097
-p value:0.86
+New effect:0.020875420875420884
+p value:0.9199999999999999
 
 Refute: Use a subset of data
 Estimated effect:-1.3636363636363638
-New effect:-1.3710449369254436
-p value:0.9
+New effect:-1.3686160778547576
+p value:0.94
 
 Failed to refute using random_common_cause. Error:None
