@@ -1,7 +1,8 @@
 import json
 import os
+import pandas as pd
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Generator
 
 
 class InvalidInputFormatError(Exception):
@@ -64,17 +65,32 @@ class Validator:
             raise InvalidSolversFormatError(
                 f"Invalid solvers format: {solvers_str}.{e}.") from e
 
-    def get_valid_edge_tuple_list(
-        self, edges_str: str
+    def extract_nodes(self, edges_str: str) -> Generator[Tuple[str,str], None, None]:
+        for edge in edges_str.split(', '): 
+            nodes = edge.split(' -> ') 
+            if len(nodes) != 2 or not nodes[0].strip() or not nodes[1].strip(): 
+                raise InvalidEdgeFormatError( 
+                    f"Invalid format for edge: '{edge}'") 
+            yield nodes[0].strip(), nodes[1].strip()
+
+    def get_unobservables(self, nodes: List[str], csv_path: str) -> str:
+        observables = pd.read_csv(csv_path, nrows=0).columns.tolist()
+        unobservables_list = list(set(nodes) - set(observables))
+        return ", ".join(unobservables_list)
+
+    def get_nodes( 
+        self, edges_str: str 
     ) -> List[Tuple[str, str]]:
-        edges = []
-        for edge in edges_str.split(', '):
-            nodes = edge.split(' -> ')
-            if len(nodes) != 2 or not nodes[0].strip() or not nodes[1].strip():
-                raise InvalidEdgeFormatError(
-                    f"Invalid format for edge: '{edge}'")
-            edges.append((nodes[0].strip(), nodes[1].strip()))
-        return edges
+        dag_nodes = set()
+        for src, dst in self.extract_nodes(edges_str):
+                dag_nodes.add(src)
+                dag_nodes.add(dst)
+        return list(dag_nodes)
+
+    def get_valid_edge_tuple_list( 
+        self, edges_str: str 
+    ) -> List[Tuple[str, str]]: 
+        return [ (src, dst) for src, dst in self.extract_nodes(edges_str) ]
 
     def get_valid_edges_in_string(
         self, edges_str: str
@@ -92,19 +108,6 @@ class Validator:
         if var.upper() not in edges:
             raise InvalidVariableError(
                 f"Invalid variable: '{var}'. Not present in the edges.")
-        return var.upper()
-
-    def get_valid_unobservables(self, vars: str, edges: str) -> str:
-        if not self.is_valid_string(vars):
-            raise InvalidVariableError(
-                f"Invalid string of variables: '{vars}'.")
-        if vars == "-":
-            return None
-        unobs = vars.split(',')
-        for var in unobs:
-            if var.strip().upper() not in edges:
-                raise InvalidVariableError(
-                    f"Invalid variable: '{var}'. Not present in the edges.")
         return var.upper()
 
     def get_valid_mapping(self, mapping: str) -> Dict:

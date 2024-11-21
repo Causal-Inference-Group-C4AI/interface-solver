@@ -3,9 +3,8 @@ import json
 import logging
 import os
 import sys
-from io import TextIOWrapper
 
-from typing import Any, Dict, Tuple, Union
+from typing import Dict
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
@@ -37,6 +36,8 @@ class InputProcessor:
                                 ['edges_str'], data_test['csv_path'])
             data_test['uai_path'] = validator.get_valid_uai_path(uai.uai_path)
             data_test['uai_mapping'] = validator.get_valid_mapping(uai.get_mapping_str())
+        data_test['nodes'] = validator.get_nodes(data_test['edges']['edges_str'])
+        data_test['unobservables'] = validator.get_unobservables(data_test['nodes'], data_test['csv_path'])
         return data_test
 
 
@@ -56,7 +57,6 @@ class InputProcessor:
 
                 data_test['treatment'] = validator.get_valid_variable(file.readline().strip(), edges_str)
                 data_test['outcome'] = validator.get_valid_variable(file.readline().strip(), edges_str)
-                data_test['unobservables'] = validator.get_valid_unobservables(file.readline().strip(), edges_str)
 
                 data_test['csv_path'], data_test['uai_path'], data_test['uai_mapping'] = None, None, None
                 for _ in range(3):
@@ -94,7 +94,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     processed_data = InputProcessor(args.input)
-
     generate_shared_data(args.output, processed_data.data_test)
 
     print("Input processor Done!")
