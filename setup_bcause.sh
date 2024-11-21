@@ -25,27 +25,25 @@ if [ -d "venv_bcause" ]; then
 else
     echo "Creating a Bcause virtual environment with Python 3.10..."
     python3.10 -m venv venv_bcause
+
+    echo "Activating the Bcause virtual environment..."
+    source venv_bcause/bin/activate
+
+    if [[ "$VIRTUAL_ENV" != "" ]]; then
+        echo "Bcause virtual environment activated."
+    else
+        echo "Error: Failed to activate the Bcause virtual environment."
+        exit 1
+    fi
+
+
+    echo "Installing bcause..."
+    if ! pip install --no-cache-dir --use-feature=fast-deps bcause; then
+        echo "Error: Failed to install bcause."
+        exit 1
+    fi
+
+    echo "All Bcause packages installed successfully in the Bcause virtual environment."
+    
+    deactivate
 fi
-
-
-echo "Activating the Bcause virtual environment..."
-source venv_bcause/bin/activate
-
-
-if [[ "$VIRTUAL_ENV" != "" ]]; then
-    echo "Bcause virtual environment activated."
-else
-    echo "Error: Failed to activate the Bcause virtual environment."
-    exit 1
-fi
-
-
-echo "Installing bcause..."
-if ! pip install --no-cache-dir --use-feature=fast-deps bcause; then
-    echo "Error: Failed to install bcause."
-    exit 1
-fi
-
-echo "All Bcause packages installed successfully in the Bcause virtual environment."
-
-deactivate
