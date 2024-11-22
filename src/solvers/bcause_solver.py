@@ -2,6 +2,8 @@ import argparse
 import logging
 import os
 import sys
+import time
+from typing import Tuple
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
@@ -9,12 +11,18 @@ import pandas as pd
 from bcause.inference.causal.multi import EMCC
 from bcause.models.cmodel import StructuralCausalModel
 from utils.get_common_data import get_common_data
-from utils.output_writer import OutputWriterBcause
+from utils.output_writer import OutputWriter, OutputWriterBcause
 from utils.validator import Validator
 from utils._enums import DirectoryPaths
 
 
-def bcause_solver(test_name: str, uai_path: str, csv_path: str, treatment: str, outcome: str, mapping: dict):
+def bcause_solver(
+        test_name: str,
+        uai_path: str,
+        csv_path: str,
+        treatment: str,
+        outcome: str,
+        mapping: dict) -> Tuple[float, float]:
     print("Bcause solver running...")
     model = StructuralCausalModel.read(uai_path)
     renamed_model = model.rename_vars(mapping)
@@ -37,6 +45,7 @@ def bcause_solver(test_name: str, uai_path: str, csv_path: str, treatment: str, 
     writer(f"Causal effect lies in the interval [{lower_bound}, {upper_bound}]")
     writer("==============================================")
     print("Bcause solver Done.")
+    return lower_bound, upper_bound
 
 
 if __name__ == "__main__":
@@ -46,7 +55,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
     validator = Validator()
     data = get_common_data(validator.get_valid_path(args.common_data))
-    bcause_solver(
+
+    start_time = time.time()
+    lower_bound, upper_bound = bcause_solver(
         test_name=data['test_name'],
         uai_path=data['uai_path'],
         csv_path=data['csv_path'],
@@ -54,3 +65,14 @@ if __name__ == "__main__":
         outcome=data['outcome'],
         mapping=data['uai_mapping'],
     )
+    end_time = time.time()
+
+    time_taken = end_time - start_time
+    print(f"Time taken by Bcause: {time_taken:.6f} seconds")
+
+    overview_file_path = f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
+    writer = OutputWriter(overview_file_path, reset=False)
+    writer("Bcause")
+    writer(f"   Time taken by Bcause: {time_taken:.6f} seconds")
+    writer(f"   ATE lies in the interval: [{lower_bound}, {upper_bound}]")
+    writer(f"--------------------------------------------")

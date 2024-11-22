@@ -4,6 +4,8 @@ import logging
 import os
 import subprocess
 import sys
+from datetime import date
+from utils.output_writer import OutputWriter
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
@@ -38,6 +40,13 @@ def main(args):
         folder_name = Path(f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}")
         folder_name.mkdir(parents=True, exist_ok=True)
         print(f"Created output directory for test: {data['test_name']}")
+
+        overview_file_path = f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
+        writer = OutputWriter(overview_file_path)
+        writer(f"Test '{data['test_name']}' on {date.today()}")
+        writer(f"--------------------------------------------")
+
+        print(f"Test '{data['test_name']}' on {date.today()}")
 
         if Solvers.DOWHY.value in data["solvers"]:
             run_task(
