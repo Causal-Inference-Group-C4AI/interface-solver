@@ -25,27 +25,23 @@ if [ -d "venv_lcn" ]; then
 else
     echo "Creating a LCN virtual environment with Python 3.10..."
     python3.10 -m venv venv_lcn
+
+    echo "Activating the LCN virtual environment..."
+    source venv_lcn/bin/activate
+
+    if [[ "$VIRTUAL_ENV" != "" ]]; then
+        echo "LCN virtual environment activated."
+    else
+        echo "Error: Failed to activate the LCN virtual environment."
+        exit 1
+    fi
+
+    echo "Installing LCN dependencies from requirements_lcn.txt..."
+    if ! pip install --no-cache-dir --use-feature=fast-deps -r requirements_lcn.txt; then
+        echo "Error: Failed to install LCN dependencies from requirements_lcn.txt."
+        exit 1
+    fi
+
+    echo "All LCN packages installed successfully in the LCN virtual environment."
+    deactivate
 fi
-
-
-echo "Activating the LCN virtual environment..."
-source venv_lcn/bin/activate
-
-
-if [[ "$VIRTUAL_ENV" != "" ]]; then
-    echo "LCN virtual environment activated."
-else
-    echo "Error: Failed to activate the LCN virtual environment."
-    exit 1
-fi
-
-
-echo "Installing LCN dependencies from requirements_lcn.txt..."
-if ! pip install --no-cache-dir --use-feature=fast-deps -r requirements_lcn.txt; then
-    echo "Error: Failed to install LCN dependencies from requirements_lcn.txt."
-    exit 1
-fi
-
-echo "All LCN packages installed successfully in the LCN virtual environment."
-
-deactivate
