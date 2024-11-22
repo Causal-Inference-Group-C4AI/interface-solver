@@ -3,14 +3,13 @@ import json
 import logging
 import os
 import sys
-from io import TextIOWrapper
 
-from typing import Any, Dict, Tuple, Union
+from typing import Dict
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
-
-from utils.validator import Validator
+from utils._enums import Solvers
+from utils.validator import Validator, InvalidInputFormatError
 from utils.file_generators.parser_uai import UAIParser
 from utils.file_generators.uai_generator import UAIGenerator
 from utils.suppress_print import suppress_print
@@ -18,64 +17,65 @@ from utils.suppress_print import suppress_print
 class InputProcessor:
     def __init__(self, input_path: str):
         self.input_path = input_path
-        self.data_test = self.process_test_data()
+        self.data_test = self.process_input_data()
 
     @suppress_print
-    def get_files(
-        self,
-        test: Dict[str, Any],
-        file: TextIOWrapper
-    ) -> Tuple[Union[Dict, None], str, Union[str, None]]:
-        val = Validator()
-        first_line = val.get_valid_path(file.readline().strip())
+    def process_input_data(self) -> Dict:
+        data_test = self.get_input_data()
+        validator = Validator()
 
-        if first_line.endswith('.csv'):
-            csv_path = first_line
-            if 'bcause' in test['solvers']:
-                second_line = file.readline().strip()
-                if not ('.' in second_line):
-                    uai = UAIGenerator(test['test_name'], test['edges']
-                                    ['edges_str'], csv_path)
-                    uai_path = val.get_valid_uai_path(uai.uai_path)
-                    uai_mapping = val.get_valid_mapping(
-                        uai.get_mapping_str())
-                else:
-                    uai_path = val.get_valid_uai_path(second_line)
-                    uai_mapping = val.get_valid_mapping(file.readline().strip())
-            else:
-                uai_path = None
-                uai_mapping = None
-        else:
-            uai_path = val.get_valid_uai_path(first_line, False)
-            uai_mapping = val.get_valid_mapping(file.readline().strip())
-            nodes = list(uai_mapping.values())
-            parser = UAIParser(first_line, nodes)
+        if data_test['csv_path'] is None:
+            nodes = list(data_test['uai_mapping'].values())
+            parser = UAIParser(data_test["uai_path"], nodes)
             parser.parse()
-            csv_path = val.get_valid_csv_path(
-                parser.generate_data(test['test_name']))
+            csv_path = parser.generate_data(data_test['test_name'])
+            data_test['csv_path'] = validator.get_valid_csv_path(csv_path)
 
-        return uai_mapping, csv_path, uai_path
+        if (data_test['uai_path'] is None) and (Solvers.BCAUSE.value in data_test['solvers']):
+            uai = UAIGenerator(data_test['test_name'], data_test['edges']
+                                ['edges_str'], data_test['csv_path'])
+            data_test['uai_path'] = validator.get_valid_uai_path(uai.uai_path)
+            data_test['uai_mapping'] = validator.get_valid_mapping(uai.get_mapping_str())
+        data_test['nodes'] = validator.get_nodes(data_test['edges']['edges_str'])
+        data_test['unobservables'] = validator.get_unobservables(data_test['nodes'], data_test['csv_path'])
+        return data_test
 
 
-    def process_test_data(self) -> Dict:
-        test = {}
+    def get_input_data(self) -> Dict:
+        data_test = {}
         validator = Validator()
         self.input_path = validator.get_valid_path(self.input_path)
-        with open(self.input_path, 'r') as file:
-            test['test_name'] = validator.get_valid_test_name(file.readline().strip())
-            test['solvers'] = validator.get_valid_solver_list(file.readline().strip())
+        try:
+            with open(self.input_path, 'r') as file:
+                data_test['test_name'] = validator.get_valid_test_name(file.readline().strip())
+                data_test['solvers'] = validator.get_valid_solver_list(file.readline().strip())
 
-            test['edges'] = {}
-            edges_str, edges_list = validator.get_valid_edges_in_string(file.readline().strip())
-            test['edges']['edges_str'] = edges_str
-            test['edges']['edges_list'] = edges_list
+                data_test['edges'] = {}
+                edges_str, edges_list = validator.get_valid_edges_in_string(file.readline().strip())
+                data_test['edges']['edges_str'] = edges_str
+                data_test['edges']['edges_list'] = edges_list
 
-            test['treatment'] = validator.get_valid_variable(file.readline().strip(), edges_str)
-            test['outcome'] = validator.get_valid_variable(file.readline().strip(), edges_str)
-            test['unobservables'] = validator.get_valid_unobservables(file.readline().strip(), edges_str)
+                data_test['treatment'] = validator.get_valid_variable(file.readline().strip(), edges_str)
+                data_test['outcome'] = validator.get_valid_variable(file.readline().strip(), edges_str)
 
-            test['mapping'], test['csv_path'], test['uai_path'] = self.get_files(test, file)
-            return test
+                data_test['csv_path'], data_test['uai_path'], data_test['uai_mapping'] = None, None, None
+                for _ in range(3):
+                    line = file.readline().strip()
+                    if line.endswith('.csv'):
+                        data_test['csv_path'] = validator.get_valid_csv_path(line)
+                    elif line.endswith('.uai'):
+                        data_test['uai_path'] = validator.get_valid_uai_path(line)
+                    elif line != "" and line != "\n":
+                        data_test['uai_mapping'] = validator.get_valid_mapping(line)
+
+                if not data_test['csv_path'] and not data_test['uai_path']:
+                    raise InvalidInputFormatError(f"Invalid input format: There should be at least a .csv or a .uai file path.")
+                if (data_test['uai_mapping'] is None) ^ (data_test['uai_path'] is None):
+                    raise InvalidInputFormatError(f"Invalid input format: .uai file and uai mapping should come together.")
+            return data_test
+
+        except Exception as e:
+            raise InvalidInputFormatError(f"Invalid input format: {e}.") from e
 
 
 def generate_shared_data(output_path: str, data_test: Dict):
@@ -94,7 +94,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     processed_data = InputProcessor(args.input)
-
     generate_shared_data(args.output, processed_data.data_test)
 
     print("Input processor Done!")

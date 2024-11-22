@@ -2,6 +2,9 @@ import contextlib
 import logging
 
 
+from utils._enums import DirectoryPaths
+
+
 class OutputWriter:
     """
     A utility class for managing output to both the console and a file.
@@ -13,7 +16,7 @@ class OutputWriter:
 
     **Attributes**:
         output_path (str): The file path to which the output will be written.
-            Defaults to "outputs/dowhy_output_NO_TEST_NAME.txt".
+            Defaults to "data/outputs/dowhy_output_NO_TEST_NAME.txt".
 
     **Methods**:
         __call__(text: str, end: str):
@@ -23,12 +26,12 @@ class OutputWriter:
     """
 
 
-    def __init__(self, output_path="outputs/DEFAULT_OUTPUT.txt"):
+    def __init__(self, output_path=f"{DirectoryPaths.OUTPUTS.value}/DEFAULT_OUTPUT.txt"):
         """
         Initialize the OutputWriter with the given output path.
 
         Args:
-            output_path (str, optional): The path to the output file. Defaults to "outputs/bcause_output_NO_TEST_NAME.txt".
+            output_path (str, optional): The path to the output file. Defaults to "data/outputs/bcause_output_NO_TEST_NAME.txt".
         """
         
         self.output_path = output_path
@@ -87,22 +90,22 @@ class OutputWriter:
 
 
 class OutputWriterBcause(OutputWriter):
-    def __init__(self, output_path="outputs/bcause_output_NO_TEST_NAME.txt"):
+    def __init__(self, output_path=f"{DirectoryPaths.OUTPUTS.value}/bcause_output_NO_TEST_NAME.txt"):
         super().__init__(output_path)
 
 
 class OutputWriterAutobounds(OutputWriter):
-    def __init__(self, output_path="outputs/autobounds_output_NO_TEST_NAME.txt"):
+    def __init__(self, output_path=f"{DirectoryPaths.OUTPUTS.value}/autobounds_output_NO_TEST_NAME.txt"):
         super().__init__(output_path)
 
 
 class OutputWriterLCN(OutputWriter):
-    def __init__(self, output_path="outputs/lcn_output_NO_TEST_NAME.txt"):
+    def __init__(self, output_path=f"{DirectoryPaths.OUTPUTS.value}/lcn_output_NO_TEST_NAME.txt"):
         super().__init__(output_path)
 
 
 class OutputWriterDoWhy(OutputWriter):
-    def __init__(self, output_path: str = "outputs/dowhy_output_NO_TEST_NAME.txt") -> None:
+    def __init__(self, output_path: str = f"{DirectoryPaths.OUTPUTS.value}/dowhy_output_NO_TEST_NAME.txt") -> None:
         super().__init__(output_path)
 
     def __call__(self, text: str = "", end: str = "\n") -> None:
