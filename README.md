@@ -5,19 +5,19 @@
 On linux terminal run:
 
 ```bash
-./setup_dowhy
+./setup_dowhy.sh
 ```
 
 ```bash
-./setup_bcause
+./setup_bcause.sh
 ```
 
 ```bash
-./setup_autobounds
+./setup_autobounds.sh
 ```
 
 ```bash
-./setup_lcn
+./setup_lcn.sh
 ```
 
 2. Run main code
