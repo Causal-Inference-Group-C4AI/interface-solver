@@ -3,6 +3,10 @@ from typing import List, Tuple
 
 import pandas as pd
 
+
+from utils._enums import DirectoryPaths
+
+
 ArrayType = List[Tuple[List[int], float]]
 
 
@@ -12,6 +16,15 @@ def probsHelper(
     test_name: str,
     csv_flag: bool = True
 ) -> str | pd.DataFrame:
+    """
+    Generate a dataset in the csv format which is consistent with the specified
+    distribution. As input, it needs: a header row for the csv, the probability
+    of each outcome of the variables and the csv filename.
+    Returns:
+        str: Path to the csv generated
+    or
+        DataFrame: DataFrame with the generated data
+    """
     maxDecimals: int = 0
     for _sublist, val in probCombinations:
         probStr: str = str(val)
@@ -19,7 +32,7 @@ def probsHelper(
             maxDecimals = max(maxDecimals, len(probStr.split(".")[1]))
 
     if csv_flag:
-        file_path = f"data/csv/{test_name}.csv"
+        file_path = f"{DirectoryPaths.CSV.value}/{test_name}.csv"
         with open(file_path, mode="w", newline="") as file:
             writer = csv.writer(file)
             writer.writerow(header)

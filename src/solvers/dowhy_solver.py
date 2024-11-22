@@ -14,6 +14,7 @@ from dowhy import CausalModel
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriterDoWhy
 from utils.validator import Validator
+from utils._enums import DirectoryPaths
 
 
 def dowhy_solver(
@@ -35,7 +36,7 @@ def dowhy_solver(
     print("DoWhy solver running...")
     
     # Configure output
-    output_file = f"outputs/{test_name}/dowhy_{test_name}.txt"
+    output_file = f"{DirectoryPaths.OUTPUTS.value}/{test_name}/dowhy_{test_name}.txt"
     writer = OutputWriterDoWhy(output_file)
 
     # Data and graph

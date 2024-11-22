@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 
 from utils.canonical_partitions.canonicalPartitions import completeRelaxed
+from utils._enums import DirectoryPaths
 
 
 def get_edges(edges_str: str) -> List[Tuple[str, str]]:
@@ -217,7 +218,7 @@ class UAIGenerator:
         self.test_name: str = test_name
         self.edges_str: str = edges_str
         self.csv_file: str = csv_file
-        self.uai_path: str = f"data/uai/{self.test_name}.uai"
+        self.uai_path: str = f"{DirectoryPaths.UAI.value}/{self.test_name}.uai"
         self.mapping: Dict[str, int] = {}
         self.generate()
 
