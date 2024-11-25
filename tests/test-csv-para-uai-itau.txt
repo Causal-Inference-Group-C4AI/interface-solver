@@ -1,0 +1,6 @@
+csv_para_uai_itau
+bcause autobounds lcn
+W -> Z, U -> Z, Z -> X, X -> Y, U -> Y
+X
+Y
+data/inputs/csv/csv_para_uai_itau.csv
