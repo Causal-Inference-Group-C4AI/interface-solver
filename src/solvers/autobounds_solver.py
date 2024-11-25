@@ -1,6 +1,8 @@
 import argparse
 import os
 import sys
+import time
+from typing import Tuple
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
@@ -9,7 +11,7 @@ import pandas as pd
 from autobounds.causalProblem import causalProblem
 from autobounds.DAG import DAG
 from utils.get_common_data import get_common_data
-from utils.output_writer import OutputWriterAutobounds
+from utils.output_writer import OutputWriter, OutputWriterAutobounds
 from utils.validator import Validator
 from utils._enums import DirectoryPaths
 
@@ -20,7 +22,7 @@ def autobounds_solver(
         unobservables: str,
         csv_path: str,
         treatment: str,
-        outcome: str):
+        outcome: str) -> Tuple[float, float]:
     """Solver for causal inference problem using AutoBounds.
 
     Args:
@@ -80,6 +82,7 @@ def autobounds_solver(
             raise Exception(e)
 
     print("Autobounds solver Done.")
+    return lower_bound, upper_bound
 
 
 if __name__ == "__main__":
@@ -88,7 +91,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
     validator = Validator()
     data = get_common_data(validator.get_valid_path(args.common_data))
-    autobounds_solver(
+
+    start_time = time.time()
+    lower_bound, upper_bound = autobounds_solver(
         test_name=data['test_name'],
         edges=data['edges']['edges_str'],
         unobservables=data['unobservables'],
@@ -96,3 +101,14 @@ if __name__ == "__main__":
         treatment=data['treatment'],
         outcome=data['outcome'],
     )
+    end_time = time.time()
+
+    time_taken = end_time - start_time
+    print(f"Time taken by Autobounds: {time_taken:.6f} seconds")
+
+    overview_file_path = f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
+    writer = OutputWriter(overview_file_path, reset=False)
+    writer("Autobounds")
+    writer(f"   Time taken by Autobounds: {time_taken:.6f} seconds")
+    writer(f"   ATE lies in the interval: [{lower_bound}, {upper_bound}]")
+    writer(f"--------------------------------------------")

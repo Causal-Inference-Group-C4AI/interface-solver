@@ -1,8 +1,9 @@
+import time
 import argparse
 import logging
 import os
 import sys
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 import warnings
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
@@ -12,7 +13,7 @@ import numpy as np
 import pandas as pd
 from dowhy import CausalModel
 from utils.get_common_data import get_common_data
-from utils.output_writer import OutputWriterDoWhy
+from utils.output_writer import OutputWriter, OutputWriterDoWhy
 from utils.validator import Validator
 from utils._enums import DirectoryPaths
 
@@ -23,7 +24,7 @@ def dowhy_solver(
     edges: List[Tuple[str, str]],
     treatment: str,
     outcome: str
-) -> None:
+) -> Dict:
     """Solves a causal inference problem using DoWhy.
 
     Args:
@@ -80,6 +81,7 @@ def dowhy_solver(
         "dummy_outcome_refuter"
     ]
 
+    methods_estimate = {}
     for estimand in estimands:
         for method in estimation_methods[estimand]:
             method_name = f"{estimand}.{method}"
@@ -93,6 +95,7 @@ def dowhy_solver(
                 )
                 writer(f"Estimation using {method_name}:")
                 writer(f"ATE = {estimate.value}")
+                methods_estimate[str(method_name)] = float(estimate.value)
 
                 # output the p-value
                 p_value = estimate.test_stat_significance()["p_value"]
@@ -127,6 +130,7 @@ def dowhy_solver(
             except Exception as e:
                 writer(f"Failed to estimate using {method_name}: {str(e)}")
     print("DoWhy solver Done.")
+    return methods_estimate
 
 
 if __name__ == "__main__":
@@ -137,10 +141,26 @@ if __name__ == "__main__":
     args = parser.parse_args()
     validator = Validator()
     data = get_common_data(validator.get_valid_path(args.common_data))
-    dowhy_solver(
+
+    start_time = time.time()
+    method_and_ate = dowhy_solver(
         test_name=data['test_name'],
         csv_path=data['csv_path'],
         edges=data['edges']['edges_list'],
         treatment=data['treatment'],
         outcome=data['outcome']
     )
+    end_time = time.time()
+
+    time_taken = end_time - start_time
+    print(f"Time taken by DoWhy: {time_taken:.6f} seconds")
+
+    overview_file_path = f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
+    writer = OutputWriter(overview_file_path, reset=False)
+
+    writer("DoWhy")
+    writer(f"   Time taken by DoWhy: {time_taken:.6f} seconds")
+    for key, value in method_and_ate.items():
+        writer(f"   Estimate method: {key}")
+        writer(f"   ATE is: {value}")
+    writer(f"--------------------------------------------")

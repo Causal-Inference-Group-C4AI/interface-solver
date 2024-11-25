@@ -1,6 +1,8 @@
 import argparse
 import os
 import sys
+import time
+from typing import Tuple
 
 import pandas as pd
 
@@ -10,12 +12,18 @@ from lcn.inference.exact_marginal import ExactInferece
 from lcn.model import LCN
 from utils.file_generators.lcn_file_generator import create_lcn
 from utils.get_common_data import get_common_data
-from utils.output_writer import OutputWriterLCN
+from utils.output_writer import OutputWriter, OutputWriterLCN
 from utils.validator import Validator
 from utils._enums import DirectoryPaths
 
 
-def lcn_solver(test_name, edges, unobservables, csv_path, treatment, outcome):
+def lcn_solver(
+        test_name: str,
+        edges: str,
+        unobservables: str,
+        csv_path: str,
+        treatment: str,
+        outcome: str) -> Tuple[float, float]:
     """Solver for causal inference problem using LCN.
 
     Args:
@@ -111,6 +119,7 @@ def lcn_solver(test_name, edges, unobservables, csv_path, treatment, outcome):
     writer("==============================================")
 
     print("LCN solver Done.")
+    return ate_lower_bound, ate_upper_bound
 
 
 if __name__ == "__main__":
@@ -119,7 +128,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
     validator = Validator()
     data = get_common_data(validator.get_valid_path(args.common_data))
-    lcn_solver(
+
+    start_time = time.time()
+    lower_bound, upper_bound = lcn_solver(
         test_name=data['test_name'],
         edges=data['edges']['edges_str'],
         unobservables=data['unobservables'],
@@ -127,3 +138,14 @@ if __name__ == "__main__":
         treatment=data['treatment'],
         outcome=data['outcome'],
     )
+    end_time = time.time()
+
+    time_taken = end_time - start_time
+    print(f"Time taken by LCN: {time_taken:.6f} seconds")
+
+    overview_file_path = f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
+    writer = OutputWriter(overview_file_path, reset=False)
+    writer("LCN")
+    writer(f"   Time taken by LCN: {time_taken:.6f} seconds")
+    writer(f"   ATE lies in the interval: [{lower_bound}, {upper_bound}]")
+    writer(f"--------------------------------------------")

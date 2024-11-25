@@ -26,7 +26,7 @@ class OutputWriter:
     """
 
 
-    def __init__(self, output_path=f"{DirectoryPaths.OUTPUTS.value}/DEFAULT_OUTPUT.txt"):
+    def __init__(self, output_path=f"{DirectoryPaths.OUTPUTS.value}/DEFAULT_OUTPUT.txt", reset: bool = True):
         """
         Initialize the OutputWriter with the given output path.
 
@@ -35,7 +35,8 @@ class OutputWriter:
         """
         
         self.output_path = output_path
-        self.reset()
+        if reset:
+            self.reset()
 
 
     def __call__(self, output, new=False):
