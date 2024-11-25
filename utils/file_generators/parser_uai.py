@@ -192,8 +192,17 @@ class UAIParser:
         values = [list(range(size)) for size in self.domain_sizes]
         outcomes = list(itertools.product(*values))
         probs = self.calculate_probabilities_for_outcomes(outcomes)
-        probabilities = [[sublist, val]
-                         for sublist, val in zip(outcomes, probs)]
+        
+        total_vars = len(self.domain_sizes)
+        num_observed = len(self.nodes)
+        observable_indices = list(range(total_vars - num_observed, total_vars))
+        
+        observed_probs = {}
+        for outcome, prob in zip(outcomes, probs):
+            observed_outcome = tuple(outcome[i] for i in observable_indices)
+            observed_probs[observed_outcome] = observed_probs.get(observed_outcome, 0) + prob
+        
+        probabilities = [[list(observed_outcome), prob] for observed_outcome, prob in observed_probs.items()]
         return probsHelper(self.nodes, probabilities, test_name, csv_flag)
 
     def display(self) -> None:
