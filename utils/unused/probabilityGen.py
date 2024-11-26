@@ -1,7 +1,7 @@
 import random as rand
 
 import numpy as np
-from graph import Graph
+from utils.canonical_partitions.graph import Graph
 
 
 def distribution(graph: Graph, prec=3):
