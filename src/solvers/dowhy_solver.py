@@ -125,8 +125,8 @@ def dowhy_solver(
                     else:
                         writer(str(ref[0]), end="")
 
-            except KeyError as e:
-                writer(f"Failed to refute using {refuter}. Error:{str(e)}")
+            # except KeyError as e:
+            #     writer(f"Failed to refute using {refuter}. Error:{str(e)}")
             except Exception as e:
                 writer(f"Failed to estimate using {method_name}: {str(e)}")
     print("DoWhy solver Done.")

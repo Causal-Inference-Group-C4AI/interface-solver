@@ -1,0 +1,18 @@
+Estimands found: iv
+--------------------------------------------------------------------------------
+Estimation using iv.instrumental_variable:
+ATE = -1.3636363636363638
+P-value: (0, 0.001)
+Confidence interval: [-1.655399322474361, -0.8685934819897088]
+
+Refute: Use a Placebo Treatment
+Estimated effect:-1.3636363636363638
+New effect:0.014814814814814807
+p value:0.78
+
+Refute: Use a subset of data
+Estimated effect:-1.3636363636363638
+New effect:-1.3713784843673957
+p value:0.98
+
+Failed to estimate using iv.instrumental_variable: None

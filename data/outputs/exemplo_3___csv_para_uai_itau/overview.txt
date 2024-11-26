@@ -1,0 +1,20 @@
+Test 'csv_para_uai_itau' on 2024-11-26
+--------------------------------------------
+DoWhy
+   Time taken by DoWhy: 181.829410 seconds
+   Estimate method: backdoor.linear_regression
+   ATE is: -356207496530.0839
+   Estimate method: backdoor.propensity_score_matching
+   ATE is: 0.242
+   Estimate method: backdoor.propensity_score_weighting
+   ATE is: 0.48303393213572865
+--------------------------------------------
+
+Bcause
+   Time taken by Bcause: 12.568453 seconds
+   ATE lies in the interval: [0.48460953135735707, 0.4908740700548693]
+--------------------------------------------
+LCN
+   Time taken by LCN: 1103.782264 seconds
+   ATE lies in the interval: [0.0, 0.0]
+--------------------------------------------

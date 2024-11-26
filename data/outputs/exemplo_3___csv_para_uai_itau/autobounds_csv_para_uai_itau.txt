@@ -1,0 +1,6 @@
+[('W0', np.float64(0.504)), ('W1', np.float64(0.496))]
+LOWER BOUND: # -- Primal: nan / Dual: -0.4439686 / Time: 0.3 ##
+UPPER BOUND: # -- Primal: nan / Dual: 0.7430556 / Time: 0.3 ##
+Problem is infeasible. Returning without solutions
+Problem is infeasible. Returning without solutions
+CURRENT THRESHOLDS: # -- Theta: 1.1870242 / Epsilon: nan ##

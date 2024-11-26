@@ -62,18 +62,17 @@ def main(args):
                 args=["--common_data", common_data_path]
             )
 
+        if Solvers.AUTOBOUNDS.value in data["solvers"]:
+            run_task(
+                FilePaths.AUTOBOUNDS_SOLVER.value,
+                env_path=FilePaths.AUTOBOUNDS_VENV.value,
+                args=["--common_data", common_data_path]
+            )
 
         if Solvers.LCN.value in data["solvers"]:
             run_task(
                 FilePaths.LCN_SOLVER.value,
                 env_path=FilePaths.LCN_VENV.value,
-                args=["--common_data", common_data_path]
-            )
-
-        if Solvers.AUTOBOUNDS.value in data["solvers"]:
-            run_task(
-                FilePaths.AUTOBOUNDS_SOLVER.value,
-                env_path=FilePaths.AUTOBOUNDS_VENV.value,
                 args=["--common_data", common_data_path]
             )
 
