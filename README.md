@@ -1,4 +1,4 @@
-# interface-solver
+# Interface Solver (WIP)
 
 ## How to run
 1. Setup virtual environments:
