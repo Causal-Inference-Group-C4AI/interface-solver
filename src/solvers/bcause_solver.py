@@ -48,16 +48,21 @@ def bcause_solver(
     return lower_bound, upper_bound
 
 
-if __name__ == "__main__":
+def configure_environment():
+    """Configures the runtime environment."""
     logging.getLogger().setLevel(logging.CRITICAL)
+
+
+def parse_arguments():
+    """Parses command-line arguments."""
     parser = argparse.ArgumentParser()
     parser.add_argument("--common_data", required=True, help="Path to common data")
-    args = parser.parse_args()
-    validator = Validator()
-    data = get_common_data(validator.get_valid_path(args.common_data))
+    return parser.parse_args()
 
-    start_time = time.time()
-    lower_bound, upper_bound = bcause_solver(
+
+def run_bcause_solver(data):
+    """Runs the Bcause solver."""
+    return bcause_solver(
         test_name=data['test_name'],
         uai_path=data['uai_path'],
         csv_path=data['csv_path'],
@@ -65,9 +70,10 @@ if __name__ == "__main__":
         outcome=data['outcome'],
         mapping=data['uai_mapping'],
     )
-    end_time = time.time()
 
-    time_taken = end_time - start_time
+
+def log_solver_results(test_name, lower_bound, upper_bound, time_taken):
+    """Logs the results of the solver."""
     print(f"Time taken by Bcause: {time_taken:.6f} seconds")
 
     overview_file_path = f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
@@ -76,3 +82,22 @@ if __name__ == "__main__":
     writer(f"   Time taken by Bcause: {time_taken:.6f} seconds")
     writer(f"   ATE lies in the interval: [{lower_bound}, {upper_bound}]")
     writer(f"--------------------------------------------")
+
+
+def main():
+    """Main function to execute the Bcause solver."""
+    configure_environment()
+
+    args = parse_arguments()
+    validator = Validator()
+    data = get_common_data(validator.get_valid_path(args.common_data))
+
+
+    start_time = time.time()
+    lower_bound, upper_bound = run_dowhy_solver(data)
+    time_taken = time.time() - start_time
+
+    log_solver_results(data['test_name'], lower_bound, upper_bound, time_taken)
+
+if __name__ == "__main__":
+    main()
