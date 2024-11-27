@@ -1,0 +1,6 @@
+OBSERVAVEL_itau
+dowhy bcause lcn autobounds
+T -> Y, T -> D, U -> Y, U -> T, D -> Y, E -> D
+T
+Y
+data/inputs/csv/OBSERVAVEL_itau.csv
