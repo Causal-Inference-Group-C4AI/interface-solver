@@ -23,69 +23,66 @@ def run_task(script, env_path=None, args=None):
     subprocess.run(command, cwd="./", check=True)
 
 
-def main(args):
-    common_data_path = FilePaths.SHARED_DATA.value
-    try:
-        if not args.verbose:
-            logging.getLogger().setLevel(logging.CRITICAL)
+def process_input(file_path, output_path):
+    run_task(
+        FilePaths.INPUT_PROCESSOR_SCRIPT.value,
+        env_path=FilePaths.INPUT_PROCESSOR_VENV.value,
+        args=["--output", output_path, "--input", file_path]
+    )
 
-        run_task(
-            FilePaths.INPUT_PROCESSOR_SCRIPT.value,
-            env_path=FilePaths.INPUT_PROCESSOR_VENV.value,
-            args=["--output", common_data_path, "--input", args.file_path]
-        )
+
+def execute_solvers(data, common_data_path):
+    solvers = {
+        Solvers.LCN.value: [FilePaths.LCN_SOLVER.value, FilePaths.LCN_VENV.value],
+        Solvers.DOWHY.value: [FilePaths.DOWHY_SOLVER.value, FilePaths.DOWHY_VENV.value],
+        Solvers.BCAUSE.value: [FilePaths.BCAUSE_SOLVER.value , FilePaths.BCAUSE_VENV.value],
+        Solvers.AUTOBOUNDS.value: [FilePaths.AUTOBOUNDS_SOLVER.value, FilePaths.AUTOBOUNDS_VENV.value],
+    }
+
+    # TODO: TESTAR O LCN E VER SE OS OUTROS CONTINUAM
+    for solver_name, [script_path, venv_path] in solvers.items():
+        if solver_name in data["solvers"]:
+            try:
+                logging.info(f"Executing solver: {solver_name}")
+                run_task(
+                    script_path, 
+                    env_path=venv_path,
+                    args=["--common_data", common_data_path]
+                )
+            except Exception as e:
+                logging.error(f"Solver {solver_name} failed with error: {e}")
+                # TODO: ESCREVER NO ARQUIVO DE OUTPUT QUE ESSE SOLVER DEU ERRO
+
+def main(args):
+    logging.basicConfig(level=logging.CRITICAL)
+    try:
+        if not Path(args.file_path).exists():
+            raise FileNotFoundError(f"Input file not found: {args.file_path}")
+
+        common_data_path = FilePaths.SHARED_DATA.value
+        process_input(args.file_path, common_data_path)
 
         data = get_common_data(common_data_path)
 
-        folder_name = Path(f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}")
-        folder_name.mkdir(parents=True, exist_ok=True)
-        print(f"Created output directory for test: {data['test_name']}")
+        output_folder = Path(f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}")
+        output_folder.mkdir(parents=True, exist_ok=True)
+        logging.info(f"Created output directory for test: {data['test_name']}")
 
         overview_file_path = f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
         writer = OutputWriter(overview_file_path)
         writer(f"Test '{data['test_name']}' on {date.today()}")
         writer(f"--------------------------------------------")
 
-        print(f"Test '{data['test_name']}' on {date.today()}")
+        logging.info(f"Test '{data['test_name']}' on {date.today()}")
 
-        if Solvers.DOWHY.value in data["solvers"]:
-            run_task(
-                FilePaths.DOWHY_SOLVER.value,
-                env_path=FilePaths.DOWHY_VENV.value,
-                args=["--common_data", common_data_path]
-            )
+        execute_solvers(data, common_data_path)
 
-        if Solvers.BCAUSE.value in data['solvers']:
-            run_task(
-                FilePaths.BCAUSE_SOLVER.value,
-                env_path=FilePaths.BCAUSE_VENV.value,
-                args=["--common_data", common_data_path]
-            )
+        DataCleaner().general_cleanup(common_data_path)
 
-        if Solvers.AUTOBOUNDS.value in data["solvers"]:
-            run_task(
-                FilePaths.AUTOBOUNDS_SOLVER.value,
-                env_path=FilePaths.AUTOBOUNDS_VENV.value,
-                args=["--common_data", common_data_path]
-            )
-
-        if Solvers.LCN.value in data["solvers"]:
-            run_task(
-                FilePaths.LCN_SOLVER.value,
-                env_path=FilePaths.LCN_VENV.value,
-                args=["--common_data", common_data_path]
-            )
-
-        data_cleaner = DataCleaner()
-        data_cleaner.cleanup_file(common_data_path)
-        print("Shared data successfully deleted.")
-        data_cleaner.cleanup_logs()
-        print("Logs successfully deleted.")
-        data_cleaner.cleanup_lcn()
-        print(".LCN successfully deleted.")
-
+    except FileNotFoundError as e:
+        logging.error(e)
     except Exception as e:
-        print(f"{type(e).__module__}.{type(e).__name__}: {e}")
+        logging.exception(f"{type(e).__module__}.{type(e).__name__}: {e}")
 
 
 if __name__ == "__main__":
@@ -95,6 +92,5 @@ if __name__ == "__main__":
     parser.add_argument('file_path',
                         help='The path to the file you want to read'
     )
-    parser.add_argument('-v', '--verbose', action='store_true', help="Show solver logs")
     args = parser.parse_args()
     main(args)
