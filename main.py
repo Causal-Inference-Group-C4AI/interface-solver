@@ -12,7 +12,7 @@ from utils._enums import DirectoryPaths, FilePaths, Solvers
 from utils.data_cleaner import DataCleaner
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriter
-from utils.suppress_warnings import suppress_warnings
+from utils.suppressors import suppress_warnings
 
 def run_task(script, env_path=None, args=None):
     """Run a Python script in a specific virtual environment."""

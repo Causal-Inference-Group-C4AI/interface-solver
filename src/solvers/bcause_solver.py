@@ -13,11 +13,12 @@ sys.path.append(os.path.abspath(
 from bcause.inference.causal.multi import EMCC
 from bcause.models.cmodel import StructuralCausalModel
 
-from utils._enums import DirectoryPaths
+from utils._enums import DirectoryPaths, Solvers
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriter, OutputWriterBcause
 from utils.suppressors import suppress_warnings
 from utils.validator import Validator
+from utils.solver_utilities import SolverUtilities
 
 
 def bcause_solver(
@@ -59,22 +60,6 @@ def bcause_solver(
     return lower_bound, upper_bound
 
 
-def configure_environment(is_verbose: bool):
-    """Configures the runtime environment."""
-    if not is_verbose:
-        suppress_warnings()
-
-def parse_arguments():
-    """Parses command-line arguments."""
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--common_data", required=True,
-                        help="Path to common data")
-    parser.add_argument(
-        "--verbose", action="store_true", help="Show solver logs"
-    )
-    return parser.parse_args()
-
-
 def run_bcause_solver(data):
     """Runs the Bcause solver."""
     return bcause_solver(
@@ -87,25 +72,12 @@ def run_bcause_solver(data):
     )
 
 
-def log_solver_results(test_name, lower_bound, upper_bound, time_taken):
-    """Logs the results of the solver."""
-    print(f"Time taken by Bcause: {time_taken:.6f} seconds")
-
-    overview_file_path = (
-        f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
-    )
-    writer = OutputWriter(overview_file_path, reset=False)
-    writer("Bcause")
-    writer(f"   Time taken by Bcause: {time_taken:.6f} seconds")
-    writer(f"   ATE lies in the interval: [{lower_bound}, {upper_bound}]")
-    writer("--------------------------------------------")
-
-
 def main():
     """Main function to execute the Bcause solver."""
-    args = parse_arguments()
+    solver_utilities = SolverUtilities()
+    args = solver_utilities.parse_arguments()
 
-    configure_environment(args.verbose)
+    solver_utilities.configure_environment(args.verbose)
 
     validator = Validator()
     data = get_common_data(validator.get_valid_path(args.common_data))
@@ -114,7 +86,7 @@ def main():
     lower_bound, upper_bound = run_bcause_solver(data)
     time_taken = time.time() - start_time
 
-    log_solver_results(data['test_name'], lower_bound, upper_bound, time_taken)
+    solver_utilities.log_solver_results(Solvers.BCAUSE.value, data['test_name'], lower_bound, upper_bound, time_taken)
 
 if __name__ == "__main__":
     main()

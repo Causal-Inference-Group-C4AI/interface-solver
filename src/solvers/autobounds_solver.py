@@ -12,11 +12,12 @@ sys.path.append(os.path.abspath(
 
 from autobounds.causalProblem import causalProblem
 from autobounds.DAG import DAG
-from utils._enums import DirectoryPaths
+from utils._enums import DirectoryPaths, Solvers
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriter, OutputWriterAutobounds
 from utils.suppressors import suppress_warnings
 from utils.validator import Validator
+from utils.solver_utilities import SolverUtilities
 
 
 def autobounds_solver(
@@ -94,22 +95,8 @@ def autobounds_solver(
     return lower_bound, upper_bound
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--common_data", required=True,
-                        help="Path to common data")
-    parser.add_argument(
-        "--verbose", action="store_true", help="Show solver logs"
-    )
-    args = parser.parse_args()
-    validator = Validator()
-    data = get_common_data(validator.get_valid_path(args.common_data))
-
-    if not args.verbose:
-        suppress_warnings()
-
-    start_time = time.time()
-    lower_bound, upper_bound = autobounds_solver(
+def run_autobounds_solver(data):
+    return autobounds_solver(
         test_name=data['test_name'],
         edges=data['edges']['edges_str'],
         unobservables=data['unobservables'],
@@ -117,16 +104,22 @@ if __name__ == "__main__":
         treatment=data['treatment'],
         outcome=data['outcome'],
     )
-    end_time = time.time()
 
-    time_taken = end_time - start_time
-    print(f"Time taken by Autobounds: {time_taken:.6f} seconds")
+def main():
+    """Main function to execute the DoWhy solver."""
+    solver_utilities = SolverUtilities()
+    args = solver_utilities.parse_arguments()
 
-    overview_file_path = (
-        f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
-    )
-    writer = OutputWriter(overview_file_path, reset=False)
-    writer("Autobounds")
-    writer(f"   Time taken by Autobounds: {time_taken:.6f} seconds")
-    writer(f"   ATE lies in the interval: [{lower_bound}, {upper_bound}]")
-    writer("--------------------------------------------")
+    solver_utilities.configure_environment(args.verbose)
+
+    validator = Validator()
+    data = get_common_data(validator.get_valid_path(args.common_data))
+
+    start_time = time.time()
+    lower_bound, upper_bound = run_autobounds_solver(data)
+    time_taken = time.time() - start_time
+
+    solver_utilities.log_solver_results(Solvers.AUTOBOUNDS.value, data['test_name'], lower_bound, upper_bound, time_taken)
+
+if __name__ == "__main__":
+    main()

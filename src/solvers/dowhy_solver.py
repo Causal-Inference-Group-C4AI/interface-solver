@@ -12,14 +12,14 @@ from dowhy import CausalModel
 sys.path.append(os.path.abspath(
     os.path.join(os.path.dirname(__file__), '../../')))
 
-from utils._enums import DirectoryPaths
+from utils._enums import DirectoryPaths, Solvers
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriter, OutputWriterDoWhy
 from utils.suppressors import suppress_warnings
 from utils.validator import Validator
+from utils.solver_utilities import SolverUtilities
 
 
-# TODO: VERIFICAR TIPOS
 def get_estimands(identified_estimand) -> List[str]:
     estimands = []
     for estimand, value in identified_estimand.estimands.items():
@@ -216,22 +216,6 @@ def dowhy_solver(
     return methods_estimate
 
 
-def configure_environment(is_verbose: bool):
-    """Configures the runtime environment."""
-    if not is_verbose:
-        suppress_warnings()
-
-
-def parse_arguments():
-    """Parses command-line arguments."""
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--common_data", required=True,
-                        help="Path to common data")
-    parser.add_argument(
-        "--verbose", action="store_true", help="Show solver logs"
-    )
-    return parser.parse_args()
-
 def run_dowhy_solver(data, fast_mode):
     """Runs the DoWhy solver."""
     return dowhy_solver(
@@ -244,28 +228,12 @@ def run_dowhy_solver(data, fast_mode):
     )
 
 
-def log_solver_results(test_name, method_and_ate, time_taken):
-    """Logs the results of the solver."""
-    print(f"Time taken by DoWhy: {time_taken:.6f} seconds")
-
-    overview_file_path = (
-        f"{DirectoryPaths.OUTPUTS.value}/{test_name}/overview.txt"
-    )
-    writer = OutputWriter(overview_file_path, reset=False)
-
-    writer("DoWhy")
-    writer(f"   Time taken by DoWhy: {time_taken:.6f} seconds")
-    for method, ate in method_and_ate.items():
-        writer(f"   Estimate method: {method}")
-        writer(f"   ATE is: {ate}")
-    writer(f"--------------------------------------------")
-
-
 def main():
     """Main function to execute the DoWhy solver."""
-    args = parse_arguments()
+    solver_utilities = SolverUtilities()
+    args = solver_utilities.parse_arguments()
 
-    configure_environment(args.verbose)
+    solver_utilities.configure_environment(args.verbose)
 
     validator = Validator()
     data = get_common_data(validator.get_valid_path(args.common_data))
@@ -274,7 +242,7 @@ def main():
     method_and_ate = run_dowhy_solver(data, args.fast)
     time_taken = time.time() - start_time
 
-    log_solver_results(data['test_name'], method_and_ate, time_taken)
+    solver_utilities.log_solver_results(Solvers.DOWHY.value, data['test_name'], method_and_ate, time_taken)
 
 
 if __name__ == "__main__":
