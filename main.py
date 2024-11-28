@@ -96,9 +96,9 @@ def main(args):
         data_cleaner = DataCleaner()
         data_cleaner.cleanup_file(common_data_path)
         print("Shared data successfully deleted.")
-        data_cleaner.cleanup_logs()
+        data_cleaner.cleanup_extension("log")
         print("Logs successfully deleted.")
-        data_cleaner.cleanup_lcn()
+        data_cleaner.cleanup_extension("lcn")
         print(".LCN successfully deleted.")
 
     except Exception as e:
