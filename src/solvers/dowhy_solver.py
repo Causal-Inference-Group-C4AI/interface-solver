@@ -84,7 +84,7 @@ def dowhy_solver(
         "dummy_outcome_refuter"
     ]
 
-    if fast:
+    if not fast:
         estimation_methods["backdoor"].extend([
             "propensity_score_matching",
             "propensity_score_stratification",
