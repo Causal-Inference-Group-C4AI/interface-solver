@@ -6,17 +6,18 @@ from typing import Tuple
 
 import pandas as pd
 
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+sys.path.append(os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '../../')))
 
 from lcn.inference.exact_marginal import ExactInferece
 from lcn.model import LCN
+
+from utils._enums import DirectoryPaths
 from utils.file_generators.lcn_file_generator import create_lcn
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriter, OutputWriterLCN
 from utils.suppress_warnings import suppress_warnings
 from utils.validator import Validator
-from utils._enums import DirectoryPaths
 
 
 def lcn_solver(
@@ -31,7 +32,8 @@ def lcn_solver(
     Args:
         test_name (str): The name of the test case.
         edges (str): A string representing the edges of the causal graph.
-        unobservables (str): A string representing the unobservables of the causal graph.
+        unobservables (str): A string representing the unobservables of the
+            causal graph.
         csv_path (str): The path to the CSV file containing the data.
         treatment (str): The treatment variable.
         outcome (str): The outcome variable.
@@ -39,13 +41,14 @@ def lcn_solver(
     print("LCN solver running...")
 
     # Setting up the file to write the output
-    output_file = f"{DirectoryPaths.OUTPUTS.value}/{test_name}/LCN_{test_name}.txt"
+    output_file = (f"{DirectoryPaths.OUTPUTS.value}/{test_name}/"
+                   f"LCN_{test_name}.txt")
     writer = OutputWriterLCN(output_file)
 
-    #Defining the first intervention
+    # Defining the first intervention
     intervention_input = (outcome, treatment, 1)
 
-    #Loading the data
+    # Loading the data
     data = pd.read_csv(csv_path)
 
     # Extract nodes from CSV
@@ -56,7 +59,8 @@ def lcn_solver(
     data_counts.columns = nodes + ['value_counts']
 
     # Computing probabilities
-    data_counts['prob'] = data_counts['value_counts'] / data_counts['value_counts'].sum()
+    data_counts['prob'] = data_counts['value_counts'] / \
+        data_counts['value_counts'].sum()
 
     # Creating the empirical distributions
     empirical_distributions = []
@@ -71,7 +75,12 @@ def lcn_solver(
     # Creating the first LCN file
     output_file_1 = f"{test_name}_{treatment}1.lcn"
 
-    writer.silent_run(lambda:create_lcn(edges, unobservables, intervention_input, empirical_distributions, var_order, output_file_1), new=True)
+    writer.silent_run(
+        lambda: create_lcn(
+            edges, unobservables, intervention_input,
+            empirical_distributions, var_order, output_file_1
+        ), new=True
+    )
     writer("==============================================")
 
     # Defining the second intervention
@@ -80,12 +89,15 @@ def lcn_solver(
     # Creating the second LCN file
     output_file_0 = f"{test_name}_{treatment}0.lcn"
 
-    writer.silent_run(lambda:create_lcn(edges, unobservables, intervention_input, empirical_distributions, var_order, output_file_0))
+    writer.silent_run(lambda: create_lcn(
+        edges, unobservables, intervention_input,
+        empirical_distributions, var_order, output_file_0
+    ))
     writer("==============================================")
 
     # Creating the first LCN object
     l1 = LCN()
-    writer.silent_run(lambda:l1.from_lcn(file_name=output_file_1))
+    writer.silent_run(lambda: l1.from_lcn(file_name=output_file_1))
 
     # Defining the first query
     query = f"{outcome}L"
@@ -100,7 +112,7 @@ def lcn_solver(
 
     # Creating the second LCN object
     l0 = LCN()
-    writer.silent_run(lambda:l0.from_lcn(file_name=output_file_0))
+    writer.silent_run(lambda: l0.from_lcn(file_name=output_file_0))
 
     # Defining the second query
     algo0 = ExactInferece(lcn=l0)
@@ -126,14 +138,15 @@ def lcn_solver(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--common_data", required=True, help="Path to common data")
+    parser.add_argument("--common_data", required=True,
+                        help="Path to common data")
     parser.add_argument(
         "--verbose", action="store_true", help="Show solver logs"
     )
     args = parser.parse_args()
     validator = Validator()
     data = get_common_data(validator.get_valid_path(args.common_data))
-    
+
     if not args.verbose:
         suppress_warnings()
 
@@ -151,9 +164,11 @@ if __name__ == "__main__":
     time_taken = end_time - start_time
     print(f"Time taken by LCN: {time_taken:.6f} seconds")
 
-    overview_file_path = f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
+    overview_file_path = (
+        f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
+    )
     writer = OutputWriter(overview_file_path, reset=False)
     writer("LCN")
     writer(f"   Time taken by LCN: {time_taken:.6f} seconds")
     writer(f"   ATE lies in the interval: [{lower_bound}, {upper_bound}]")
-    writer(f"--------------------------------------------")
+    writer("--------------------------------------------")

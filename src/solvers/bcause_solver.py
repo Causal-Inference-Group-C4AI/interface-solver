@@ -5,17 +5,19 @@ import sys
 import time
 from typing import Tuple
 
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
-
 import pandas as pd
+
+sys.path.append(os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '../../')))
+
 from bcause.inference.causal.multi import EMCC
 from bcause.models.cmodel import StructuralCausalModel
+
+from utils._enums import DirectoryPaths
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriter, OutputWriterBcause
 from utils.suppress_warnings import suppress_warnings
 from utils.validator import Validator
-from utils._enums import DirectoryPaths
 
 
 def bcause_solver(
@@ -38,13 +40,20 @@ def bcause_solver(
     lower_bound = p_do1.values[1] - p_do0.values[1]
     upper_bound = p_do1.values[3] - p_do0.values[3]
 
-    output_file = f"{DirectoryPaths.OUTPUTS.value}/{test_name}/bcause_{test_name}.txt"
+    output_file = (
+        f"{DirectoryPaths.OUTPUTS.value}/{test_name}/bcause_{test_name}.txt"
+    )
     writer = OutputWriterBcause(output_file)
-    
+
     writer("==============================================")
-    writer(f'P({outcome}=1|do({treatment}=0)) = {[p_do0.values[1], p_do0.values[3]]}')
-    writer(f'P({outcome}=1|do({treatment}=1)) = {[p_do1.values[1], p_do1.values[3]]}')
-    writer(f"Causal effect lies in the interval [{lower_bound}, {upper_bound}]")
+    writer(
+        f'P({outcome}=1|do({treatment}=0)) = '
+        f'{[p_do0.values[1], p_do0.values[3]]}')
+    writer(
+        f'P({outcome}=1|do({treatment}=1)) = '
+        f'{[p_do1.values[1], p_do1.values[3]]}')
+    writer(
+        f"Causal effect lies in the interval [{lower_bound}, {upper_bound}]")
     writer("==============================================")
     print("Bcause solver Done.")
     return lower_bound, upper_bound
@@ -53,14 +62,15 @@ def bcause_solver(
 if __name__ == "__main__":
     logging.getLogger().setLevel(logging.CRITICAL)
     parser = argparse.ArgumentParser()
-    parser.add_argument("--common_data", required=True, help="Path to common data")
+    parser.add_argument("--common_data", required=True,
+                        help="Path to common data")
     parser.add_argument(
         "--verbose", action="store_true", help="Show solver logs"
     )
     args = parser.parse_args()
     validator = Validator()
     data = get_common_data(validator.get_valid_path(args.common_data))
-    
+
     if not args.verbose:
         suppress_warnings()
 
@@ -78,9 +88,11 @@ if __name__ == "__main__":
     time_taken = end_time - start_time
     print(f"Time taken by Bcause: {time_taken:.6f} seconds")
 
-    overview_file_path = f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
+    overview_file_path = (
+        f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
+    )
     writer = OutputWriter(overview_file_path, reset=False)
     writer("Bcause")
     writer(f"   Time taken by Bcause: {time_taken:.6f} seconds")
     writer(f"   ATE lies in the interval: [{lower_bound}, {upper_bound}]")
-    writer(f"--------------------------------------------")
+    writer("--------------------------------------------")
