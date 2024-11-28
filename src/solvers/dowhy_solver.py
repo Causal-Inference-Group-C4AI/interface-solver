@@ -162,39 +162,44 @@ def dowhy_solver(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--common_data", required=True,
+    parser.add_argument("--common_data",
                         help="Path to common data")
     parser.add_argument(
-        "--verbose", action="store_true", help="Show solver logs"
+       "-v", "--verbose", action="store_true", help="Show solver logs"
     )
-    parser.add_argument("--fast", action="store_true", help="Run in fast mode")
+    parser.add_argument(
+        "-f", "--fast", action="store_true", help="Run in fast mode"
+    )
+    parser.add_argument(
+        "-d", "--debug", action="store_true", help="Debug mode"
+    )
     args = parser.parse_args()
     validator = Validator()
-    data = get_common_data(validator.get_valid_path(args.common_data))
+    if args.common_data is not None:
+        data = get_common_data(validator.get_valid_path(args.common_data))
 
     if not args.verbose:
         suppress_warnings()
 
     start_time = time.time()
 
-    # Production code
-    method_and_ate = dowhy_solver(
-        test_name=data['test_name'],
-        csv_path=data['csv_path'],
-        edges=data['edges']['edges_list'],
-        treatment=data['treatment'],
-        outcome=data['outcome'],
-        fast=args.fast
-    )
-
-    # Test case for Balke and Pearl
-    # method_and_ate = dowhy_solver(
-    #     "balke_pearl",
-    #     "data/inputs/csv/balke_pearl.csv",
-    #     [("Z", "X"), ("X", "Y"), ("U", "X"), ("U", "Y")],
-    #     "X",
-    #     "Y"
-    # )
+    if not args.debug:
+        method_and_ate = dowhy_solver(
+            test_name=data['test_name'],
+            csv_path=data['csv_path'],
+            edges=data['edges']['edges_list'],
+            treatment=data['treatment'],
+            outcome=data['outcome'],
+            fast=args.fast
+        )
+    else:
+        method_and_ate = dowhy_solver(
+            "balke_pearl",
+            "data/inputs/csv/balke_pearl.csv",
+            [("Z", "X"), ("X", "Y"), ("U", "X"), ("U", "Y")],
+            "X",
+            "Y"
+        )
 
     end_time = time.time()
 
@@ -202,11 +207,10 @@ if __name__ == "__main__":
     print(f"Time taken by DoWhy: {time_taken:.6f} seconds")
 
     overview_file_path = (
-        # Production code
         f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
-
-        # Test case for Balke and Pearl
-        # f"{DirectoryPaths.OUTPUTS.value}/balke_pearl/overview.txt"
+        if not args.debug
+        else
+        f"{DirectoryPaths.OUTPUTS.value}/balke_pearl/overview.txt"
     )
     writer = OutputWriter(overview_file_path, reset=False)
 
