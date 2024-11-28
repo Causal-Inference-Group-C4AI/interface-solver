@@ -4,6 +4,7 @@ import sys
 import time
 from typing import Tuple
 
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 import numpy as np
@@ -12,6 +13,7 @@ from autobounds.causalProblem import causalProblem
 from autobounds.DAG import DAG
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriter, OutputWriterAutobounds
+from utils.suppress_warnings import suppress_warnings
 from utils.validator import Validator
 from utils._enums import DirectoryPaths
 
@@ -88,9 +90,15 @@ def autobounds_solver(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--common_data", required=True, help="Path to common data")
+    parser.add_argument(
+        "--verbose", action="store_true", help="Show solver logs"
+    )
     args = parser.parse_args()
     validator = Validator()
     data = get_common_data(validator.get_valid_path(args.common_data))
+    
+    if not args.verbose:
+        suppress_warnings()
 
     start_time = time.time()
     lower_bound, upper_bound = autobounds_solver(

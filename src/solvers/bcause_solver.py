@@ -5,6 +5,7 @@ import sys
 import time
 from typing import Tuple
 
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 import pandas as pd
@@ -12,6 +13,7 @@ from bcause.inference.causal.multi import EMCC
 from bcause.models.cmodel import StructuralCausalModel
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriter, OutputWriterBcause
+from utils.suppress_warnings import suppress_warnings
 from utils.validator import Validator
 from utils._enums import DirectoryPaths
 
@@ -52,9 +54,15 @@ if __name__ == "__main__":
     logging.getLogger().setLevel(logging.CRITICAL)
     parser = argparse.ArgumentParser()
     parser.add_argument("--common_data", required=True, help="Path to common data")
+    parser.add_argument(
+        "--verbose", action="store_true", help="Show solver logs"
+    )
     args = parser.parse_args()
     validator = Validator()
     data = get_common_data(validator.get_valid_path(args.common_data))
+    
+    if not args.verbose:
+        suppress_warnings()
 
     start_time = time.time()
     lower_bound, upper_bound = bcause_solver(

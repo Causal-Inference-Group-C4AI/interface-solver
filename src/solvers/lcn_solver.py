@@ -6,6 +6,7 @@ from typing import Tuple
 
 import pandas as pd
 
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 from lcn.inference.exact_marginal import ExactInferece
@@ -13,6 +14,7 @@ from lcn.model import LCN
 from utils.file_generators.lcn_file_generator import create_lcn
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriter, OutputWriterLCN
+from utils.suppress_warnings import suppress_warnings
 from utils.validator import Validator
 from utils._enums import DirectoryPaths
 
@@ -125,9 +127,15 @@ def lcn_solver(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--common_data", required=True, help="Path to common data")
+    parser.add_argument(
+        "--verbose", action="store_true", help="Show solver logs"
+    )
     args = parser.parse_args()
     validator = Validator()
     data = get_common_data(validator.get_valid_path(args.common_data))
+    
+    if not args.verbose:
+        suppress_warnings()
 
     start_time = time.time()
     lower_bound, upper_bound = lcn_solver(

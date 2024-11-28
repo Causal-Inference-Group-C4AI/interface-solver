@@ -15,6 +15,7 @@ sys.path.append(os.path.abspath(
 from utils._enums import DirectoryPaths
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriter, OutputWriterDoWhy
+from utils.suppress_warnings import suppress_warnings
 from utils.validator import Validator
 
 
@@ -163,10 +164,16 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--common_data", required=True,
                         help="Path to common data")
+    parser.add_argument(
+        "--verbose", action="store_true", help="Show solver logs"
+    )
     parser.add_argument("--fast", action="store_true", help="Run in fast mode")
     args = parser.parse_args()
     validator = Validator()
     data = get_common_data(validator.get_valid_path(args.common_data))
+
+    if not args.verbose:
+        suppress_warnings()
 
     start_time = time.time()
 
