@@ -10,7 +10,7 @@ sys.path.append(os.path.abspath(
 from utils._enums import Solvers
 from utils.file_generators.parser_uai import UAIParser
 from utils.file_generators.uai_generator import UAIGenerator
-from utils.suppress_print import suppress_print
+from utils.suppressors import suppress_print
 from utils.validator import InvalidInputFormatError, Validator
 
 

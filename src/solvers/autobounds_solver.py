@@ -15,7 +15,7 @@ from autobounds.DAG import DAG
 from utils._enums import DirectoryPaths
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriter, OutputWriterAutobounds
-from utils.suppress_warnings import suppress_warnings
+from utils.suppressors import suppress_warnings
 from utils.validator import Validator
 
 

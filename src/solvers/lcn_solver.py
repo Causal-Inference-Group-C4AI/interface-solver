@@ -6,15 +6,18 @@ from typing import Tuple
 
 import pandas as pd
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+sys.path.append(os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '../../')))
 
 from lcn.inference.exact_marginal import ExactInferece
 from lcn.model import LCN
+
+from utils._enums import DirectoryPaths
 from utils.file_generators.lcn_file_generator import create_lcn
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriter, OutputWriterLCN
+from utils.suppressors import suppress_warnings
 from utils.validator import Validator
-from utils._enums import DirectoryPaths
 
 
 def lcn_solver(
@@ -122,15 +125,25 @@ def lcn_solver(
     return ate_lower_bound, ate_upper_bound
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--common_data", required=True, help="Path to common data")
-    args = parser.parse_args()
-    validator = Validator()
-    data = get_common_data(validator.get_valid_path(args.common_data))
+def configure_environment(is_verbose: bool):
+    """Configures the runtime environment."""
+    if not is_verbose:
+        suppress_warnings()
 
-    start_time = time.time()
-    lower_bound, upper_bound = lcn_solver(
+def parse_arguments():
+    """Parses command-line arguments."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--common_data", required=True,
+                        help="Path to common data")
+    parser.add_argument(
+        "--verbose", action="store_true", help="Show solver logs"
+    )
+    return parser.parse_args()
+
+
+def run_lcn_solver(data):
+    """Runs the LCN solver."""
+    return lcn_solver(
         test_name=data['test_name'],
         edges=data['edges']['edges_str'],
         unobservables=data['unobservables'],
@@ -138,14 +151,36 @@ if __name__ == "__main__":
         treatment=data['treatment'],
         outcome=data['outcome'],
     )
-    end_time = time.time()
 
-    time_taken = end_time - start_time
+
+def log_solver_results(test_name, lower_bound, upper_bound, time_taken):
+    """Logs the results of the solver."""
     print(f"Time taken by LCN: {time_taken:.6f} seconds")
 
-    overview_file_path = f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
+    overview_file_path = (
+        f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
+    )
     writer = OutputWriter(overview_file_path, reset=False)
     writer("LCN")
     writer(f"   Time taken by LCN: {time_taken:.6f} seconds")
     writer(f"   ATE lies in the interval: [{lower_bound}, {upper_bound}]")
-    writer(f"--------------------------------------------")
+    writer("--------------------------------------------")
+
+
+def main():
+    args = parse_arguments()
+    
+    configure_environment(args.verbose)
+
+    validator = Validator()
+    data = get_common_data(validator.get_valid_path(args.common_data))
+
+    start_time = time.time()
+    lower_bound, upper_bound = run_lcn_solver(data)
+    end_time = time.time()
+    time_taken = end_time - start_time
+
+    log_solver_results(data['test_name'], lower_bound, upper_bound, time_taken)
+
+if __name__ == "__main__":
+    main()

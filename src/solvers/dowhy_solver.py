@@ -1,23 +1,22 @@
-from typing import List, Tuple, Dict
-import time
 import argparse
-import logging
 import os
 import sys
-from typing import List, Tuple, Dict
-import warnings
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+import time
+from typing import Dict, List, Tuple
 
 import networkx as nx
 import numpy as np
 import pandas as pd
 from dowhy import CausalModel
 
+sys.path.append(os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '../../')))
+
+from utils._enums import DirectoryPaths
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriter, OutputWriterDoWhy
+from utils.suppressors import suppress_warnings
 from utils.validator import Validator
-from utils._enums import DirectoryPaths
 
 
 # TODO: VERIFICAR TIPOS
