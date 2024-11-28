@@ -1,17 +1,17 @@
 import argparse
-from pathlib import Path
-import logging
 import os
 import subprocess
 import sys
 from datetime import date
-from utils.output_writer import OutputWriter
+from pathlib import Path
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
-from utils._enums import Solvers, FilePaths, DirectoryPaths
+from utils._enums import DirectoryPaths, FilePaths, Solvers
 from utils.data_cleaner import DataCleaner
 from utils.get_common_data import get_common_data
+from utils.output_writer import OutputWriter
+from utils.suppress_warnings import suppress_warnings
 
 
 def run_task(script, env_path=None, args=None):
@@ -27,7 +27,7 @@ def main(args):
     common_data_path = FilePaths.SHARED_DATA.value
     try:
         if not args.verbose:
-            logging.getLogger().setLevel(logging.CRITICAL)
+            suppress_warnings()
 
         run_task(
             FilePaths.INPUT_PROCESSOR_SCRIPT.value,
@@ -37,44 +37,60 @@ def main(args):
 
         data = get_common_data(common_data_path)
 
-        folder_name = Path(f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}")
+        folder_name = Path(
+            f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}")
         folder_name.mkdir(parents=True, exist_ok=True)
         print(f"Created output directory for test: {data['test_name']}")
 
-        overview_file_path = f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
+        overview_file_path = (
+            f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
+        )
         writer = OutputWriter(overview_file_path)
         writer(f"Test '{data['test_name']}' on {date.today()}")
-        writer(f"--------------------------------------------")
+        writer("--------------------------------------------")
 
         print(f"Test '{data['test_name']}' on {date.today()}")
 
         if Solvers.DOWHY.value in data["solvers"]:
+            task_args = ["--common_data", common_data_path]
+            if args.verbose:
+                task_args.append("--verbose")
+            if args.fast:
+                task_args.append("--fast")
             run_task(
                 FilePaths.DOWHY_SOLVER.value,
                 env_path=FilePaths.DOWHY_VENV.value,
-                args=["--common_data", common_data_path]
+                args=task_args
             )
 
         if Solvers.BCAUSE.value in data['solvers']:
+            task_args = ["--common_data", common_data_path]
+            if args.verbose:
+                task_args.append("--verbose")
             run_task(
                 FilePaths.BCAUSE_SOLVER.value,
                 env_path=FilePaths.BCAUSE_VENV.value,
-                args=["--common_data", common_data_path]
+                args=task_args
             )
 
-
         if Solvers.LCN.value in data["solvers"]:
+            task_args = ["--common_data", common_data_path]
+            if args.verbose:
+                task_args.append("--verbose")
             run_task(
                 FilePaths.LCN_SOLVER.value,
                 env_path=FilePaths.LCN_VENV.value,
-                args=["--common_data", common_data_path]
+                args=task_args
             )
 
         if Solvers.AUTOBOUNDS.value in data["solvers"]:
+            task_args = ["--common_data", common_data_path]
+            if args.verbose:
+                task_args.append("--verbose")
             run_task(
                 FilePaths.AUTOBOUNDS_SOLVER.value,
                 env_path=FilePaths.AUTOBOUNDS_VENV.value,
-                args=["--common_data", common_data_path]
+                args=task_args
             )
 
         data_cleaner = DataCleaner()
@@ -95,7 +111,10 @@ if __name__ == "__main__":
     )
     parser.add_argument('file_path',
                         help='The path to the file you want to read'
-    )
-    parser.add_argument('-v', '--verbose', action='store_true', help="Show solver logs")
+                        )
+    parser.add_argument('-v', '--verbose',
+                        action='store_true', help="Show solver logs")
+    parser.add_argument('-f', '--fast', action='store_true',
+                        help="Run the script with fast settings")
     args = parser.parse_args()
     main(args)
