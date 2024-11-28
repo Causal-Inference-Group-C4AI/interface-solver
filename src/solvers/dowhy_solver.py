@@ -1,9 +1,7 @@
 import argparse
-import logging
 import os
 import sys
 import time
-import warnings
 from typing import Dict, List, Tuple
 
 import networkx as nx
@@ -25,8 +23,9 @@ def dowhy_solver(
     csv_path: str,
     edges: List[Tuple[str, str]],
     treatment: str,
-    outcome: str
-) -> Dict:
+    outcome: str,
+    fast: bool = False
+) -> Dict[str, float]:
     """Solves a causal inference problem using DoWhy.
 
     Args:
@@ -35,6 +34,10 @@ def dowhy_solver(
         edges_str (str): String with the edges of the graph.
         treatment (str): Name of the treatment variable.
         outcome (str): Name of the outcome variable.
+        fast (bool, optional): Whether to run in fast mode. Defaults to False.
+
+    Returns:
+        Dict: A dictionary with the method used as key and the ATE as value.
     """
     print("DoWhy solver running...")
 
@@ -67,10 +70,7 @@ def dowhy_solver(
     # Step 3 + 4: Estimate and Refute (for each estimand)
     estimation_methods = {
         "backdoor": [
-            "linear_regression",
-            # "propensity_score_matching",
-            "propensity_score_stratification",
-            # "propensity_score_weighting"
+            "linear_regression"
         ],
         "iv": [
             "instrumental_variable"
@@ -80,10 +80,19 @@ def dowhy_solver(
 
     refutation_methods = [
         "placebo_treatment_refuter",
-        "data_subset_refuter",
-        "random_common_cause",
         "dummy_outcome_refuter"
     ]
+
+    if fast:
+        estimation_methods["backdoor"].extend([
+            "propensity_score_matching",
+            "propensity_score_stratification",
+            "propensity_score_weighting"
+        ])
+        refutation_methods.extend([
+            "random_common_cause",
+            "data_subset_refuter"
+        ])
 
     methods_estimate = {}
     for estimand in estimands:
@@ -121,7 +130,7 @@ def dowhy_solver(
                 writer(f"Confidence interval: {confidence_intervals}\n")
 
                 # Step 4: Refute
-                for refuter in refutation_methods:
+                for i, refuter in enumerate(refutation_methods):
                     start_time_refute = time.time()
                     try:
                         ref = model.refute_estimate(
@@ -133,10 +142,11 @@ def dowhy_solver(
                         end_time_refute = time.time()
                         time_taken = end_time_refute - start_time_refute
                         writer(f"Time taken: {time_taken:.6f} seconds")
-                        if refuter != refutation_methods[-1]:
-                            writer(str(ref))
+                        end = "" if i == len(refutation_methods) - 1 else "\n"
+                        if refuter != "dummy_outcome_refuter":
+                            writer(str(ref), end=end)
                         else:
-                            writer(str(ref[0]), end="")
+                            writer(str(ref[0]), end=end)
                     except Exception as e:
                         writer(
                             f"Failed to refute using {refuter}. Error:{str(e)}"
@@ -150,13 +160,10 @@ def dowhy_solver(
 
 
 if __name__ == "__main__":
-    warnings.filterwarnings("ignore", category=UserWarning)
-    warnings.filterwarnings("ignore", category=DeprecationWarning)
-    warnings.filterwarnings("ignore", category=FutureWarning)
-    logging.getLogger().setLevel(logging.CRITICAL)
     parser = argparse.ArgumentParser()
     parser.add_argument("--common_data", required=True,
                         help="Path to common data")
+    parser.add_argument("--fast", action="store_true", help="Run in fast mode")
     args = parser.parse_args()
     validator = Validator()
     data = get_common_data(validator.get_valid_path(args.common_data))
@@ -169,7 +176,8 @@ if __name__ == "__main__":
         csv_path=data['csv_path'],
         edges=data['edges']['edges_list'],
         treatment=data['treatment'],
-        outcome=data['outcome']
+        outcome=data['outcome'],
+        fast=args.fast
     )
 
     # Test case for Balke and Pearl
