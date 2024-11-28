@@ -11,7 +11,7 @@ from utils._enums import DirectoryPaths, FilePaths, Solvers
 from utils.data_cleaner import DataCleaner
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriter
-from utils.suppress_warnings import supress_warnings
+from utils.suppress_warnings import suppress_warnings
 
 
 def run_task(script, env_path=None, args=None):
@@ -27,7 +27,7 @@ def main(args):
     common_data_path = FilePaths.SHARED_DATA.value
     try:
         if not args.verbose:
-            supress_warnings()
+            suppress_warnings()
 
         run_task(
             FilePaths.INPUT_PROCESSOR_SCRIPT.value,
