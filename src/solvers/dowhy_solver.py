@@ -36,30 +36,46 @@ def load_data_and_graph(csv_path: str, edges: List[Tuple[str, str]]) -> Tuple[pd
     return data, graph
 
 
-def perform_estimations_and_refutations(
-    model: CausalModel,
-    identified_estimand,
-    estimands: List[str],
-    writer
-) -> Dict:
-    """Performs causal effect estimations and refutations."""
+def get_estimation_and_refutation_methods(fast_mode: bool):
     estimation_methods = {
         "backdoor": [
-            "linear_regression",
-            "propensity_score_matching",
-            "propensity_score_stratification",
-            "propensity_score_weighting"
+            "linear_regression"
         ],
-        "iv": ["instrumental_variable"],
+        "iv": [
+            "instrumental_variable"
+        ],
         "frontdoor": []
     }
 
     refutation_methods = [
         "placebo_treatment_refuter",
-        "data_subset_refuter",
-        "random_common_cause",
         "dummy_outcome_refuter"
     ]
+
+    if not fast_mode:
+        estimation_methods["backdoor"].extend([
+            "propensity_score_matching",
+            "propensity_score_stratification",
+            "propensity_score_weighting"
+        ])
+        refutation_methods.extend([
+            "random_common_cause",
+            "data_subset_refuter"
+        ])
+
+    return estimation_methods, refutation_methods
+
+
+def perform_estimations_and_refutations(
+    model: CausalModel,
+    identified_estimand,
+    estimands: List[str],
+    writer,
+    fast: bool
+) -> Dict[str, float]::
+    """Performs causal effect estimations and refutations."""
+
+    estimation_methods, refutation_methods = get_estimation_and_refutation_methods(fast)
 
     methods_estimate = {}
     for estimand in estimands:
@@ -68,7 +84,7 @@ def perform_estimations_and_refutations(
             writer("-" * 80)
             try:
                 estimate = estimate_effect(model, identified_estimand, method_name, writer)
-                methods_estimate[method_name] = estimate.value
+                methods_estimate[str(method_name)] = float(estimate.value)
                 refute_effect(model, identified_estimand, estimate, refutation_methods, writer)
             except Exception as e:
                 writer(f"Failed to estimate using {method_name}: {str(e)}")
@@ -77,13 +93,17 @@ def perform_estimations_and_refutations(
 
 def estimate_effect(model, identified_estimand, method_name: str, writer) -> object:
     """Estimates the causal effect using a specified method."""
+    start_time = time.time()
     estimate = model.estimate_effect(
         identified_estimand,
         method_name=method_name,
         test_significance=True,
         confidence_intervals=True
     )
+    end_time = time.time()
+    time_taken = end_time - start_time
     writer(f"Estimation using {method_name}:")
+    writer(f"Time taken: {time_taken:.6f} seconds")
     writer(f"ATE = {estimate.value}")
 
     # Log p-value and confidence interval
@@ -93,30 +113,54 @@ def estimate_effect(model, identified_estimand, method_name: str, writer) -> obj
 
 def log_estimation_results(estimate, writer):
     """Logs estimation results including p-value and confidence intervals."""
-    p_value = estimate.test_stat_significance().get("p_value")
-    confidence_intervals = estimate.get_confidence_intervals()
-
-    # Format confidence intervals as a list
-    if isinstance(confidence_intervals, np.ndarray):
-        confidence_intervals = confidence_intervals.flatten().tolist()
-
+    p_value = estimate.test_stat_significance()["p_value"]
     writer(f"P-value: {p_value}")
+
+    confidence_intervals = estimate.get_confidence_intervals()
+    if isinstance(confidence_intervals, np.ndarray):
+        confidence_intervals = confidence_intervals.flatten()
+        confidence_intervals = confidence_intervals.tolist()
+    else:
+        confidence_intervals = [float(_)
+                                for _ in confidence_intervals]
+
     writer(f"Confidence interval: {confidence_intervals}\n")
 
 
+def get_refutation_method(refuter_name, is_last_position: bool, refutation) -> Tuple[str, str]:
+    end="" if is_last_position else end="\n"
+    if refuter_name != "dummy_outcome_refuter":
+        return str(refutation), end
+    return str(refutation[0]), end
+
 def refute_effect(model, identified_estimand, estimate, refutation_methods: List[str], writer):
     """Applies refutation methods to the estimated causal effect."""
-    for refuter in refutation_methods:
+    for i, refuter_name in enumerate(refutation_methods):
+        start_time_refute = time.time()
         try:
             refutation = model.refute_estimate(
                 identified_estimand,
                 estimate,
-                method_name=refuter,
+                method_name=refuter_name,
                 placebo_type="permute"
             )
-            writer(str(refutation))
-        except KeyError as e:
-            writer(f"Failed to refute using {refuter}. Error: {str(e)}")
+            end_time_refute = time.time()
+            time_taken = end_time_refute - start_time_refute
+            writer(f"Time taken: {time_taken:.6f} seconds")
+            
+            refutation_method_str, end_of_line = write_refutation(
+                refuter_name, 
+                i == len(refutation_methods)-1,
+                refutation,
+                writer
+            )
+            writer(refutation_method_str, end=end_of_line)
+
+        except Exception as e:
+            writer(
+                f"Failed to refute using {refuter_name}. Error:{str(e)}"
+            )
+            writer()
 
 
 def dowhy_solver(
@@ -125,30 +169,39 @@ def dowhy_solver(
     edges: List[Tuple[str, str]],
     treatment: str,
     outcome: str
-) -> Dict:
-    """
-    Solves a causal inference problem using DoWhy.
+    fast: bool = False
+) -> Dict[str, float]:
+    """Solves a causal inference problem using DoWhy.
 
     Args:
         test_name (str): Name of the test case.
         csv_path (str): Path to the CSV file with the data.
-        edges (List[Tuple[str, str]]): List of edges defining the causal graph.
+        edges_str (str): String with the edges of the graph.
         treatment (str): Name of the treatment variable.
         outcome (str): Name of the outcome variable.
+        fast (bool, optional): Whether to run in fast mode. Defaults to False.
+
     Returns:
-        Dict: A dictionary with the estimation methods and their results.
+        Dict: A dictionary with the method used as key and the ATE as value.
     """
     print("DoWhy solver running...")
     
     # Configure output
-    output_file = f"{DirectoryPaths.OUTPUTS.value}/{test_name}/dowhy_{test_name}.txt"
+    output_file = (
+        f"{DirectoryPaths.OUTPUTS.value}/{test_name}/dowhy_{test_name}.txt"
+    )
     writer = OutputWriterDoWhy(output_file)
 
     # Load data and graph
     data, graph = load_data_and_graph(csv_path, edges)
 
     # Initialize causal model
-    model = CausalModel(data=data, treatment=treatment, outcome=outcome, graph=graph)
+    model = CausalModel(
+        data=data,
+        treatment=treatment,
+        outcome=outcome,
+        graph=graph
+    )
 
     # Identify causal effect
     identified_estimand = model.identify_effect()
@@ -157,34 +210,38 @@ def dowhy_solver(
 
     # Perform estimations and refutations
     methods_estimate = perform_estimations_and_refutations(
-        model, identified_estimand, estimands, writer
+        model, identified_estimand, estimands, writer, fast
     )
 
     print("DoWhy solver Done.")
     return methods_estimate
 
 
-def configure_environment():
+def configure_environment(is_verbose: bool):
     """Configures the runtime environment."""
-    warnings.filterwarnings("ignore", category=UserWarning)
-    logging.getLogger().setLevel(logging.CRITICAL)
+    if not is_verbose:
+        suppress_warnings()
 
 
 def parse_arguments():
     """Parses command-line arguments."""
     parser = argparse.ArgumentParser()
-    parser.add_argument("--common_data", required=True, help="Path to common data")
+    parser.add_argument("--common_data", required=True,
+                        help="Path to common data")
+    parser.add_argument(
+        "--verbose", action="store_true", help="Show solver logs"
+    )
     return parser.parse_args()
 
-
-def run_dowhy_solver(data):
+def run_dowhy_solver(data, fast_mode):
     """Runs the DoWhy solver."""
     return dowhy_solver(
         test_name=data['test_name'],
         csv_path=data['csv_path'],
         edges=data['edges']['edges_list'],
         treatment=data['treatment'],
-        outcome=data['outcome']
+        outcome=data['outcome'],
+        fast=fast_mode
     )
 
 
@@ -192,7 +249,9 @@ def log_solver_results(test_name, method_and_ate, time_taken):
     """Logs the results of the solver."""
     print(f"Time taken by DoWhy: {time_taken:.6f} seconds")
 
-    overview_file_path = f"{DirectoryPaths.OUTPUTS.value}/{test_name}/overview.txt"
+    overview_file_path = (
+        f"{DirectoryPaths.OUTPUTS.value}/{test_name}/overview.txt"
+    )
     writer = OutputWriter(overview_file_path, reset=False)
 
     writer("DoWhy")
@@ -205,14 +264,15 @@ def log_solver_results(test_name, method_and_ate, time_taken):
 
 def main():
     """Main function to execute the DoWhy solver."""
-    configure_environment()
-
     args = parse_arguments()
+
+    configure_environment(args.verbose)
+
     validator = Validator()
     data = get_common_data(validator.get_valid_path(args.common_data))
 
     start_time = time.time()
-    method_and_ate = run_dowhy_solver(data)
+    method_and_ate = run_dowhy_solver(data, args.fast)
     time_taken = time.time() - start_time
 
     log_solver_results(data['test_name'], method_and_ate, time_taken)

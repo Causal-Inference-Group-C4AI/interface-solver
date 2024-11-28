@@ -61,7 +61,6 @@ def bcause_solver(
 
 def configure_environment(is_verbose: bool):
     """Configures the runtime environment."""
-    logging.getLogger().setLevel(logging.CRITICAL)
     if not is_verbose:
         suppress_warnings()
 
@@ -106,7 +105,7 @@ def main():
     """Main function to execute the Bcause solver."""
     args = parse_arguments()
 
-    configure_environment()
+    configure_environment(args.verbose)
 
     validator = Validator()
     data = get_common_data(validator.get_valid_path(args.common_data))
