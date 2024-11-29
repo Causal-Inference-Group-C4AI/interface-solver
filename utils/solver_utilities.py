@@ -7,8 +7,9 @@ sys.path.append(os.path.abspath(
     os.path.join(os.path.dirname(__file__), '../../')))
 
 from utils._enums import DirectoryPaths, Solvers
-from utils.suppressors import suppress_warnings
 from utils.output_writer import OutputWriter
+from utils.suppressors import suppress_warnings
+
 
 class SolverUtilities:
     def __init__(self):

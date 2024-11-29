@@ -1,6 +1,6 @@
+import logging
 import os
 import sys
-import logging
 import warnings
 from typing import Any, Callable
 
