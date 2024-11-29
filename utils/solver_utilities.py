@@ -22,12 +22,19 @@ class SolverUtilities:
     def parse_arguments(self):
         """Parses command-line arguments."""
         parser = argparse.ArgumentParser()
-        parser.add_argument("--common_data", required=True,
-                            help="Path to common data")
+        parser.add_argument(
+            "--common_data", help="Path to common data"
+        )
         parser.add_argument(
             "--verbose", action="store_true", help="Show solver logs"
         )
-        parser.add_argument("--fast", action="store_true", help="Run in fast mode")
+        parser.add_argument(
+            "-f", "--fast", action="store_true", help="Run in fast mode"
+        )
+        
+        parser.add_argument(
+        "-d", "--debug", action="store_true", help="Debug mode"
+        )
         return parser.parse_args()
 
     def log_solver_results(self, solver_name: str, test_name: str, ate: Dict | Tuple[float, float], time_taken):

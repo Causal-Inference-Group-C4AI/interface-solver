@@ -86,7 +86,7 @@ def main():
     lower_bound, upper_bound = run_bcause_solver(data)
     time_taken = time.time() - start_time
 
-    solver_utilities.log_solver_results(Solvers.BCAUSE.value, data['test_name'], lower_bound, upper_bound, time_taken)
+    solver_utilities.log_solver_results(Solvers.BCAUSE.value, data['test_name'], [lower_bound, upper_bound], time_taken)
 
 if __name__ == "__main__":
     main()

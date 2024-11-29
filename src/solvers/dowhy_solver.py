@@ -14,8 +14,7 @@ sys.path.append(os.path.abspath(
 
 from utils._enums import DirectoryPaths, Solvers
 from utils.get_common_data import get_common_data
-from utils.output_writer import OutputWriter, OutputWriterDoWhy
-from utils.suppressors import suppress_warnings
+from utils.output_writer import OutputWriterDoWhy
 from utils.validator import Validator
 from utils.solver_utilities import SolverUtilities
 
@@ -71,7 +70,7 @@ def perform_estimations_and_refutations(
     estimands: List[str],
     writer,
     fast: bool
-) -> Dict[str, float]::
+) -> Dict[str, float]:
     """Performs causal effect estimations and refutations."""
 
     estimation_methods, refutation_methods = get_estimation_and_refutation_methods(fast)
@@ -127,7 +126,10 @@ def log_estimation_results(estimate, writer):
 
 
 def get_refutation_method(refuter_name, is_last_position: bool, refutation) -> Tuple[str, str]:
-    end="" if is_last_position else end="\n"
+    if is_last_position:
+        end="" 
+    else:
+        end="\n"
     if refuter_name != "dummy_outcome_refuter":
         return str(refutation), end
     return str(refutation[0]), end
@@ -147,7 +149,7 @@ def refute_effect(model, identified_estimand, estimate, refutation_methods: List
             time_taken = end_time_refute - start_time_refute
             writer(f"Time taken: {time_taken:.6f} seconds")
             
-            refutation_method_str, end_of_line = write_refutation(
+            refutation_method_str, end_of_line = get_refutation_method(
                 refuter_name, 
                 i == len(refutation_methods)-1,
                 refutation,
@@ -167,7 +169,7 @@ def dowhy_solver(
     csv_path: str,
     edges: List[Tuple[str, str]],
     treatment: str,
-    outcome: str
+    outcome: str,
     fast: bool = False
 ) -> Dict[str, float]:
     """Solves a causal inference problem using DoWhy.
@@ -204,7 +206,7 @@ def dowhy_solver(
 
     # Identify causal effect
     identified_estimand = model.identify_effect()
-    estimands = get_estimands()
+    estimands = get_estimands(identified_estimand)  
     writer(f"Estimands found: {', '.join(estimands)}")
 
     # Perform estimations and refutations
