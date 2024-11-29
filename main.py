@@ -13,6 +13,7 @@ from utils.data_cleaner import DataCleaner
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriter
 from utils.suppressors import suppress_warnings
+from utils.validator import Validator
 
 def run_task(script, env_path=None, args=None):
     """Run a Python script in a specific virtual environment."""
@@ -39,7 +40,6 @@ def execute_solvers(command_line_args, data, common_data_path):
         Solvers.AUTOBOUNDS.value: [FilePaths.AUTOBOUNDS_SOLVER.value, FilePaths.AUTOBOUNDS_VENV.value],
     }
 
-    # TODO: TESTAR O LCN E VER SE OS OUTROS CONTINUAM
     for solver_name, [script_path, venv_path] in solvers.items():
         if solver_name in data["solvers"]:
             try:
@@ -48,7 +48,7 @@ def execute_solvers(command_line_args, data, common_data_path):
                 task_args = ["--common_data", common_data_path]
                 if command_line_args.verbose:
                     task_args.append("--verbose")
-                if solver_name is Solver.DOWHY.value and command_line_args.fast:
+                if solver_name is Solvers.DOWHY.value and command_line_args.fast:
                     task_args.append("--fast")
 
                 run_task(
