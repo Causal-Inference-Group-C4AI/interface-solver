@@ -14,7 +14,7 @@ from utils._enums import DirectoryPaths, Solvers
 from utils.file_generators.lcn_file_generator import create_lcn
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriterLCN
-from utils.solver_utilities import SolverUtilities
+from utils.general_utilities import solver_parse_arguments, log_solver_results, configure_environment
 from utils.validator import Validator
 
 
@@ -137,10 +137,9 @@ def run_lcn_solver(data):
 
 def main():
     """Main function to execute the LCN solver."""
-    solver_utilities = SolverUtilities()
-    args = solver_utilities.parse_arguments()
+    args = solver_parse_arguments()
 
-    solver_utilities.configure_environment(args.verbose)
+    configure_environment(args.verbose)
 
     validator = Validator()
     data = get_common_data(validator.get_valid_path(args.common_data))
@@ -150,7 +149,7 @@ def main():
     end_time = time.time()
     time_taken = end_time - start_time
 
-    solver_utilities.log_solver_results(Solvers.LCN.value, data['test_name'], [lower_bound, upper_bound], time_taken)
+    log_solver_results(Solvers.LCN.value, data['test_name'], [lower_bound, upper_bound], time_taken)
 
 if __name__ == "__main__":
     main()

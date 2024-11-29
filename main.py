@@ -49,7 +49,7 @@ def execute_solvers(command_line_args, data, common_data_path):
                 task_args = ["--common_data", common_data_path]
                 if command_line_args.verbose:
                     task_args.append("--verbose")
-                if solver_name is Solvers.DOWHY.value and command_line_args.fast:
+                if command_line_args.fast:
                     task_args.append("--fast")
 
                 run_task(

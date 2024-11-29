@@ -12,6 +12,7 @@ from utils.file_generators.parser_uai import UAIParser
 from utils.file_generators.uai_generator import UAIGenerator
 from utils.suppressors import suppress_print
 from utils.validator import InvalidInputFormatError, Validator
+from utils.general_utilities import input_parse_arguments
 
 
 class InputProcessor:
@@ -107,11 +108,7 @@ def generate_shared_data(output_path: str, data_test: Dict):
 
 if __name__ == "__main__":
     print("Running Input Processor...")
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--output", required=True,
-                        help="Path to output the processed data")
-    parser.add_argument("--input", required=True, help="Path to input data")
-    args = parser.parse_args()
+    args = input_parse_arguments()
 
     processed_data = InputProcessor(args.input)
     generate_shared_data(args.output, processed_data.data_test)

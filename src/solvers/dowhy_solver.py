@@ -14,7 +14,7 @@ sys.path.append(os.path.abspath(
 from utils._enums import DirectoryPaths, Solvers
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriterDoWhy
-from utils.solver_utilities import SolverUtilities
+from utils.general_utilities import solver_parse_arguments, log_solver_results, configure_environment, get_debug_data_for_dowhy
 from utils.validator import Validator
 
 
@@ -231,19 +231,21 @@ def run_dowhy_solver(data, fast_mode):
 
 def main():
     """Main function to execute the DoWhy solver."""
-    solver_utilities = SolverUtilities()
-    args = solver_utilities.parse_arguments()
+    args = solver_parse_arguments()
 
-    solver_utilities.configure_environment(args.verbose)
+    configure_environment(args.verbose)
 
     validator = Validator()
-    data = get_common_data(validator.get_valid_path(args.common_data))
+    if args.debug:
+        data = get_debug_data_for_dowhy()
+    else:
+        data = get_common_data(validator.get_valid_path(args.common_data))
 
     start_time = time.time()
     method_and_ate = run_dowhy_solver(data, args.fast)
     time_taken = time.time() - start_time
 
-    solver_utilities.log_solver_results(Solvers.DOWHY.value, data['test_name'], method_and_ate, time_taken)
+    log_solver_results(Solvers.DOWHY.value, data['test_name'], method_and_ate, time_taken)
 
 
 if __name__ == "__main__":
