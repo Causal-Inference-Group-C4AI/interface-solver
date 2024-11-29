@@ -1,5 +1,3 @@
-import argparse
-import logging
 import os
 import sys
 import time
@@ -15,10 +13,9 @@ from bcause.models.cmodel import StructuralCausalModel
 
 from utils._enums import DirectoryPaths, Solvers
 from utils.get_common_data import get_common_data
-from utils.output_writer import OutputWriter, OutputWriterBcause
-from utils.suppressors import suppress_warnings
-from utils.validator import Validator
+from utils.output_writer import OutputWriterBcause
 from utils.solver_utilities import SolverUtilities
+from utils.validator import Validator
 
 
 def bcause_solver(

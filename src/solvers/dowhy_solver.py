@@ -1,4 +1,3 @@
-import argparse
 import os
 import sys
 import time
@@ -15,8 +14,8 @@ sys.path.append(os.path.abspath(
 from utils._enums import DirectoryPaths, Solvers
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriterDoWhy
-from utils.validator import Validator
 from utils.solver_utilities import SolverUtilities
+from utils.validator import Validator
 
 
 def get_estimands(identified_estimand) -> List[str]:

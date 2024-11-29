@@ -1,4 +1,3 @@
-import argparse
 import os
 import sys
 import time
@@ -14,10 +13,9 @@ from autobounds.causalProblem import causalProblem
 from autobounds.DAG import DAG
 from utils._enums import DirectoryPaths, Solvers
 from utils.get_common_data import get_common_data
-from utils.output_writer import OutputWriter, OutputWriterAutobounds
-from utils.suppressors import suppress_warnings
-from utils.validator import Validator
+from utils.output_writer import OutputWriterAutobounds
 from utils.solver_utilities import SolverUtilities
+from utils.validator import Validator
 
 
 def autobounds_solver(

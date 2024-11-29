@@ -1,4 +1,3 @@
-import argparse
 import os
 import sys
 import time
@@ -10,16 +9,13 @@ sys.path.append(os.path.abspath(
     os.path.join(os.path.dirname(__file__), '../../')))
 
 from lcn.inference.exact.marginal import ExactInferece
-
 from lcn.model import LCN
-
 from utils._enums import DirectoryPaths, Solvers
 from utils.file_generators.lcn_file_generator import create_lcn
 from utils.get_common_data import get_common_data
-from utils.output_writer import OutputWriter, OutputWriterLCN
-from utils.suppressors import suppress_warnings
-from utils.validator import Validator
+from utils.output_writer import OutputWriterLCN
 from utils.solver_utilities import SolverUtilities
+from utils.validator import Validator
 
 
 def lcn_solver(
