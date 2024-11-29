@@ -1,4 +1,3 @@
-import argparse
 import logging
 import os
 import subprocess
@@ -12,8 +11,8 @@ from utils._enums import DirectoryPaths, FilePaths, Solvers
 from utils.data_cleaner import DataCleaner
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriter
-from utils.suppressors import suppress_warnings
 from utils.validator import Validator
+from utils.general_utilities import configure_environment, input_parse_arguments
 
 
 def run_task(script, env_path=None, args=None):
@@ -62,26 +61,6 @@ def execute_solvers(command_line_args, data, common_data_path):
                 # TODO: ESCREVER NO ARQUIVO DE OUTPUT QUE ESSE SOLVER DEU ERRO
 
 
-def configure_environment(is_verbose: bool):
-    """Configures the runtime environment."""
-    if not is_verbose:
-        suppress_warnings()
-
-def parse_arguments():
-    """Parses command-line arguments."""
-    parser = argparse.ArgumentParser(
-        description="Runs tests of Causal Effect under Partial-Observability."
-    )
-    parser.add_argument('file_path',
-                        help='The path to the file you want to read'
-                        )
-    parser.add_argument('-v', '--verbose',
-                        action='store_true', help="Show solver logs")
-    parser.add_argument('-f', '--fast', action='store_true',
-                        help="Run the script with fast settings")
-    return parser.parse_args()
-
-
 def main(args):
     try:
         configure_environment(args.verbose)
@@ -118,4 +97,4 @@ def main(args):
 
 
 if __name__ == "__main__":
-    main(parse_arguments())
+    main(input_parse_arguments())

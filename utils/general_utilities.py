@@ -16,12 +16,29 @@ def configure_environment(is_verbose: bool):
     if not is_verbose:
         suppress_warnings()
 
+
 def input_parse_arguments():
+    """Parses command-line arguments."""
+    parser = argparse.ArgumentParser(
+        description="Runs tests of Causal Effect under Partial-Observability."
+    )
+    parser.add_argument('file_path',
+                        help='The path to the file you want to read'
+                        )
+    parser.add_argument('-v', '--verbose',
+                        action='store_true', help="Show solver logs")
+    parser.add_argument('-f', '--fast', action='store_true',
+                        help="Run the script with fast settings")
+    return parser.parse_args()
+
+
+def input_processor_parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", required=True,
                         help="Path to output the processed data")
     parser.add_argument("--input", required=True, help="Path to input data")
     return parser.parse_args()
+
 
 def solver_parse_arguments():
     """Parses command-line arguments."""
@@ -40,6 +57,7 @@ def solver_parse_arguments():
         "-d", "--debug", action="store_true", help="Debug mode"
     )
     return parser.parse_args()
+
 
 def log_solver_results(solver_name: str, test_name: str, ate: Dict | Tuple[float, float], time_taken):
     """Logs the results of the solver."""
