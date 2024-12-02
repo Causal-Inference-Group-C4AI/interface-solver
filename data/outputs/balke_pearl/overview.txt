@@ -1,0 +1,19 @@
+Test 'balke_pearl' on 2024-12-02
+--------------------------------------------
+lcn
+   Time taken by lcn: 140.541411 seconds
+   ATE lies in the interval: [0.0, 0.0]
+--------------------------------------------
+dowhy
+   Time taken by dowhy: 2.830259 seconds
+   Estimate method: iv.instrumental_variable
+   ATE is: -1.3636363636363638
+--------------------------------------------
+bcause
+   Time taken by bcause: 25.533113 seconds
+   ATE lies in the interval: [-0.20920292277094027, -0.1595495072605817]
+--------------------------------------------
+autobounds
+   Time taken by autobounds: 0.575862 seconds
+   ATE lies in the interval: [-0.23, -0.15]
+--------------------------------------------

@@ -1,5 +1,7 @@
+import logging
 import os
 import sys
+import warnings
 from typing import Any, Callable
 
 
@@ -35,3 +37,9 @@ def suppress_print(func: Callable[..., Any]) -> Callable[..., Any]:
             enablePrint()
         return result
     return wrapper
+
+
+def suppress_warnings() -> None:
+    """Suppress all warnings and logging messages."""
+    warnings.filterwarnings("ignore", category=Warning)
+    logging.getLogger().setLevel(logging.CRITICAL)

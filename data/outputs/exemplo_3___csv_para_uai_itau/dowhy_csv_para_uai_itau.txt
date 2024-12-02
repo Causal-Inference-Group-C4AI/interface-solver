@@ -1,0 +1,80 @@
+Estimands found: backdoor
+--------------------------------------------------------------------------------
+Estimation using backdoor.linear_regression:
+ATE = -356207496530.0839
+P-value: [0.9042605]
+Confidence interval: [-6166137939915.236, 5453722946855.068]
+
+Refute: Use a Placebo Treatment
+Estimated effect:-356207496530.0839
+New effect:0.0008134630983356219
+p value:1.0
+
+Refute: Use a subset of data
+Estimated effect:-356207496530.0839
+New effect:-202736380346.56952
+p value:0.8200000000000001
+
+Refute: Add a random common cause
+Estimated effect:-356207496530.0839
+New effect:1898837876252.7825
+p value:0.0
+
+Refute: Use a Dummy Outcome
+Estimated effect:0
+New effect:925043398708.4011
+p value:0.94
+--------------------------------------------------------------------------------
+Estimation using backdoor.propensity_score_matching:
+ATE = 0.242
+P-value: 0.18899999999999995
+Confidence interval: [-0.281, 0.263]
+
+Refute: Use a Placebo Treatment
+Estimated effect:0.242
+New effect:-0.000999999999999999
+p value:0.99
+
+Refute: Use a subset of data
+Estimated effect:0.242
+New effect:0.4870875
+p value:0.3600000000000001
+
+Refute: Add a random common cause
+Estimated effect:0.242
+New effect:0.24200000000000002
+p value:1.0
+
+Refute: Use a Dummy Outcome
+Estimated effect:0
+New effect:-0.03530342108795488
+p value:0.98
+--------------------------------------------------------------------------------
+Failed to estimate using backdoor.propensity_score_stratification: Not enough da
+ta to generate at least two strata. This error may be due to a high value of 'cl
+ipping_threshold'.
+--------------------------------------------------------------------------------
+Estimation using backdoor.propensity_score_weighting:
+ATE = 0.48303393213572865
+P-value: (0, 0.001)
+Confidence interval: [0.4378420578198443, 0.5263088281268788]
+
+Refute: Use a Placebo Treatment
+Estimated effect:0.48303393213572865
+New effect:-0.4367944597975643
+p value:0.0
+
+Refute: Use a subset of data
+Estimated effect:0.48303393213572865
+New effect:0.48246658059029246
+p value:0.98
+
+Refute: Add a random common cause
+Estimated effect:0.48303393213572865
+New effect:0.48303393213572837
+p value:1.0
+
+Refute: Use a Dummy Outcome
+Estimated effect:0
+New effect:0.006373219418177621
+p value:0.94

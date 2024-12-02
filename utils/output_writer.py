@@ -1,8 +1,7 @@
 import contextlib
 import logging
 
-
-from utils._enums import DirectoryPaths
+from utils._enums import DirectoryPaths, Solvers
 
 
 class OutputWriter:
@@ -91,22 +90,22 @@ class OutputWriter:
 
 
 class OutputWriterBcause(OutputWriter):
-    def __init__(self, output_path=f"{DirectoryPaths.OUTPUTS.value}/bcause_output_NO_TEST_NAME.txt"):
+    def __init__(self, output_path=f"{DirectoryPaths.OUTPUTS.value}/{Solvers.BCAUSE.value}_output_NO_TEST_NAME.txt"):
         super().__init__(output_path)
 
 
 class OutputWriterAutobounds(OutputWriter):
-    def __init__(self, output_path=f"{DirectoryPaths.OUTPUTS.value}/autobounds_output_NO_TEST_NAME.txt"):
+    def __init__(self, output_path=f"{DirectoryPaths.OUTPUTS.value}/{Solvers.AUTOBOUNDS.value}_output_NO_TEST_NAME.txt"):
         super().__init__(output_path)
 
 
 class OutputWriterLCN(OutputWriter):
-    def __init__(self, output_path=f"{DirectoryPaths.OUTPUTS.value}/lcn_output_NO_TEST_NAME.txt"):
+    def __init__(self, output_path=f"{DirectoryPaths.OUTPUTS.value}/{Solvers.LCN.value}_output_NO_TEST_NAME.txt"):
         super().__init__(output_path)
 
 
 class OutputWriterDoWhy(OutputWriter):
-    def __init__(self, output_path: str = f"{DirectoryPaths.OUTPUTS.value}/dowhy_output_NO_TEST_NAME.txt") -> None:
+    def __init__(self, output_path: str = f"{DirectoryPaths.OUTPUTS.value}/{Solvers.DOWHY.value}_output_NO_TEST_NAME.txt") -> None:
         super().__init__(output_path)
 
     def __call__(self, text: str = "", end: str = "\n") -> None:

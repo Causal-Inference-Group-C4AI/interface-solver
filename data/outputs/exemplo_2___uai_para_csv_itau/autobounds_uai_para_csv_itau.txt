@@ -1,0 +1,6 @@
+[]
+Problem is finished! Returning final values
+Problem is finished! Returning final values
+==============================================
+Causal effect lies in the interval [-0.5, 0.5]
+==============================================
