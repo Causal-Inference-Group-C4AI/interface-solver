@@ -1,18 +1,16 @@
 Estimands found: iv
 --------------------------------------------------------------------------------
 Estimation using iv.instrumental_variable:
+Time taken: 2.405873 seconds
 ATE = -1.3636363636363638
 P-value: (0, 0.001)
-Confidence interval: [-1.655399322474361, -0.8685934819897088]
+Confidence interval: [-1.6732446438283208, -0.8960625361899248]
 
-Refute: Use a Placebo Treatment
-Estimated effect:-1.3636363636363638
-New effect:0.014814814814814807
-p value:0.78
+Time taken: 0.244166 seconds
+Failed to refute using placebo_treatment_refuter. Error:get_refutation_method() 
+takes 3 positional arguments but 4 were given
 
-Refute: Use a subset of data
-Estimated effect:-1.3636363636363638
-New effect:-1.3713784843673957
-p value:0.98
+Time taken: 0.172019 seconds
+Failed to refute using dummy_outcome_refuter. Error:get_refutation_method() take
+s 3 positional arguments but 4 were given
 
-Failed to estimate using iv.instrumental_variable: None
