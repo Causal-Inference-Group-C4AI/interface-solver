@@ -1,7 +1,7 @@
 uai_para_csv_itau
-dowhy bcause lcn autobounds
+lcn autobounds
 U1 -> X1, U2 -> X1, U3 -> X1, X1 -> X2, U1 -> X2
 X1
 X2
-data/uai/uai_para_csv_itau.uai
+data/inputs/uai/uai_para_csv_itau.uai
 {"V0":"X1", "V1":"X2"}
