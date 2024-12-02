@@ -1,3 +1,4 @@
+import logging
 import argparse
 import os
 import sys
@@ -81,6 +82,27 @@ def log_solver_results(solver_name: str, test_name: str, ate: Dict | Tuple[float
         upper_bound = ate[1]
         writer(f"   ATE lies in the interval: [{lower_bound}, {upper_bound}]")
         writer("--------------------------------------------")
+
+
+def log_solver_error(e, solver_name, data):
+    msg = f"Solver {solver_name} failed with error: {e}"
+
+    output_file = (
+        f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/{solver_name}_{data['test_name']}.txt"
+    )
+    solver_writer = OutputWriter(output_file)
+    solver_writer(msg)
+                    
+    overview_file_path = (
+        f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
+    )
+    overview_writer = OutputWriter(overview_file_path, reset=False)
+
+    overview_writer(f"{solver_name}")
+    overview_writer(f"   {msg}")
+    overview_writer(f"--------------------------------------------")
+
+    logging.error(msg)
 
 
 def get_debug_data_for_dowhy():

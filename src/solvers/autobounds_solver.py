@@ -65,7 +65,7 @@ def autobounds_solver(
     # Setting up the file to write the output
     output_file = (
         f"{DirectoryPaths.OUTPUTS.value}/{test_name}/"
-        f"autobounds_{test_name}.txt"
+        f"{Solvers.AUTOBOUNDS.value}_{test_name}.txt"
     )
     writer = OutputWriterAutobounds(output_file)
 

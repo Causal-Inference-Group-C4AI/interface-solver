@@ -12,7 +12,7 @@ from utils.data_cleaner import DataCleaner
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriter
 from utils.validator import Validator
-from utils.general_utilities import configure_environment, input_parse_arguments
+from utils.general_utilities import configure_environment, input_parse_arguments, log_solver_error
 
 
 def run_task(script, env_path=None, args=None):
@@ -57,8 +57,7 @@ def execute_solvers(command_line_args, data, common_data_path):
                     args=task_args
                 )
             except Exception as e:
-                logging.error(f"Solver {solver_name} failed with error: {e}")
-                # TODO: ESCREVER NO ARQUIVO DE OUTPUT QUE ESSE SOLVER DEU ERRO
+                log_solver_error(e, solver_name, data)
 
 
 def main(args):

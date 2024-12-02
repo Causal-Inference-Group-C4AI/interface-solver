@@ -39,7 +39,7 @@ def bcause_solver(
     upper_bound = p_do1.values[3] - p_do0.values[3]
 
     output_file = (
-        f"{DirectoryPaths.OUTPUTS.value}/{test_name}/bcause_{test_name}.txt"
+        f"{DirectoryPaths.OUTPUTS.value}/{test_name}/{Solvers.BCAUSE.value}_{test_name}.txt"
     )
     writer = OutputWriterBcause(output_file)
 

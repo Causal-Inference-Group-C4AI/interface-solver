@@ -188,7 +188,7 @@ def dowhy_solver(
     
     # Configure output
     output_file = (
-        f"{DirectoryPaths.OUTPUTS.value}/{test_name}/dowhy_{test_name}.txt"
+        f"{DirectoryPaths.OUTPUTS.value}/{test_name}/{Solvers.DOWHY.value}_{test_name}.txt"
     )
     writer = OutputWriterDoWhy(output_file)
 

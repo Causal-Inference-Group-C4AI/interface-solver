@@ -38,7 +38,7 @@ def lcn_solver(
     print("LCN solver running...")
 
     # Setting up the file to write the output
-    output_file = f"{DirectoryPaths.OUTPUTS.value}/{test_name}/LCN_{test_name}.txt"
+    output_file = f"{DirectoryPaths.OUTPUTS.value}/{test_name}/{Solvers.LCN.value}_{test_name}.txt"
     writer = OutputWriterLCN(output_file)
 
     #Defining the first intervention
