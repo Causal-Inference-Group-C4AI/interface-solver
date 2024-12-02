@@ -29,3 +29,10 @@ class FilePaths(Enum):
     AUTOBOUNDS_VENV = "venv_autobounds"
     # TODO: REVER O ENV DAQUI 
     INPUT_PROCESSOR_VENV = "venv_dowhy"
+
+class DockerImages(Enum):
+    INPUT_PROCESSOR_DOCKER_IMAGE = ""
+    LCN_DOCKER_IMAGE = ""
+    DOWHY_DOCKER_IMAGE = ""
+    AUTOBOUNDS_DOCKER_IMAGE = ""
+    BCAUSE_DOCKER_IMAGE = ""

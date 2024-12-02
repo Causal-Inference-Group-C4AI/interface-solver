@@ -1,0 +1,11 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+COPY requirements_autobounds.txt .
+
+RUN pip install --no-cache-dir -r requirements_autobounds.txt
+
+COPY src/solvers/autobounds_solver.py /app/autobounds_solver.py
+
+CMD ["python3", "autobounds_solver.py"]

@@ -1,0 +1,33 @@
+# Use the official Airflow image as the base image
+FROM apache/airflow:2.5.0
+
+# Set the working directory inside the container
+WORKDIR /opt/airflow
+
+# Install additional dependencies if needed (e.g., libraries for your solvers)
+# Example: RUN pip install numpy scipy
+
+# Copy the DAG script into the container
+COPY solver_pipeline.py /opt/airflow/dags/solver_pipeline.py
+
+# Set Airflow environment variables (optional, can be customized later)
+ENV AIRFLOW_HOME=/opt/airflow
+
+# Set the default command to start the Airflow scheduler and webserver
+CMD ["bash", "-c", "airflow db init && airflow scheduler & airflow webserver"]
+
+
+# # Use the official Airflow image as a base image
+# FROM apache/airflow:2.5.0
+
+# # Install additional dependencies for Airflow if needed
+# # Example: RUN pip install numpy pandas
+
+# # Set the working directory inside the container
+# WORKDIR /opt/airflow
+
+# # Copy the DAG scripts
+# COPY dags /opt/airflow/dags
+
+# # Initialize the Airflow database and start the webserver and scheduler
+# CMD ["bash", "-c", "airflow db init && airflow scheduler & airflow webserver"]
