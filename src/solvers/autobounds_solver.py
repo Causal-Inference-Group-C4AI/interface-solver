@@ -104,7 +104,7 @@ def run_autobounds_solver(data):
     )
 
 def main():
-    """Main function to execute the DoWhy solver."""
+    """Main function to execute the Autobounds solver."""
     args = solver_parse_arguments()
 
     configure_environment(args.verbose)
