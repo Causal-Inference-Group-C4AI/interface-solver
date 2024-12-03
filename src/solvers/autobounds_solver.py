@@ -85,7 +85,7 @@ def autobounds_solver(
         writer("==============================================")
     except Exception as e:
         if "unsupported operand type(s) for -: 'str' and 'str'" in str(e):
-            pass
+            raise Exception("Problem is infeasible. Returning without solutions")
         else:
             raise Exception(e)
 

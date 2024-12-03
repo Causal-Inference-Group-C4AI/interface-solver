@@ -1,0 +1,91 @@
+Parsed DAG: {'X': ['Z', 'U'], 'Z': [], 'Y': ['X', 'U'], 'U': []}
+Decompositions: {'Uaux_X': {'X': 4}, 'Uaux_Z': {'Z': 1}, 'Uaux_Y': {'Y': 4}, 'Uaux_U': {'U': 1}}
+Total decompositions: {'Uaux_X': 4, 'Uaux_Z': 1, 'Uaux_Y': 4, 'Uaux_U': 1}
+considered exogenous subvariable mappings: {'Uaux_X': ['Uaux_X_1', 'Uaux_X_2', 'Uaux_X_3', 'Uaux_X_4'], 'Uaux_Z': ['Uaux_Z_1'], 'Uaux_Y': ['Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4'], 'Uaux_U': ['Uaux_U_1']}
+exo_vars: ['Uaux_X_1', 'Uaux_X_2', 'Uaux_X_3', 'Uaux_X_4', 'Uaux_Z_1', 'Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4', 'Uaux_U_1']
+considered DAG: {'X': ['Z', 'U', 'Uaux_X_1', 'Uaux_X_2', 'Uaux_X_3', 'Uaux_X_4'], 'Z': ['Uaux_Z_1'], 'Y': ['X', 'U', 'Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4'], 'U': ['Uaux_U_1']}
+considered unobserved variables: ['Uaux_X_1', 'Uaux_X_2', 'Uaux_X_3', 'Uaux_X_4', 'Uaux_Z_1', 'Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4', 'Uaux_U_1']
+considered children: {'Z': ['X'], 'X': ['Y'], 'U': ['X', 'Y'], 'Uaux_X': ['X'], 'Uaux_Z': ['Z'], 'Uaux_Y': ['Y'], 'Uaux_U': ['U']}
+var: X
+dag[var]: ['Z', 'U', 'Uaux_X_1', 'Uaux_X_2', 'Uaux_X_3', 'Uaux_X_4']
+endogenous_parents: ['Z', 'U']
+exogenous_parents: ['Uaux_X_1', 'Uaux_X_2', 'Uaux_X_3', 'Uaux_X_4']
+var: Z
+dag[var]: ['Uaux_Z_1']
+endogenous_parents: []
+exogenous_parents: ['Uaux_Z_1']
+var: Y
+dag[var]: ['X', 'U', 'Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4']
+endogenous_parents: ['X', 'U']
+exogenous_parents: ['Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4']
+var: U
+dag[var]: ['Uaux_U_1']
+endogenous_parents: []
+exogenous_parents: ['Uaux_U_1']
+var: Y
+dag[var]: ['X', 'U', 'Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4']
+endogenous_parents: ['X', 'U']
+exogenous_parents: ['Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4']
+var: U
+dag[var]: ['Uaux_U_1']
+endogenous_parents: []
+exogenous_parents: ['Uaux_U_1']
+==============================================
+Parsed DAG: {'X': ['Z', 'U'], 'Z': [], 'Y': ['X', 'U'], 'U': []}
+Decompositions: {'Uaux_X': {'X': 4}, 'Uaux_Z': {'Z': 1}, 'Uaux_Y': {'Y': 4}, 'Uaux_U': {'U': 1}}
+Total decompositions: {'Uaux_X': 4, 'Uaux_Z': 1, 'Uaux_Y': 4, 'Uaux_U': 1}
+considered exogenous subvariable mappings: {'Uaux_X': ['Uaux_X_1', 'Uaux_X_2', 'Uaux_X_3', 'Uaux_X_4'], 'Uaux_Z': ['Uaux_Z_1'], 'Uaux_Y': ['Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4'], 'Uaux_U': ['Uaux_U_1']}
+exo_vars: ['Uaux_X_1', 'Uaux_X_2', 'Uaux_X_3', 'Uaux_X_4', 'Uaux_Z_1', 'Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4', 'Uaux_U_1']
+considered DAG: {'X': ['Z', 'U', 'Uaux_X_1', 'Uaux_X_2', 'Uaux_X_3', 'Uaux_X_4'], 'Z': ['Uaux_Z_1'], 'Y': ['X', 'U', 'Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4'], 'U': ['Uaux_U_1']}
+considered unobserved variables: ['Uaux_X_1', 'Uaux_X_2', 'Uaux_X_3', 'Uaux_X_4', 'Uaux_Z_1', 'Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4', 'Uaux_U_1']
+considered children: {'Z': ['X'], 'X': ['Y'], 'U': ['X', 'Y'], 'Uaux_X': ['X'], 'Uaux_Z': ['Z'], 'Uaux_Y': ['Y'], 'Uaux_U': ['U']}
+var: X
+dag[var]: ['Z', 'U', 'Uaux_X_1', 'Uaux_X_2', 'Uaux_X_3', 'Uaux_X_4']
+endogenous_parents: ['Z', 'U']
+exogenous_parents: ['Uaux_X_1', 'Uaux_X_2', 'Uaux_X_3', 'Uaux_X_4']
+var: Z
+dag[var]: ['Uaux_Z_1']
+endogenous_parents: []
+exogenous_parents: ['Uaux_Z_1']
+var: Y
+dag[var]: ['X', 'U', 'Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4']
+endogenous_parents: ['X', 'U']
+exogenous_parents: ['Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4']
+var: U
+dag[var]: ['Uaux_U_1']
+endogenous_parents: []
+exogenous_parents: ['Uaux_U_1']
+var: Y
+dag[var]: ['X', 'U', 'Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4']
+endogenous_parents: ['X', 'U']
+exogenous_parents: ['Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4']
+var: U
+dag[var]: ['Uaux_U_1']
+endogenous_parents: []
+exogenous_parents: ['Uaux_U_1']
+==============================================
+Parsed LCN format with 220 sentences.
+Build the LCN's primal graph.
+Build the LCN's structure graph.
+Build the LCN's independence assumptions (LMC).
+[Local Markov Condition: 17 independencies]
+(U ⟂ Uaux_X_4, Uaux_X_2, Uaux_Z_1, Uaux_X_1, Uaux_Y_4, Z, YL, Uaux_Y_3, Uaux_Y_1, Uaux_Y_2, XL, UL, Uaux_X_3 | Uaux_U_1)
+(UL ⟂ Z, Uaux_X_4, Uaux_X_2, Uaux_Y_4, Uaux_X_1, Uaux_Z_1, Y, X, Uaux_Y_3, Uaux_Y_1, Uaux_Y_2, XL, Uaux_X_3, U | Uaux_U_1)
+(Uaux_U_1 ⟂ Uaux_X_4, Uaux_X_2, Uaux_Z_1, Uaux_X_1, Uaux_Y_4, Z, Uaux_Y_3, Uaux_Y_1, Uaux_Y_2, XL, Uaux_X_3)
+(Uaux_X_1 ⟂ Z, Uaux_Y_4, Uaux_Z_1, YL, Uaux_U_1, Uaux_Y_3, Uaux_Y_1, Uaux_Y_2, XL, UL, U)
+(Uaux_X_2 ⟂ Z, Uaux_Y_4, Uaux_Z_1, YL, Uaux_U_1, Uaux_Y_3, Uaux_Y_1, Uaux_Y_2, XL, UL, U | Uaux_X_1)
+(Uaux_X_3 ⟂ Z, Uaux_Y_4, Uaux_Z_1, YL, Uaux_U_1, Uaux_Y_3, Uaux_Y_1, Uaux_Y_2, XL, UL, U | Uaux_X_2, Uaux_X_1)
+(Uaux_X_4 ⟂ Z, Uaux_Y_4, Uaux_Z_1, YL, Uaux_U_1, Uaux_Y_3, Uaux_Y_1, Uaux_Y_2, XL, UL, U | Uaux_X_2, Uaux_X_1, Uaux_X_3)
+(Uaux_Y_1 ⟂ Uaux_X_4, Uaux_X_2, Uaux_Z_1, Uaux_X_1, Z, Uaux_U_1, X, XL, UL, Uaux_X_3, U)
+(Uaux_Y_2 ⟂ Uaux_X_4, Uaux_X_2, Uaux_Z_1, Uaux_X_1, Z, Uaux_U_1, X, XL, UL, Uaux_X_3, U | Uaux_Y_1)
+(Uaux_Y_3 ⟂ Uaux_X_4, Uaux_X_2, Uaux_Z_1, Uaux_X_1, Z, Uaux_U_1, X, XL, UL, Uaux_X_3, U | Uaux_Y_2, Uaux_Y_1)
+(Uaux_Y_4 ⟂ Uaux_X_4, Uaux_X_2, Uaux_Z_1, Uaux_X_1, Z, Uaux_U_1, X, XL, UL, Uaux_X_3, U | Uaux_Y_2, Uaux_Y_3, Uaux_Y_1)
+(Uaux_Z_1 ⟂ Uaux_X_4, Uaux_X_2, Uaux_Y_4, Uaux_X_1, YL, Uaux_U_1, Uaux_Y_3, Uaux_Y_1, Uaux_Y_2, XL, UL, Uaux_X_3, U)
+(X ⟂ Uaux_Y_4, Uaux_Z_1, YL, Uaux_U_1, Uaux_Y_3, Uaux_Y_1, Uaux_Y_2, XL, UL | Z, Uaux_X_4, Uaux_X_2, Uaux_X_1, Uaux_X_3, U)
+(XL ⟂ Z, Uaux_X_4, Uaux_X_2, Uaux_Y_4, Uaux_X_1, Uaux_Z_1, Y, Uaux_U_1, X, Uaux_Y_3, Uaux_Y_1, Uaux_Y_2, UL, Uaux_X_3, U)
+(Y ⟂ Uaux_X_4, Uaux_X_2, Uaux_Z_1, Uaux_X_1, Z, YL, Uaux_U_1, XL, UL, Uaux_X_3 | Uaux_Y_4, X, Uaux_Y_3, Uaux_Y_1, Uaux_Y_2, U)
+(YL ⟂ Uaux_X_4, Uaux_X_2, Uaux_Z_1, Uaux_X_1, Z, Y, Uaux_U_1, X, Uaux_X_3, U | Uaux_Y_4, Uaux_Y_3, Uaux_Y_1, Uaux_Y_2, XL, UL)
+(Z ⟂ Uaux_X_4, Uaux_X_2, Uaux_Y_4, Uaux_X_1, YL, Uaux_U_1, Uaux_Y_3, Uaux_Y_1, Uaux_Y_2, XL, UL, Uaux_X_3, U | Uaux_Z_1)
+vars: ['X', 'Uaux_X_1', 'Uaux_X_2', 'Uaux_X_3', 'Uaux_X_4', 'Z', 'U', 'Uaux_Z_1', 'Y', 'Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4', 'Uaux_U_1', 'XL', 'YL', 'UL']
+cardinalities: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+
