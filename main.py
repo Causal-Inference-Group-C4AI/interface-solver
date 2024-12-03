@@ -57,7 +57,7 @@ def execute_solvers(command_line_args, data, common_data_path):
                     args=task_args
                 )
             except Exception as e:
-                log_solver_error(e, solver_name, data)
+                log_solver_error(e, solver_name, data['test_name'])
 
 
 def main(args):
