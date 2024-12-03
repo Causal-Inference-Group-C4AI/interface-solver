@@ -19,23 +19,6 @@ from utils.output_writer import OutputWriterBcause
 from utils.validator import Validator
 
 
-def fix_dataset(dataset: pd.DataFrame, endogenous: List) -> pd.DataFrame:
-    """Drop exogenous columns from DataFrame
-    (bcause only handles endogenous variables data)
-
-    Args:
-        dataset (pd.DataFrame): DataFrame to be fixed
-        endogenous (List): List of endogenous variables
-
-    Returns:
-        pd.DataFrame: Fixed DataFrame
-    """
-    for col in dataset.columns:
-        if col not in endogenous:
-            dataset = dataset.drop(col, axis=1)
-    return dataset
-
-
 def bcause_solver(
         test_name: str,
         uai_path: str,
@@ -47,7 +30,7 @@ def bcause_solver(
     model = StructuralCausalModel.read(uai_path)
     renamed_model = model.rename_vars(mapping)
 
-    dataset = fix_dataset(pd.read_csv(csv_path), renamed_model.endogenous)
+    dataset = pd.read_csv(csv_path)
     inf = EMCC(renamed_model, dataset, max_iter=100, num_runs=20)
 
     p_do0 = inf.causal_query(outcome, do={treatment: 0})
