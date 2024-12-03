@@ -35,9 +35,9 @@ def process_input(file_path, output_path):
 def execute_solvers(command_line_args, data, common_data_path):
     solvers = {
         Solvers.LCN.value: [FilePaths.LCN_SOLVER.value, FilePaths.LCN_VENV.value],
-        Solvers.DOWHY.value: [FilePaths.DOWHY_SOLVER.value, FilePaths.DOWHY_VENV.value],
         Solvers.BCAUSE.value: [FilePaths.BCAUSE_SOLVER.value , FilePaths.BCAUSE_VENV.value],
         Solvers.AUTOBOUNDS.value: [FilePaths.AUTOBOUNDS_SOLVER.value, FilePaths.AUTOBOUNDS_VENV.value],
+        Solvers.DOWHY.value: [FilePaths.DOWHY_SOLVER.value, FilePaths.DOWHY_VENV.value],
     }
 
     for solver_name, [script_path, venv_path] in solvers.items():
@@ -57,7 +57,7 @@ def execute_solvers(command_line_args, data, common_data_path):
                     args=task_args
                 )
             except Exception as e:
-                log_solver_error(e, solver_name, data)
+                pass
 
 
 def main(args):

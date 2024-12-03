@@ -14,8 +14,9 @@ from autobounds.DAG import DAG
 from utils._enums import DirectoryPaths, Solvers
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriterAutobounds
-from utils.general_utilities import solver_parse_arguments, log_solver_results, configure_environment
+from utils.general_utilities import solver_parse_arguments, log_solver_results, log_solver_error, configure_environment
 from utils.validator import Validator
+from utils.solver_error import InfeasibleProblemError, SolverError
 
 
 def autobounds_solver(
@@ -85,9 +86,9 @@ def autobounds_solver(
         writer("==============================================")
     except Exception as e:
         if "unsupported operand type(s) for -: 'str' and 'str'" in str(e):
-            raise Exception("Problem is infeasible. Returning without solutions")
+            raise InfeasibleProblemError()
         else:
-            raise Exception(e)
+            raise SolverError(f"Unexpected error in autobounds_solver: {e}")
 
     print("Autobounds solver Done.")
     return lower_bound, upper_bound
@@ -105,6 +106,7 @@ def run_autobounds_solver(data):
 
 def main():
     """Main function to execute the Autobounds solver."""
+    # TODO: LIDAR MELHOR COM O ERRO
     args = solver_parse_arguments()
 
     configure_environment(args.verbose)
@@ -112,11 +114,17 @@ def main():
     validator = Validator()
     data = get_common_data(validator.get_valid_path(args.common_data))
 
-    start_time = time.time()
-    lower_bound, upper_bound = run_autobounds_solver(data)
-    time_taken = time.time() - start_time
+    try:
+        start_time = time.time()
+        lower_bound, upper_bound = run_autobounds_solver(data)
+        time_taken = time.time() - start_time
 
-    log_solver_results(Solvers.AUTOBOUNDS.value, data['test_name'], [lower_bound, upper_bound], time_taken)
+        log_solver_results(Solvers.AUTOBOUNDS.value, data['test_name'], [lower_bound, upper_bound], time_taken)
+    except Exception as e:
+        log_solver_error(e, "autobounds", data['test_name'])
+        # TODO: LOGGING NÃO FUNCIONANDO
+        print(e)
+
 
 if __name__ == "__main__":
     main()

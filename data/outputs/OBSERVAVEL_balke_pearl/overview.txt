@@ -1,6 +1,99 @@
-Test 'OBSERVAVEL_balke_pearl' on 2024-12-03
+******************************************************************************************
+Test 'OBSERVAVEL_balke_pearl' on 2024-12-03 12:37:50
 --------------------------------------------
 bcause
-   Time taken by bcause: 81.600411 seconds
-   ATE lies in the interval: [-0.2580463754247804, -0.14075954748634345]
+   Time taken by bcause: 6.538455 seconds
+   ATE lies in the interval: [0.501, 0.501]
 --------------------------------------------
+autobounds
+   Solver autobounds failed with error: Problem is infeasible. Returning without solutions
+--------------------------------------------
+******************************************************************************************
+Test 'OBSERVAVEL_balke_pearl' on 2024-12-03 12:40:24
+--------------------------------------------
+bcause
+   Time taken by bcause: 20.325870 seconds
+   ATE lies in the interval: [-0.20930973376031237, -0.17219951202596218]
+--------------------------------------------
+autobounds
+   Solver autobounds failed with error: Problem is infeasible. Returning without solutions
+--------------------------------------------
+******************************************************************************************
+Test 'OBSERVAVEL_balke_pearl' on 2024-12-03 12:42:23
+--------------------------------------------
+bcause
+   Time taken by bcause: 6.959946 seconds
+   ATE lies in the interval: [0.501, 0.501]
+--------------------------------------------
+autobounds
+   Solver autobounds failed with error: Problem is infeasible. Returning without solutions
+--------------------------------------------
+dowhy
+   Time taken by dowhy: 263.073371 seconds
+   Estimate method: backdoor.linear_regression
+   ATE is: 0.2343838923943678
+   Estimate method: backdoor.propensity_score_matching
+   ATE is: 0.199
+   Estimate method: backdoor.propensity_score_stratification
+   ATE is: 0.2344853904016194
+   Estimate method: backdoor.propensity_score_weighting
+   ATE is: 0.23450145787486515
+   Estimate method: iv.instrumental_variable
+   ATE is: -1.3636363636363638
+--------------------------------------------
+lcn
+   Timeout
+******************************************************************************************
+Test 'OBSERVAVEL_balke_pearl' on 2024-12-03 13:31:39
+--------------------------------------------
+bcause
+   Time taken by bcause: 6.910538 seconds
+   ATE lies in the interval: [0.501, 0.501]
+--------------------------------------------
+autobounds
+   Solver autobounds failed with error: Problem is infeasible. Returning without solutions
+--------------------------------------------
+dowhy
+   Time taken by dowhy: 228.236081 seconds
+   Estimate method: backdoor.linear_regression
+   ATE is: 0.2343838923943678
+   Estimate method: backdoor.propensity_score_matching
+   ATE is: 0.199
+   Estimate method: backdoor.propensity_score_stratification
+   ATE is: 0.2344853904016194
+   Estimate method: backdoor.propensity_score_weighting
+   ATE is: 0.23450145787486515
+   Estimate method: iv.instrumental_variable
+   ATE is: -1.3636363636363638
+--------------------------------------------
+******************************************************************************************
+Test 'OBSERVAVEL_balke_pearl' on 2024-12-03 13:48:12
+--------------------------------------------
+bcause
+   Time taken by bcause: 6.494331 seconds
+   ATE lies in the interval: [-0.499, -0.499]
+--------------------------------------------
+******************************************************************************************
+Test 'OBSERVAVEL_balke_pearl' on 2024-12-03 13:48:23
+--------------------------------------------
+bcause
+   Time taken by bcause: 6.886056 seconds
+   ATE lies in the interval: [-0.499, -0.499]
+--------------------------------------------
+--------------------------------------------
+bcause
+   Time taken by bcause: 20.617589 seconds
+   ATE lies in the interval: [-0.1735823004163629, -0.14107509795365747]
+--------------------------------------------
+--------------------------------------------
+bcause
+   Time taken by bcause: 20.748530 seconds
+   ATE lies in the interval: [-0.22256609705275587, -0.1488308436084691]
+--------------------------------------------
+--------------------------------------------
+bcause
+   Time taken by bcause: 6.837726 seconds
+   ATE lies in the interval: [0.501, 0.501]
+--------------------------------------------
+
+

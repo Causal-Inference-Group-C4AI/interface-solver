@@ -1,2 +1,29 @@
-Test 'OBSERVAVEL_itau' on 2024-11-27
+******************************************************************************************
+Test 'OBSERVAVEL_itau' on 2024-12-03 13:02:46
 --------------------------------------------
+******************************************************************************************
+Test 'OBSERVAVEL_itau' on 2024-12-03 13:03:00
+--------------------------------------------
+bcause
+   Time taken by bcause: 24.297633 seconds
+   ATE lies in the interval: [0.34649446657190824, 0.30683316516012404]
+--------------------------------------------
+autobounds
+   Solver autobounds failed with error: Problem is infeasible. Returning without solutions
+--------------------------------------------
+dowhy
+   Time taken by dowhy: 228.771154 seconds
+   Estimate method: backdoor.linear_regression
+   ATE is: 0.46680665388482556
+   Estimate method: backdoor.propensity_score_matching
+   ATE is: 0.756
+   Estimate method: backdoor.propensity_score_stratification
+   ATE is: 0.466847032136931
+   Estimate method: backdoor.propensity_score_weighting
+   ATE is: 0.46773682204135414
+--------------------------------------------
+lcn
+   Timeout
+
+
+

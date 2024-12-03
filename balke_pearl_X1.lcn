@@ -1,0 +1,47 @@
+# Generated LCN file
+
+# Mechanisms
+s1: 0 <= P(X | !U_1 and !U_2 and !Z) <= 0
+s2: 0 <= P(X | !U_1 and !U_2 and Z) <= 0
+s3: 0 <= P(X | !U_1 and U_2 and !Z) <= 0
+s4: 1 <= P(X | !U_1 and U_2 and Z) <= 1
+s5: 1 <= P(X | U_1 and !U_2 and !Z) <= 1
+s6: 0 <= P(X | U_1 and !U_2 and Z) <= 0
+s7: 1 <= P(X | U_1 and U_2 and !Z) <= 1
+s8: 1 <= P(X | U_1 and U_2 and Z) <= 1
+s9: 0 <= P(Z | !Uaux_Z_1) <= 0
+s10: 1 <= P(Z | Uaux_Z_1) <= 1
+s11: 0 <= P(Y | !U_3 and !U_4 and !X) <= 0
+s12: 0 <= P(Y | !U_3 and !U_4 and X) <= 0
+s13: 0 <= P(Y | !U_3 and U_4 and !X) <= 0
+s14: 1 <= P(Y | !U_3 and U_4 and X) <= 1
+s15: 1 <= P(Y | U_3 and !U_4 and !X) <= 1
+s16: 0 <= P(Y | U_3 and !U_4 and X) <= 0
+s17: 1 <= P(Y | U_3 and U_4 and !X) <= 1
+s18: 1 <= P(Y | U_3 and U_4 and X) <= 1
+
+# Dependencies between exogenous subvariables
+s19: 0 <= P(U_2 | U_1) <= 1
+s20: 0 <= P(U_3 | U_1 or U_2) <= 1
+s21: 0 <= P(U_4 | U_1 or U_2 or U_3) <= 1
+
+# Empirical distributions
+s22: 0.288 <= P(!Z and !X and !Y) <= 0.288 ; False
+s23: 0.288 <= P(!Z and X and !Y) <= 0.288 ; False
+s24: 0.288 <= P(!Z and X and Y) <= 0.288 ; False
+s25: 0.067 <= P(Z and !X and Y) <= 0.067 ; False
+s26: 0.036 <= P(!Z and !X and Y) <= 0.036 ; False
+s27: 0.017 <= P(Z and X and !Y) <= 0.017 ; False
+s28: 0.014 <= P(Z and X and Y) <= 0.014 ; False
+s29: 0.002 <= P(Z and !X and !Y) <= 0.002 ; False
+
+# Twin network
+s30: 1 <= P(XL) <= 1
+s31: 0 <= P(YL | !U_3 and !U_4 and !XL) <= 0
+s32: 0 <= P(YL | !U_3 and !U_4 and XL) <= 0
+s33: 0 <= P(YL | !U_3 and U_4 and !XL) <= 0
+s34: 1 <= P(YL | !U_3 and U_4 and XL) <= 1
+s35: 1 <= P(YL | U_3 and !U_4 and !XL) <= 1
+s36: 0 <= P(YL | U_3 and !U_4 and XL) <= 0
+s37: 1 <= P(YL | U_3 and U_4 and !XL) <= 1
+s38: 1 <= P(YL | U_3 and U_4 and XL) <= 1

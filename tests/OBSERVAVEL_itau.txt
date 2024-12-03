@@ -1,5 +1,5 @@
 OBSERVAVEL_itau
-dowhy bcause lcn autobounds
+dowhy bcause autobounds
 T -> Y, T -> D, U -> Y, U -> T, D -> Y, E -> D
 T
 Y

@@ -1,0 +1,90 @@
+Parsed DAG: {'Y': ['T', 'U', 'D'], 'T': ['U'], 'D': ['T', 'E'], 'U': [], 'E': []}
+Decompositions: {'Uaux_Y': {'Y': 8}, 'Uaux_T': {'T': 2}, 'Uaux_D': {'D': 4}, 'Uaux_U': {'U': 1}, 'Uaux_E': {'E': 1}}
+Total decompositions: {'Uaux_Y': 8, 'Uaux_T': 2, 'Uaux_D': 4, 'Uaux_U': 1, 'Uaux_E': 1}
+considered exogenous subvariable mappings: {'Uaux_Y': ['Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4', 'Uaux_Y_5', 'Uaux_Y_6', 'Uaux_Y_7', 'Uaux_Y_8'], 'Uaux_T': ['Uaux_T_1', 'Uaux_T_2'], 'Uaux_D': ['Uaux_D_1', 'Uaux_D_2', 'Uaux_D_3', 'Uaux_D_4'], 'Uaux_U': ['Uaux_U_1'], 'Uaux_E': ['Uaux_E_1']}
+exo_vars: ['Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4', 'Uaux_Y_5', 'Uaux_Y_6', 'Uaux_Y_7', 'Uaux_Y_8', 'Uaux_T_1', 'Uaux_T_2', 'Uaux_D_1', 'Uaux_D_2', 'Uaux_D_3', 'Uaux_D_4', 'Uaux_U_1', 'Uaux_E_1']
+considered DAG: {'Y': ['T', 'U', 'D', 'Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4', 'Uaux_Y_5', 'Uaux_Y_6', 'Uaux_Y_7', 'Uaux_Y_8'], 'T': ['U', 'Uaux_T_1', 'Uaux_T_2'], 'D': ['T', 'E', 'Uaux_D_1', 'Uaux_D_2', 'Uaux_D_3', 'Uaux_D_4'], 'U': ['Uaux_U_1'], 'E': ['Uaux_E_1']}
+considered unobserved variables: ['Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4', 'Uaux_Y_5', 'Uaux_Y_6', 'Uaux_Y_7', 'Uaux_Y_8', 'Uaux_T_1', 'Uaux_T_2', 'Uaux_D_1', 'Uaux_D_2', 'Uaux_D_3', 'Uaux_D_4', 'Uaux_U_1', 'Uaux_E_1']
+considered children: {'T': ['Y', 'D'], 'U': ['Y', 'T'], 'D': ['Y'], 'E': ['D'], 'Uaux_Y': ['Y'], 'Uaux_T': ['T'], 'Uaux_D': ['D'], 'Uaux_U': ['U'], 'Uaux_E': ['E']}
+var: Y
+dag[var]: ['T', 'U', 'D', 'Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4', 'Uaux_Y_5', 'Uaux_Y_6', 'Uaux_Y_7', 'Uaux_Y_8']
+endogenous_parents: ['T', 'U', 'D']
+exogenous_parents: ['Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4', 'Uaux_Y_5', 'Uaux_Y_6', 'Uaux_Y_7', 'Uaux_Y_8']
+var: T
+dag[var]: ['U', 'Uaux_T_1', 'Uaux_T_2']
+endogenous_parents: ['U']
+exogenous_parents: ['Uaux_T_1', 'Uaux_T_2']
+var: D
+dag[var]: ['T', 'E', 'Uaux_D_1', 'Uaux_D_2', 'Uaux_D_3', 'Uaux_D_4']
+endogenous_parents: ['T', 'E']
+exogenous_parents: ['Uaux_D_1', 'Uaux_D_2', 'Uaux_D_3', 'Uaux_D_4']
+var: U
+dag[var]: ['Uaux_U_1']
+endogenous_parents: []
+exogenous_parents: ['Uaux_U_1']
+var: E
+dag[var]: ['Uaux_E_1']
+endogenous_parents: []
+exogenous_parents: ['Uaux_E_1']
+var: E
+dag[var]: ['Uaux_E_1']
+endogenous_parents: []
+exogenous_parents: ['Uaux_E_1']
+var: U
+dag[var]: ['Uaux_U_1']
+endogenous_parents: []
+exogenous_parents: ['Uaux_U_1']
+var: Y
+dag[var]: ['T', 'U', 'D', 'Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4', 'Uaux_Y_5', 'Uaux_Y_6', 'Uaux_Y_7', 'Uaux_Y_8']
+endogenous_parents: ['T', 'U', 'D']
+exogenous_parents: ['Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4', 'Uaux_Y_5', 'Uaux_Y_6', 'Uaux_Y_7', 'Uaux_Y_8']
+var: D
+dag[var]: ['T', 'E', 'Uaux_D_1', 'Uaux_D_2', 'Uaux_D_3', 'Uaux_D_4']
+endogenous_parents: ['T', 'E']
+exogenous_parents: ['Uaux_D_1', 'Uaux_D_2', 'Uaux_D_3', 'Uaux_D_4']
+==============================================
+Parsed DAG: {'Y': ['T', 'U', 'D'], 'T': ['U'], 'D': ['T', 'E'], 'U': [], 'E': []}
+Decompositions: {'Uaux_Y': {'Y': 8}, 'Uaux_T': {'T': 2}, 'Uaux_D': {'D': 4}, 'Uaux_U': {'U': 1}, 'Uaux_E': {'E': 1}}
+Total decompositions: {'Uaux_Y': 8, 'Uaux_T': 2, 'Uaux_D': 4, 'Uaux_U': 1, 'Uaux_E': 1}
+considered exogenous subvariable mappings: {'Uaux_Y': ['Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4', 'Uaux_Y_5', 'Uaux_Y_6', 'Uaux_Y_7', 'Uaux_Y_8'], 'Uaux_T': ['Uaux_T_1', 'Uaux_T_2'], 'Uaux_D': ['Uaux_D_1', 'Uaux_D_2', 'Uaux_D_3', 'Uaux_D_4'], 'Uaux_U': ['Uaux_U_1'], 'Uaux_E': ['Uaux_E_1']}
+exo_vars: ['Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4', 'Uaux_Y_5', 'Uaux_Y_6', 'Uaux_Y_7', 'Uaux_Y_8', 'Uaux_T_1', 'Uaux_T_2', 'Uaux_D_1', 'Uaux_D_2', 'Uaux_D_3', 'Uaux_D_4', 'Uaux_U_1', 'Uaux_E_1']
+considered DAG: {'Y': ['T', 'U', 'D', 'Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4', 'Uaux_Y_5', 'Uaux_Y_6', 'Uaux_Y_7', 'Uaux_Y_8'], 'T': ['U', 'Uaux_T_1', 'Uaux_T_2'], 'D': ['T', 'E', 'Uaux_D_1', 'Uaux_D_2', 'Uaux_D_3', 'Uaux_D_4'], 'U': ['Uaux_U_1'], 'E': ['Uaux_E_1']}
+considered unobserved variables: ['Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4', 'Uaux_Y_5', 'Uaux_Y_6', 'Uaux_Y_7', 'Uaux_Y_8', 'Uaux_T_1', 'Uaux_T_2', 'Uaux_D_1', 'Uaux_D_2', 'Uaux_D_3', 'Uaux_D_4', 'Uaux_U_1', 'Uaux_E_1']
+considered children: {'T': ['Y', 'D'], 'U': ['Y', 'T'], 'D': ['Y'], 'E': ['D'], 'Uaux_Y': ['Y'], 'Uaux_T': ['T'], 'Uaux_D': ['D'], 'Uaux_U': ['U'], 'Uaux_E': ['E']}
+var: Y
+dag[var]: ['T', 'U', 'D', 'Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4', 'Uaux_Y_5', 'Uaux_Y_6', 'Uaux_Y_7', 'Uaux_Y_8']
+endogenous_parents: ['T', 'U', 'D']
+exogenous_parents: ['Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4', 'Uaux_Y_5', 'Uaux_Y_6', 'Uaux_Y_7', 'Uaux_Y_8']
+var: T
+dag[var]: ['U', 'Uaux_T_1', 'Uaux_T_2']
+endogenous_parents: ['U']
+exogenous_parents: ['Uaux_T_1', 'Uaux_T_2']
+var: D
+dag[var]: ['T', 'E', 'Uaux_D_1', 'Uaux_D_2', 'Uaux_D_3', 'Uaux_D_4']
+endogenous_parents: ['T', 'E']
+exogenous_parents: ['Uaux_D_1', 'Uaux_D_2', 'Uaux_D_3', 'Uaux_D_4']
+var: U
+dag[var]: ['Uaux_U_1']
+endogenous_parents: []
+exogenous_parents: ['Uaux_U_1']
+var: E
+dag[var]: ['Uaux_E_1']
+endogenous_parents: []
+exogenous_parents: ['Uaux_E_1']
+var: E
+dag[var]: ['Uaux_E_1']
+endogenous_parents: []
+exogenous_parents: ['Uaux_E_1']
+var: U
+dag[var]: ['Uaux_U_1']
+endogenous_parents: []
+exogenous_parents: ['Uaux_U_1']
+var: Y
+dag[var]: ['T', 'U', 'D', 'Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4', 'Uaux_Y_5', 'Uaux_Y_6', 'Uaux_Y_7', 'Uaux_Y_8']
+endogenous_parents: ['T', 'U', 'D']
+exogenous_parents: ['Uaux_Y_1', 'Uaux_Y_2', 'Uaux_Y_3', 'Uaux_Y_4', 'Uaux_Y_5', 'Uaux_Y_6', 'Uaux_Y_7', 'Uaux_Y_8']
+var: D
+dag[var]: ['T', 'E', 'Uaux_D_1', 'Uaux_D_2', 'Uaux_D_3', 'Uaux_D_4']
+endogenous_parents: ['T', 'E']
+exogenous_parents: ['Uaux_D_1', 'Uaux_D_2', 'Uaux_D_3', 'Uaux_D_4']
+==============================================
