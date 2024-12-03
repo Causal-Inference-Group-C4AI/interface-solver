@@ -1,7 +1,7 @@
 import os
 import sys
 import time
-from typing import List, Tuple
+from typing import Tuple
 
 import pandas as pd
 
