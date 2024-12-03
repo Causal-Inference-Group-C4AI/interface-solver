@@ -24,7 +24,7 @@ def autobounds_solver(
         unobservables: str,
         csv_path: str,
         treatment: str,
-        outcome: str) -> Tuple[float, float] | Tuple[str, str]:
+        outcome: str) -> Tuple[float, float]:
     """Solver for causal inference problem using AutoBounds.
 
     Args:
@@ -90,7 +90,7 @@ def autobounds_solver(
             raise Exception(e)
 
     print("Autobounds solver Done.")
-    return [lower_bound, upper_bound]
+    return lower_bound, upper_bound
 
 
 def run_autobounds_solver(data):
