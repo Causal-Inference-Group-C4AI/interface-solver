@@ -1,7 +1,7 @@
 import os
 import sys
 import time
-from typing import Tuple
+from typing import List, Tuple
 
 import pandas as pd
 
@@ -12,10 +12,28 @@ from bcause.inference.causal.multi import EMCC
 from bcause.models.cmodel import StructuralCausalModel
 
 from utils._enums import DirectoryPaths, Solvers
+from utils.general_utilities import (configure_environment, log_solver_results,
+                                     solver_parse_arguments)
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriterBcause
-from utils.general_utilities import solver_parse_arguments, log_solver_results, configure_environment
 from utils.validator import Validator
+
+
+def fix_dataset(dataset: pd.DataFrame, endogenous: List) -> pd.DataFrame:
+    """Drop exogenous columns from DataFrame
+    (bcause only handles endogenous variables data)
+
+    Args:
+        dataset (pd.DataFrame): DataFrame to be fixed
+        endogenous (List): List of endogenous variables
+
+    Returns:
+        pd.DataFrame: Fixed DataFrame
+    """
+    for col in dataset.columns:
+        if col not in endogenous:
+            dataset = dataset.drop(col, axis=1)
+    return dataset
 
 
 def bcause_solver(
@@ -25,11 +43,11 @@ def bcause_solver(
         treatment: str,
         outcome: str,
         mapping: dict) -> Tuple[float, float]:
-    print("Bcause solver running...")
+
     model = StructuralCausalModel.read(uai_path)
     renamed_model = model.rename_vars(mapping)
 
-    dataset = pd.read_csv(csv_path)
+    dataset = fix_dataset(pd.read_csv(csv_path), renamed_model.endogenous)
     inf = EMCC(renamed_model, dataset, max_iter=100, num_runs=20)
 
     p_do0 = inf.causal_query(outcome, do={treatment: 0})
@@ -39,7 +57,8 @@ def bcause_solver(
     upper_bound = p_do1.values[3] - p_do0.values[3]
 
     output_file = (
-        f"{DirectoryPaths.OUTPUTS.value}/{test_name}/{Solvers.BCAUSE.value}_{test_name}.txt"
+        f"{DirectoryPaths.OUTPUTS.value}/{test_name}/"
+        f"{Solvers.BCAUSE.value}_{test_name}.txt"
     )
     writer = OutputWriterBcause(output_file)
 
@@ -82,7 +101,9 @@ def main():
     lower_bound, upper_bound = run_bcause_solver(data)
     time_taken = time.time() - start_time
 
-    log_solver_results(Solvers.BCAUSE.value, data['test_name'], [lower_bound, upper_bound], time_taken)
+    log_solver_results(Solvers.BCAUSE.value, data['test_name'], [
+                       lower_bound, upper_bound], time_taken)
+
 
 if __name__ == "__main__":
     main()

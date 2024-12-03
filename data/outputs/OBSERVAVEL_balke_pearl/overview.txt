@@ -1,21 +1,6 @@
 Test 'OBSERVAVEL_balke_pearl' on 2024-12-03
 --------------------------------------------
-dowhy
-   Time taken by dowhy: 172.187809 seconds
-   Estimate method: backdoor.linear_regression
-   ATE is: 0.2343838923943678
-   Estimate method: backdoor.propensity_score_matching
-   ATE is: 0.199
-   Estimate method: backdoor.propensity_score_stratification
-   ATE is: 0.2344853904016194
-   Estimate method: backdoor.propensity_score_weighting
-   ATE is: 0.23450145787486515
-   Estimate method: iv.instrumental_variable
-   ATE is: -1.3636363636363638
---------------------------------------------
 bcause
-   Solver bcause failed with error: Command '['venv_bcause/bin/python3', 'src/solvers/bcause_solver.py', '--common_data', 'data/shared/common_data.json', '--common_data', 'data/shared/common_data.json']' returned non-zero exit status 1.
---------------------------------------------
-autobounds
-   Solver autobounds failed with error: Command '['venv_autobounds/bin/python3', 'src/solvers/autobounds_solver.py', '--common_data', 'data/shared/common_data.json', '--common_data', 'data/shared/common_data.json']' returned non-zero exit status 1.
+   Time taken by bcause: 81.600411 seconds
+   ATE lies in the interval: [-0.2580463754247804, -0.14075954748634345]
 --------------------------------------------

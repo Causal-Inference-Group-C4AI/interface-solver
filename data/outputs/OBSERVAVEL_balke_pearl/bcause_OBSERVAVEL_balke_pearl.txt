@@ -1,1 +1,5 @@
-Solver bcause failed with error: Command '['venv_bcause/bin/python3', 'src/solvers/bcause_solver.py', '--common_data', 'data/shared/common_data.json', '--common_data', 'data/shared/common_data.json']' returned non-zero exit status 1.
+==============================================
+P(Y=1|do(X=0)) = [0.6470831389281246, 0.6769812917224193]
+P(Y=1|do(X=1)) = [0.3890367635033442, 0.5362217442360758]
+Causal effect lies in the interval [-0.2580463754247804, -0.14075954748634345]
+==============================================
