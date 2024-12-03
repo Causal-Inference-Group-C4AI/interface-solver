@@ -43,7 +43,7 @@ def bcause_solver(
         treatment: str,
         outcome: str,
         mapping: dict) -> Tuple[float, float]:
-
+    print("Bcause solver running...")
     model = StructuralCausalModel.read(uai_path)
     renamed_model = model.rename_vars(mapping)
 
