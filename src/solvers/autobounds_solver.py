@@ -4,16 +4,19 @@ import sys
 import time
 from typing import Tuple
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
-
 import numpy as np
 import pandas as pd
+
+sys.path.append(os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '../../')))
+
 from autobounds.causalProblem import causalProblem
 from autobounds.DAG import DAG
+from utils._enums import DirectoryPaths
 from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriter, OutputWriterAutobounds
+from utils.suppress_warnings import suppress_warnings
 from utils.validator import Validator
-from utils._enums import DirectoryPaths
 
 
 def autobounds_solver(
@@ -28,7 +31,8 @@ def autobounds_solver(
     Args:
         test_name (str): The name of the test case.
         edges (str): A string representing the edges of the causal graph.
-        unobservables (str): A string representing the unobservables of the causal graph.
+        unobservables (str): A string representing the unobservables
+            of the causal graph.
         csv_path (str): The path to the CSV file containing the data.
         treatment (str): The treatment variable.
         outcome (str): The outcome variable.
@@ -60,7 +64,10 @@ def autobounds_solver(
     problem.add_prob_constraints()
 
     # Setting up the file to write the output
-    output_file = f"{DirectoryPaths.OUTPUTS.value}/{test_name}/autobounds_{test_name}.txt"
+    output_file = (
+        f"{DirectoryPaths.OUTPUTS.value}/{test_name}/"
+        f"autobounds_{test_name}.txt"
+    )
     writer = OutputWriterAutobounds(output_file)
 
     try:
@@ -73,7 +80,9 @@ def autobounds_solver(
         lower_bound = np.round(prog_ate_optim[0]['dual'], 3)
         upper_bound = np.round(prog_ate_optim[1]['dual'], 3)
         writer("==============================================")
-        writer(f"Causal effect lies in the interval [{lower_bound}, {upper_bound}]")
+        writer(
+            f"Causal effect lies in the interval "
+            f"[{lower_bound}, {upper_bound}]")
         writer("==============================================")
     except Exception as e:
         if "unsupported operand type(s) for -: 'str' and 'str'" in str(e):
@@ -87,10 +96,17 @@ def autobounds_solver(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--common_data", required=True, help="Path to common data")
+    parser.add_argument("--common_data", required=True,
+                        help="Path to common data")
+    parser.add_argument(
+        "--verbose", action="store_true", help="Show solver logs"
+    )
     args = parser.parse_args()
     validator = Validator()
     data = get_common_data(validator.get_valid_path(args.common_data))
+
+    if not args.verbose:
+        suppress_warnings()
 
     start_time = time.time()
     lower_bound, upper_bound = autobounds_solver(
@@ -106,9 +122,11 @@ if __name__ == "__main__":
     time_taken = end_time - start_time
     print(f"Time taken by Autobounds: {time_taken:.6f} seconds")
 
-    overview_file_path = f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
+    overview_file_path = (
+        f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
+    )
     writer = OutputWriter(overview_file_path, reset=False)
     writer("Autobounds")
     writer(f"   Time taken by Autobounds: {time_taken:.6f} seconds")
     writer(f"   ATE lies in the interval: [{lower_bound}, {upper_bound}]")
-    writer(f"--------------------------------------------")
+    writer("--------------------------------------------")

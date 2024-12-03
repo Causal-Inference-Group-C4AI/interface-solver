@@ -5,7 +5,7 @@ import pandas as pd
 
 from utils.canonical_partitions.generator import generateMechanisms
 from utils.canonical_partitions.graph import Graph
-from utils.canonical_partitions.probabilityGen import distribution
+from utils.unused.probabilityGen import distribution
 
 
 def teste_itau_simples_data_generation():
