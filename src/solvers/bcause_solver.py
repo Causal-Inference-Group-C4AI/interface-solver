@@ -1,5 +1,3 @@
-import argparse
-import logging
 import os
 import sys
 import time
@@ -13,10 +11,10 @@ sys.path.append(os.path.abspath(
 from bcause.inference.causal.multi import EMCC
 from bcause.models.cmodel import StructuralCausalModel
 
-from utils._enums import DirectoryPaths
+from utils._enums import DirectoryPaths, Solvers
 from utils.get_common_data import get_common_data
-from utils.output_writer import OutputWriter, OutputWriterBcause
-from utils.suppress_warnings import suppress_warnings
+from utils.output_writer import OutputWriterBcause
+from utils.general_utilities import solver_parse_arguments, log_solver_results, configure_environment
 from utils.validator import Validator
 
 
@@ -41,7 +39,7 @@ def bcause_solver(
     upper_bound = p_do1.values[3] - p_do0.values[3]
 
     output_file = (
-        f"{DirectoryPaths.OUTPUTS.value}/{test_name}/bcause_{test_name}.txt"
+        f"{DirectoryPaths.OUTPUTS.value}/{test_name}/{Solvers.BCAUSE.value}_{test_name}.txt"
     )
     writer = OutputWriterBcause(output_file)
 
@@ -59,23 +57,9 @@ def bcause_solver(
     return lower_bound, upper_bound
 
 
-if __name__ == "__main__":
-    logging.getLogger().setLevel(logging.CRITICAL)
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--common_data", required=True,
-                        help="Path to common data")
-    parser.add_argument(
-        "--verbose", action="store_true", help="Show solver logs"
-    )
-    args = parser.parse_args()
-    validator = Validator()
-    data = get_common_data(validator.get_valid_path(args.common_data))
-
-    if not args.verbose:
-        suppress_warnings()
-
-    start_time = time.time()
-    lower_bound, upper_bound = bcause_solver(
+def run_bcause_solver(data):
+    """Runs the Bcause solver."""
+    return bcause_solver(
         test_name=data['test_name'],
         uai_path=data['uai_path'],
         csv_path=data['csv_path'],
@@ -83,16 +67,22 @@ if __name__ == "__main__":
         outcome=data['outcome'],
         mapping=data['uai_mapping'],
     )
-    end_time = time.time()
 
-    time_taken = end_time - start_time
-    print(f"Time taken by Bcause: {time_taken:.6f} seconds")
 
-    overview_file_path = (
-        f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
-    )
-    writer = OutputWriter(overview_file_path, reset=False)
-    writer("Bcause")
-    writer(f"   Time taken by Bcause: {time_taken:.6f} seconds")
-    writer(f"   ATE lies in the interval: [{lower_bound}, {upper_bound}]")
-    writer("--------------------------------------------")
+def main():
+    """Main function to execute the Bcause solver."""
+    args = solver_parse_arguments()
+
+    configure_environment(args.verbose)
+
+    validator = Validator()
+    data = get_common_data(validator.get_valid_path(args.common_data))
+
+    start_time = time.time()
+    lower_bound, upper_bound = run_bcause_solver(data)
+    time_taken = time.time() - start_time
+
+    log_solver_results(Solvers.BCAUSE.value, data['test_name'], [lower_bound, upper_bound], time_taken)
+
+if __name__ == "__main__":
+    main()

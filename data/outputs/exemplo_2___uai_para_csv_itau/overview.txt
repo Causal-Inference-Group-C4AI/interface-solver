@@ -1,0 +1,13 @@
+Test 'uai_para_csv_itau' on 2024-11-26
+--------------------------------------------
+DoWhy
+   Time taken by DoWhy: 0.005424 seconds
+--------------------------------------------
+Bcause
+   Time taken by Bcause: 11.200424 seconds
+   ATE lies in the interval: [0.33333333333333337, 0.33333333333333337]
+--------------------------------------------
+Autobounds
+   Time taken by Autobounds: 0.566413 seconds
+   ATE lies in the interval: [-0.5, 0.5]
+--------------------------------------------
