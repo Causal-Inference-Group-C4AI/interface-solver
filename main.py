@@ -2,7 +2,7 @@ import logging
 import os
 import subprocess
 import sys
-from datetime import date
+from datetime import datetime
 from pathlib import Path
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
@@ -79,11 +79,13 @@ def main(args):
         overview_file_path = (
             f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
         )
-        writer = OutputWriter(overview_file_path)
-        writer(f"Test '{data['test_name']}' on {date.today()}")
+        writer = OutputWriter(overview_file_path, reset=False)
+
+        writer("*"*90)
+        writer(f"Test '{data['test_name']}' on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         writer("--------------------------------------------")
 
-        logging.info(f"Test '{data['test_name']}' on {date.today()}")
+        logging.info(f"Test '{data['test_name']}' on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
         execute_solvers(args, data, common_data_path)
 
