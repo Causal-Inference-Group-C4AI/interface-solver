@@ -1,0 +1,1 @@
+Solver bcause failed with error: Command '['venv_bcause/bin/python3', 'src/solvers/bcause_solver.py', '--common_data', 'data/shared/common_data.json', '--common_data', 'data/shared/common_data.json']' returned non-zero exit status 1.

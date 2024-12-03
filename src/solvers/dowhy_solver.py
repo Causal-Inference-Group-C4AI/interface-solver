@@ -151,8 +151,7 @@ def refute_effect(model, identified_estimand, estimate, refutation_methods: List
             refutation_method_str, end_of_line = get_refutation_method(
                 refuter_name, 
                 i == len(refutation_methods)-1,
-                refutation,
-                writer
+                refutation
             )
             writer(refutation_method_str, end=end_of_line)
 
