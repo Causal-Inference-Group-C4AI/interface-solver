@@ -84,17 +84,16 @@ def log_solver_results(solver_name: str, test_name: str, ate: Dict | Tuple[float
         writer("--------------------------------------------")
 
 
-def log_solver_error(e, solver_name, data):
+def log_solver_error(e, solver_name: str, test_name: str):
     msg = f"Solver {solver_name} failed with error: {e}"
-
     output_file = (
-        f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/{solver_name}_{data['test_name']}.txt"
+        f"{DirectoryPaths.OUTPUTS.value}/{test_name}/{solver_name}_{test_name}.txt"
     )
     solver_writer = OutputWriter(output_file)
     solver_writer(msg)
                     
     overview_file_path = (
-        f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
+        f"{DirectoryPaths.OUTPUTS.value}/{test_name}/overview.txt"
     )
     overview_writer = OutputWriter(overview_file_path, reset=False)
 
