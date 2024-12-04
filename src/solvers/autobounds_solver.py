@@ -85,7 +85,7 @@ def autobounds_solver(
             f"[{lower_bound}, {upper_bound}]")
         writer("==============================================")
     except Exception as e:
-        if "unsupported operand type(s) for -: 'str' and 'str'" in str(e):
+        if "dual" in str(e):
             raise InfeasibleProblemError()
         else:
             raise SolverError(f"Unexpected error in autobounds_solver: {e}")
