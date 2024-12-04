@@ -13,15 +13,21 @@ from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriterOverview
 from utils.validator import Validator
 from utils.general_utilities import configure_environment, input_parse_arguments, log_solver_error
+from utils.solver_error import TimedOutError
 
 
-def run_task(script, env_path=None, args=None):
+def run_task(script, env_path=None, args=None, time_limit=None):
     """Run a Python script in a specific virtual environment."""
     python_executable = f"{env_path}/bin/python3" if env_path else "python3"
     command = [python_executable, script, *args]
     if args:
         command.extend(args)
-    subprocess.run(command, cwd="./", check=True)
+    try:
+        subprocess.run(command, cwd="./", check=True, timeout=time_limit)
+    except subprocess.TimeoutExpired as e:
+        raise TimedOutError(time_limit)
+    except subprocess.CalledProcessError as e:
+        raise Exception(f"Error running task {script}: {e}")
 
 
 def process_input(file_path, output_path):
@@ -54,9 +60,11 @@ def execute_solvers(command_line_args, data, common_data_path):
                 run_task(
                     script_path, 
                     env_path=venv_path,
-                    args=task_args
+                    args=task_args,
+                    time_limit=data["time_limit"]
                 )
             except Exception as e:
+                print(e)
                 log_solver_error(e, solver_name, data['test_name'])
 
 
