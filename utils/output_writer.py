@@ -1,5 +1,6 @@
 import contextlib
 import logging
+from datetime import datetime
 
 from utils._enums import DirectoryPaths, Solvers
 
@@ -88,6 +89,15 @@ class OutputWriter:
         except Exception as e:
             raise Exception(f"Error: {e}")
 
+
+class OutputWriterOverview(OutputWriter):
+    def __init__(self, output_path=f"{DirectoryPaths.OUTPUTS.value}/overview_output_NO_TEST_NAME.txt", reset=False):
+        super().__init__(output_path, reset)
+
+    def write_test_header(self, test_name: str):
+        self("*"*90)
+        self(f"Test '{test_name}' on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        self("--------------------------------------------")
 
 class OutputWriterBcause(OutputWriter):
     def __init__(self, output_path=f"{DirectoryPaths.OUTPUTS.value}/{Solvers.BCAUSE.value}_output_NO_TEST_NAME.txt"):
