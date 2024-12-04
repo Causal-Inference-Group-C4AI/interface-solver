@@ -11,9 +11,9 @@ class DataCleaner:
         logging.basicConfig(level=logging.INFO)
         self.cleanup_file(file_path)
         logging.info("Shared data successfully deleted.")
-        self.cleanup_lcn()
+        self.cleanup_extension(".log")
         logging.info("Logs successfully deleted.")
-        self.cleanup_logs()
+        self.cleanup_extension(".lcn")
         logging.info(".LCN successfully deleted.")
 
 
