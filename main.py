@@ -10,7 +10,7 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 from utils._enums import DirectoryPaths, FilePaths, Solvers
 from utils.data_cleaner import DataCleaner
 from utils.get_common_data import get_common_data
-from utils.output_writer import OutputWriter
+from utils.output_writer import OutputWriterOverview
 from utils.validator import Validator
 from utils.general_utilities import configure_environment, input_parse_arguments, log_solver_error
 
@@ -79,11 +79,8 @@ def main(args):
         overview_file_path = (
             f"{DirectoryPaths.OUTPUTS.value}/{data['test_name']}/overview.txt"
         )
-        writer = OutputWriter(overview_file_path, reset=False)
-
-        writer("*"*90)
-        writer(f"Test '{data['test_name']}' on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        writer("--------------------------------------------")
+        writer = OutputWriterOverview(overview_file_path, reset=False)
+        writer.write_test_header(data['test_name'])
 
         logging.info(f"Test '{data['test_name']}' on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
