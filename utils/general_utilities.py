@@ -1,5 +1,5 @@
-import logging
 import argparse
+import logging
 import os
 import sys
 from typing import Dict, Tuple
@@ -30,6 +30,8 @@ def input_parse_arguments():
                         action='store_true', help="Show solver logs")
     parser.add_argument('-f', '--fast', action='store_true',
                         help="Run the script with fast settings")
+    parser.add_argument('-r', '--reset', action='store_true',
+                        help="Reset the output file")
     return parser.parse_args()
 
 
@@ -53,14 +55,19 @@ def solver_parse_arguments():
     parser.add_argument(
         "-f", "--fast", action="store_true", help="Run in fast mode"
     )
-    
+
     parser.add_argument(
         "-d", "--debug", action="store_true", help="Debug mode"
     )
     return parser.parse_args()
 
 
-def log_solver_results(solver_name: str, test_name: str, ate: Dict | Tuple[float, float], time_taken):
+def log_solver_results(
+    solver_name: str,
+    test_name: str,
+    ate: Dict | Tuple[float, float],
+    time_taken
+):
     """Logs the results of the solver."""
     print(f"Time taken by {solver_name}: {time_taken:.6f} seconds")
 
@@ -76,7 +83,7 @@ def log_solver_results(solver_name: str, test_name: str, ate: Dict | Tuple[float
         for method, ate in ate.items():
             writer(f"   Estimate method: {method}")
             writer(f"   ATE is: {ate}")
-        writer(f"--------------------------------------------")
+        writer("--------------------------------------------")
     else:
         lower_bound = ate[0]
         upper_bound = ate[1]
@@ -87,11 +94,12 @@ def log_solver_results(solver_name: str, test_name: str, ate: Dict | Tuple[float
 def log_solver_error(e, solver_name: str, test_name: str):
     msg = f"Solver {solver_name} failed with error: {e}"
     output_file = (
-        f"{DirectoryPaths.OUTPUTS.value}/{test_name}/{solver_name}_{test_name}.txt"
+        f"{DirectoryPaths.OUTPUTS.value}/{test_name}/"
+        f"{solver_name}_{test_name}.txt"
     )
     solver_writer = OutputWriter(output_file)
     solver_writer(msg)
-                    
+
     overview_file_path = (
         f"{DirectoryPaths.OUTPUTS.value}/{test_name}/overview.txt"
     )
@@ -99,18 +107,18 @@ def log_solver_error(e, solver_name: str, test_name: str):
 
     overview_writer(f"{solver_name}")
     overview_writer(f"   {msg}")
-    overview_writer(f"--------------------------------------------")
+    overview_writer("--------------------------------------------")
 
     logging.error(msg)
 
 
 def get_debug_data_for_dowhy():
     return {
-            "test_name": "balke_pearl",
-            "csv_path": "data/inputs/csv/balke_pearl.csv",
-            "edges": {
-                "edges_list": [("Z", "X"), ("X", "Y"), ("U", "X"), ("U", "Y")],
-            },
-            "treatment": "X",
-            "outcome": "Y"
+        "test_name": "balke_pearl",
+        "csv_path": "data/inputs/csv/balke_pearl.csv",
+        "edges": {
+            "edges_list": [("Z", "X"), ("X", "Y"), ("U", "X"), ("U", "Y")],
+        },
+        "treatment": "X",
+        "outcome": "Y"
     }
