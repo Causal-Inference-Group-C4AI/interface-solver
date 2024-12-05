@@ -272,7 +272,7 @@ class UAIGenerator:
         node in the original mapping.
 
         Returns:
-            str: A JSON string representing the new mapping of variable names 
+            str: A JSON string representing the new mapping of variable names
             to nodes.
         """
         new_mapping = {f"V{i}": node for i, node in enumerate(self.mapping)}
@@ -291,14 +291,15 @@ class UAIGenerator:
         # Define nodes
         nodes, node_parents, node_children = get_nodes(edges)
         endogenous, exogenous = define_nodes(nodes, node_parents)
-
         # Create dummy variable for exogenous observed nodes
         for ex in exogenous:
+            new_exogenous = exogenous.copy()
             if ex in df.columns:
-                exogenous.append(f"{ex}_dummy")
+                new_exogenous.append(f"{ex}_dummy")
                 endogenous.append(ex)
-                exogenous.remove(ex)
+                new_exogenous.remove(ex)
                 self.edges_str += f", {ex}_dummy -> {ex}"
+            exogenous = new_exogenous
 
         # Define endogenous nodes cardinality
         end_card = {end: len(df[end].unique()) for end in endogenous}
@@ -353,5 +354,3 @@ if __name__ == "__main__":
         "E -> D, T -> D, T -> Y, D -> Y, U -> T, U -> Y",
         "data/csv/unob_itau_teste.csv"
     )
-
-# Implementar criação de variável dummy para lidar com exogenas observaveis

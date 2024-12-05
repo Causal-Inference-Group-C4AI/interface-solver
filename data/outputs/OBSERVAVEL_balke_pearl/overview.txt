@@ -4,3 +4,82 @@ bcause
    Time taken by bcause: 81.600411 seconds
    ATE lies in the interval: [-0.2580463754247804, -0.14075954748634345]
 --------------------------------------------
+******************************************************************************************
+Test 'OBSERVAVEL_balke_pearl' on 2024-12-03 17:31:24
+--------------------------------------------
+bcause
+   Time taken by bcause: 86.866708 seconds
+   ATE lies in the interval: [-0.18905882615707842, -0.11914405372289272]
+--------------------------------------------
+******************************************************************************************
+Test 'OBSERVAVEL_balke_pearl' on 2024-12-03 17:37:03
+--------------------------------------------
+bcause
+   Solver bcause failed with error: Command '['venv_bcause/bin/python3', 'src/solvers/bcause_solver.py', '--common_data', 'data/shared/common_data.json', '--common_data', 'data/shared/common_data.json']' returned non-zero exit status 1.
+--------------------------------------------
+******************************************************************************************
+Test 'OBSERVAVEL_balke_pearl' on 2024-12-03 17:39:30
+--------------------------------------------
+bcause
+   Solver bcause failed with error: Command '['venv_bcause/bin/python3', 'src/solvers/bcause_solver.py', '--common_data', 'data/shared/common_data.json', '--common_data', 'data/shared/common_data.json']' returned non-zero exit status 1.
+--------------------------------------------
+******************************************************************************************
+Test 'OBSERVAVEL_balke_pearl' on 2024-12-03 17:47:02
+--------------------------------------------
+bcause
+   Solver bcause failed with error: Command '['venv_bcause/bin/python3', 'src/solvers/bcause_solver.py', '--common_data', 'data/shared/common_data.json', '--common_data', 'data/shared/common_data.json']' returned non-zero exit status 1.
+--------------------------------------------
+******************************************************************************************
+Test 'OBSERVAVEL_balke_pearl' on 2024-12-03 18:03:11
+--------------------------------------------
+bcause
+   Solver bcause failed with error: Command '['venv_bcause/bin/python3', 'src/solvers/bcause_solver.py', '--common_data', 'data/shared/common_data.json', '--verbose', '--common_data', 'data/shared/common_data.json', '--verbose']' returned non-zero exit status 1.
+--------------------------------------------
+******************************************************************************************
+Test 'OBSERVAVEL_balke_pearl' on 2024-12-03 18:04:32
+--------------------------------------------
+bcause
+   Solver bcause failed with error: Command '['venv_bcause/bin/python3', 'src/solvers/bcause_solver.py', '--common_data', 'data/shared/common_data.json', '--verbose', '--common_data', 'data/shared/common_data.json', '--verbose']' returned non-zero exit status 1.
+--------------------------------------------
+******************************************************************************************
+Test 'OBSERVAVEL_balke_pearl' on 2024-12-03 18:05:55
+--------------------------------------------
+bcause
+   Solver bcause failed with error: Command '['venv_bcause/bin/python3', 'src/solvers/bcause_solver.py', '--common_data', 'data/shared/common_data.json', '--verbose', '--common_data', 'data/shared/common_data.json', '--verbose']' returned non-zero exit status 1.
+--------------------------------------------
+******************************************************************************************
+Test 'OBSERVAVEL_balke_pearl' on 2024-12-03 18:08:02
+--------------------------------------------
+bcause
+   Solver bcause failed with error: Command '['venv_bcause/bin/python3', 'src/solvers/bcause_solver.py', '--common_data', 'data/shared/common_data.json', '--verbose', '--common_data', 'data/shared/common_data.json', '--verbose']' returned non-zero exit status 1.
+--------------------------------------------
+******************************************************************************************
+Test 'OBSERVAVEL_balke_pearl' on 2024-12-03 18:12:11
+--------------------------------------------
+bcause
+   Solver bcause failed with error: Command '['venv_bcause/bin/python3', 'src/solvers/bcause_solver.py', '--common_data', 'data/shared/common_data.json', '--verbose', '--common_data', 'data/shared/common_data.json', '--verbose']' returned non-zero exit status 1.
+--------------------------------------------
+******************************************************************************************
+Test 'OBSERVAVEL_balke_pearl' on 2024-12-03 18:14:16
+--------------------------------------------
+bcause
+   Time taken by bcause: 2.976197 seconds
+   ATE lies in the interval: [0.501, 0.501]
+--------------------------------------------
+******************************************************************************************
+Test 'OBSERVAVEL_balke_pearl' on 2024-12-03 18:30:37
+--------------------------------------------
+bcause
+   Time taken by bcause: 0.991774 seconds
+   ATE lies in the interval: [-0.499, -0.499]
+--------------------------------------------
+******************************************************************************************
+Test 'OBSERVAVEL_balke_pearl' on 2024-12-03 18:34:13
+--------------------------------------------
+bcause
+   Time taken by bcause: 2.585434 seconds
+   ATE lies in the interval: [-0.499, -0.499]
+--------------------------------------------
+******************************************************************************************
+Test 'OBSERVAVEL_balke_pearl' on 2024-12-03 18:37:07
+--------------------------------------------
