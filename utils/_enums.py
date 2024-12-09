@@ -29,3 +29,8 @@ class FilePaths(Enum):
     AUTOBOUNDS_VENV = "venv_autobounds"
     # TODO: REVER O ENV DAQUI 
     INPUT_PROCESSOR_VENV = "venv_dowhy"
+
+
+class EmptyValues(Enum):
+    DICT_ATE = {"NONE":0.0}
+    TUPLE_ATE = (-1.0, -1.0)

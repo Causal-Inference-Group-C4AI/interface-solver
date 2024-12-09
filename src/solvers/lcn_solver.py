@@ -8,7 +8,7 @@ import pandas as pd
 sys.path.append(os.path.abspath(
     os.path.join(os.path.dirname(__file__), '../../')))
 
-from lcn.inference.exact.marginal import ExactInferece
+from lcn.inference.exact.marginal import ExactInferece  # type: ignore
 from lcn.model import LCN
 from utils._enums import DirectoryPaths, Solvers
 from utils.file_generators.lcn_file_generator import create_lcn
@@ -16,6 +16,7 @@ from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriterLCN
 from utils.general_utilities import solver_parse_arguments, log_solver_results, configure_environment
 from utils.validator import Validator
+from utils.solver_results import SolverResultsFactory, ATE
 
 
 def lcn_solver(
@@ -159,7 +160,8 @@ def main():
     end_time = time.time()
     time_taken = end_time - start_time
 
-    log_solver_results(Solvers.LCN.value, data['test_name'], [lower_bound, upper_bound], time_taken)
+    solver_result = SolverResultsFactory().get_solver_results_object(Solvers.LCN.value, data['test_name'])
+    solver_result.log_solver_results(ATE((lower_bound, upper_bound)), time_taken)
 
 if __name__ == "__main__":
     main()

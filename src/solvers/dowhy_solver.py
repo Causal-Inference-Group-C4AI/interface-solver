@@ -244,6 +244,7 @@ def main():
     method_and_ate = run_dowhy_solver(data, args.fast)
     time_taken = time.time() - start_time
 
+    # TODO: COLOCAR A CLASSE DO SOLVER RESULT, IGUAL AO LCN
     log_solver_results(Solvers.DOWHY.value, data['test_name'], method_and_ate, time_taken)
 
 

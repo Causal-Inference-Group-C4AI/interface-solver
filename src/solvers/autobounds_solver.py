@@ -117,7 +117,7 @@ def main():
         start_time = time.time()
         lower_bound, upper_bound = run_autobounds_solver(data)
         time_taken = time.time() - start_time
-
+        # TODO: COLOCAR A CLASSE DO SOLVER RESULT, IGUAL AO LCN
         log_solver_results(Solvers.AUTOBOUNDS.value, data['test_name'], [lower_bound, upper_bound], time_taken)
     except Exception as e:
         log_solver_error(e, "autobounds", data['test_name'])

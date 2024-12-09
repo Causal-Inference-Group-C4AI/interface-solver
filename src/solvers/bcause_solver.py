@@ -84,6 +84,7 @@ def main():
     lower_bound, upper_bound = run_bcause_solver(data)
     time_taken = time.time() - start_time
 
+    # TODO: COLOCAR A CLASSE DO SOLVER RESULT, IGUAL AO LCN
     log_solver_results(Solvers.BCAUSE.value, data['test_name'], [
                        lower_bound, upper_bound], time_taken)
 
