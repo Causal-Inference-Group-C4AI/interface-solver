@@ -61,7 +61,7 @@ def solver_parse_arguments():
     )
     return parser.parse_args()
 
-
+# TODO: VER FORMA MELHOR DE SEPARAR SOLVER DO DOWHY E DOS OUTROS
 def log_solver_results(
     solver_name: str,
     test_name: str,
@@ -98,6 +98,7 @@ def log_solver_error(e, solver_name: str, test_name: str):
         f"{solver_name}_{test_name}.txt"
     )
     solver_writer = OutputWriter(output_file)
+    solver_writer("=============================================")
     solver_writer(msg)
 
     overview_file_path = (
