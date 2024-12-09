@@ -1,6 +1,6 @@
-import glob
 import logging
 import os
+import fnmatch
 
 
 class DataCleaner:
@@ -33,19 +33,19 @@ class DataCleaner:
         except Exception as e:
             raise Exception(f"Error deleting {file_path}: {e}")
 
-    def cleanup_extension(self, extension: str) -> None:
+    def cleanup_extension(self, extension: str):
         """Remove all files with a specific extension.
 
         Args:
             extension (str): Extension of the files to be deleted.
         """
-        files = glob.glob(f"*.{extension}")
+        files = [file for file in os.listdir('.') if fnmatch.fnmatch(file, f'*.{extension}')]
         for file in files:
             self.cleanup_file(file)
 
     def cleanup_lcn(self) -> None:
         """Remove all .LCN files."""
-        self.cleanup_extension("LCN")
+        self.cleanup_extension("lcn")
 
     def cleanup_logs(self) -> None:
         """Remove all log files."""
