@@ -33,7 +33,7 @@ class DataCleaner:
         except Exception as e:
             raise Exception(f"Error deleting {file_path}: {e}")
 
-    def cleanup_extension(self, extension: str):
+    def cleanup_extension(self, extension: str) -> None:
         """Remove all files with a specific extension.
 
         Args:
