@@ -97,7 +97,8 @@ def log_solver_error(e, solver_name: str, test_name: str):
         f"{DirectoryPaths.OUTPUTS.value}/{test_name}/"
         f"{solver_name}_{test_name}.txt"
     )
-    solver_writer = OutputWriter(output_file)
+    solver_writer = OutputWriter(output_file, reset=False)
+    solver_writer("=============================================")
     solver_writer(msg)
 
     overview_file_path = (
