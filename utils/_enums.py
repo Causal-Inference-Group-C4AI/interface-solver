@@ -18,7 +18,7 @@ class DirectoryPaths(Enum):
 
 class FilePaths(Enum):
     SHARED_DATA = "data/shared/common_data.json"
-    INPUT_PROCESSOR_SCRIPT = "utils/input_processor.py"
+    INPUT_PROCESSOR_SCRIPT = "src/input_processor.py"
     DOWHY_SOLVER = "src/solvers/dowhy_solver.py"
     BCAUSE_SOLVER = "src/solvers/bcause_solver.py"
     LCN_SOLVER = "src/solvers/lcn_solver.py"
