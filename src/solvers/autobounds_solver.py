@@ -12,11 +12,11 @@ sys.path.append(os.path.abspath(
 from autobounds.causalProblem import causalProblem
 from autobounds.DAG import DAG
 from utils._enums import DirectoryPaths, Solvers
-from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriterAutobounds
-from utils.general_utilities import solver_parse_arguments, log_solver_results, configure_environment, log_solver_error
+from utils.general_utilities import solver_parse_arguments, configure_environment, log_solver_error, get_common_data
 from utils.validator import Validator
 from utils.solver_error import SolverError, InfeasibleProblemError
+from utils.solver_results import ATE, SolverResultsFactory
 
 
 def autobounds_solver(
@@ -117,12 +117,11 @@ def main():
         start_time = time.time()
         lower_bound, upper_bound = run_autobounds_solver(data)
         time_taken = time.time() - start_time
-        # TODO: COLOCAR A CLASSE DO SOLVER RESULT, IGUAL AO LCN
-        log_solver_results(Solvers.AUTOBOUNDS.value, data['test_name'], [lower_bound, upper_bound], time_taken)
+
+        solver_result = SolverResultsFactory().get_solver_results_object(Solvers.AUTOBOUNDS.value, data['test_name'])
+        solver_result.log_solver_results(ATE((lower_bound, upper_bound)), time_taken)
     except Exception as e:
         log_solver_error(e, "autobounds", data['test_name'])
-        # TODO: LOGGING NÃO FUNCIONANDO
-        print(e)
 
 if __name__ == "__main__":
     main()

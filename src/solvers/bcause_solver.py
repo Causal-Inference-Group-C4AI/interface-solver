@@ -12,11 +12,11 @@ from bcause.inference.causal.multi import EMCC
 from bcause.models.cmodel import StructuralCausalModel
 
 from utils._enums import DirectoryPaths, Solvers
-from utils.general_utilities import (configure_environment, log_solver_results,
+from utils.general_utilities import (configure_environment, get_common_data,
                                      solver_parse_arguments)
-from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriterBcause
 from utils.validator import Validator
+from utils.solver_results import ATE, SolverResultsFactory
 
 
 def bcause_solver(
@@ -84,9 +84,8 @@ def main():
     lower_bound, upper_bound = run_bcause_solver(data)
     time_taken = time.time() - start_time
 
-    # TODO: COLOCAR A CLASSE DO SOLVER RESULT, IGUAL AO LCN
-    log_solver_results(Solvers.BCAUSE.value, data['test_name'], [
-                       lower_bound, upper_bound], time_taken)
+    solver_result = SolverResultsFactory().get_solver_results_object(Solvers.BCAUSE.value, data['test_name'])
+    solver_result.log_solver_results(ATE((lower_bound, upper_bound)), time_taken)
 
 
 if __name__ == "__main__":
