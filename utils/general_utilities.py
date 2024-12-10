@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 import sys
+import json
 from typing import Dict, Tuple
 
 sys.path.append(os.path.abspath(
@@ -61,35 +62,6 @@ def solver_parse_arguments():
     )
     return parser.parse_args()
 
-# TODO: VER FORMA MELHOR DE SEPARAR SOLVER DO DOWHY E DOS OUTROS
-def log_solver_results(
-    solver_name: str,
-    test_name: str,
-    ate: Dict | Tuple[float, float],
-    time_taken
-):
-    """Logs the results of the solver."""
-    print(f"Time taken by {solver_name}: {time_taken:.6f} seconds")
-
-    overview_file_path = (
-        f"{DirectoryPaths.OUTPUTS.value}/{test_name}/overview.txt"
-    )
-    writer = OutputWriter(overview_file_path, reset=False)
-
-    writer(f"{solver_name}")
-    writer(f"   Time taken by {solver_name}: {time_taken:.6f} seconds")
-
-    if solver_name is Solvers.DOWHY.value:
-        for method, ate in ate.items():
-            writer(f"   Estimate method: {method}")
-            writer(f"   ATE is: {ate}")
-        writer("--------------------------------------------")
-    else:
-        lower_bound = ate[0]
-        upper_bound = ate[1]
-        writer(f"   ATE lies in the interval: [{lower_bound}, {upper_bound}]")
-        writer("--------------------------------------------")
-
 
 def log_solver_error(e, solver_name: str, test_name: str):
     msg = f"Solver {solver_name} failed with error: {e}"
@@ -123,3 +95,8 @@ def get_debug_data_for_dowhy():
         "treatment": "X",
         "outcome": "Y"
     }
+
+
+def get_common_data(file_path: str) -> Dict:
+    with open(file_path, 'r') as f:
+        return json.load(f)
