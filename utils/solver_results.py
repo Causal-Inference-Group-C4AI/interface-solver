@@ -20,7 +20,23 @@ class SolverResult(ABC):
     def __init__(self, test_name: str, solver_name: str) -> None:
         self.test_name = test_name
         self.solver_name = solver_name
-    
+
+    """ [INTERNAL COMMENT]
+            DESGIN PATTERN: TEMPLATE METHOD (log_solver_results)
+            Esse pattern define um esqueleto de um algoritmo na superclasse (SolverResult)
+            mas deixa as subclasses reecreverem o método sem alterar sua assinatura.
+
+            Precisa-se disso, pois temos duas implementações diferentes. 
+            Uma para o DoWhy e outra para LCN/AUTOBOUNDS/BCAUSE.
+            
+            DoWhy precisa alterar fazer isso para lidar com o caso de ter vários estimadores e
+            os valores serem um ponto.
+            Enquanto os outros lidam com bounds.
+
+            Benefícios: 
+            - Extensibilidade: Se houver uma outra subclasse que faz algo diferente, então 
+            é só sobrescrever esse método na subclasse.
+    """
     @abstractmethod
     def log_solver_results(self, ate: ATE, time_taken):
         """Logs the results of the solver."""
