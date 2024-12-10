@@ -6,6 +6,6 @@ COPY requirements_lcn.txt .
 
 RUN pip install --no-cache-dir -r requirements_lcn.txt
 
-COPY . /app/
+COPY src/solvers/lcn_solver.py /app/lcn_solver.py
 
 CMD ["python3", "lcn_solver.py"]

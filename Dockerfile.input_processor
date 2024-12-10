@@ -1,21 +1,7 @@
-# FROM python:3.10-slim
+FROM python:3.10-slim
 
-# WORKDIR /app
-
-# RUN pip install --no-cache-dir --use-feature=fast-deps dowhy
-
-# COPY src/solvers/dowhy_solver.py /app/dowhy_solver.py
-
-# CMD ["python", "dowhy_solver.py"]
-
-FROM python:3.9-slim
-
-# Install dependencies
-COPY requirements.txt .
-
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Set working directory
 WORKDIR /app
 
-ENTRYPOINT ["python3"]
+COPY src/input_processor.py /app/input_processor.py
+
+CMD ["python3", "input_processor.py"]
