@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Tuple, Union, Optional
+from typing import Dict, Tuple, Union
 from utils._enums import Solvers, DirectoryPaths, EmptyValues
 from utils.output_writer import OutputWriter
 
@@ -92,7 +92,7 @@ class SolverResultsFactory:
             - Overengineering: Pode ser que toda essa lógica seja "além do necessário" para a nossa aplicação.
     """
     def get_solver_results_object(self, solver_name: str, test_name: str) -> SolverResult:
-        if solver_name.lower() is Solvers.DOWHY.value:
+        if solver_name is Solvers.DOWHY.value:
             return DoWhyResult(test_name, solver_name)
         else:
             return BoundsResult(test_name, solver_name)
