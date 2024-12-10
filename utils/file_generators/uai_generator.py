@@ -5,8 +5,8 @@ from typing import Dict, List, Tuple, Union
 import numpy as np
 import pandas as pd
 
-from utils.canonical_partitions.canonicalPartitions import completeRelaxed
 from utils._enums import DirectoryPaths
+from utils.canonical_partitions.canonicalPartitions import completeRelaxed
 
 
 def get_edges(edges_str: str) -> List[Tuple[str, str]]:
@@ -22,12 +22,6 @@ def get_edges(edges_str: str) -> List[Tuple[str, str]]:
     Returns:
         List: A list of tuples where each Tuple represents an
         edge in the format (parent, child).
-
-    Example:
-        >>> edges_str = "A -> B, A -> C, B -> D"
-        >>> edges = get_edges(edges_str)
-        >>> edges
-        [('A', 'B'), ('A', 'C'), ('B', 'D')]
     """
     return [tuple(_.split(" -> ")) for _ in edges_str.split(", ")]
 
@@ -49,16 +43,6 @@ def get_nodes(
             are nodes and values are lists of parent nodes.
             - node_children (Dict[str, List[str]]): A dictionary where keys
             are nodes and values are lists of child nodes.
-
-    Example:
-        >>> edges = [("A", "B"), ("A", "C"), ("B", "D")]
-        >>> nodes, node_parents, node_children = get_nodes(edges)
-        >>> nodes
-        ['A', 'B', 'C', 'D']
-        >>> node_parents
-        {'B': ['A'], 'C': ['A'], 'D': ['B']}
-        >>> node_children
-        {'A': ['B', 'C'], 'B': ['D']}
     """
     node_parents = {}
     node_children = {}
@@ -86,15 +70,6 @@ def define_nodes(
         Tuple:
             - endogenous (List[str]): A list of endogenous nodes.
             - exogenous (List[str]): A list of exogenous nodes.
-
-    Example:
-        >>> nodes = ['A', 'B', 'C', 'D']
-        >>> node_parents = {'B': ['A'], 'C': ['A'], 'D': ['B']}
-        >>> endogenous, exogenous = define_nodes(nodes, node_parents)
-        >>> endogenous
-        ['B', 'C', 'D']
-        >>> exogenous
-        ['A']
     """
     endogenous = [node for node in nodes if node in node_parents]
     exogenous = [node for node in nodes if node not in node_parents]
@@ -125,25 +100,6 @@ def define_mechanisms(
     Returns:
         Dict: A dictionary where keys are nodes and values are their
         corresponding mechanisms.
-
-    Example:
-        >>> df = pd.DataFrame({
-        ...     'A': [0, 1, 0, 1],
-        ...     'B': [0, 0, 1, 1],
-        ...     'C': [1, 0, 1, 0]
-        ... })
-        >>> nodes = ['A', 'B', 'C']
-        >>> node_parents = {'B': ['A'], 'C': ['A', 'B']}
-        >>> node_children = {'A': ['B', 'C'], 'B': ['C']}
-        >>> cardinalities = ['A': 2, 'B': 2, 'C': 2]
-        >>> exogenous = ['A']
-        >>> endogenous = ['B', 'C']
-        >>> mechanisms = define_mechanisms(
-        ...     df, node_parents, node_children,
-        ...     cardinalities, endogenous, exogenous
-        ... )
-        >>> mechanisms
-        {'A': [0.5, 0.5], 'B': [...], 'C': [...]}
     """
     # Define r functions
     r = {}
