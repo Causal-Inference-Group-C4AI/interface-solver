@@ -100,7 +100,7 @@ class OutputWriterOverview(OutputWriter):
         super().__init__(output_path, reset)
 
     def write_test_header(self, test_name: str):
-        self("*"*90)
+        self("*"*80)
         self(f"Test '{test_name}' on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         self("--------------------------------------------")
 
