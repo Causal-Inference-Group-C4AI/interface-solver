@@ -11,10 +11,9 @@ from utils._enums import DirectoryPaths, FilePaths, Solvers
 from utils.data_cleaner import DataCleaner
 from utils.general_utilities import (configure_environment,
                                      input_parse_arguments, log_solver_error)
-from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriterOverview
 from utils.validator import Validator
-from utils.general_utilities import configure_environment, input_parse_arguments, log_solver_error
+from utils.general_utilities import configure_environment, input_parse_arguments, log_solver_error, get_common_data
 from utils.solver_error import TimedOutError
 
 def run_task(script, env_path=None, args=None, time_limit=None):
