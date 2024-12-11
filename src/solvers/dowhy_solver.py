@@ -8,14 +8,15 @@ import numpy as np
 import pandas as pd
 from dowhy import CausalModel
 
+
 sys.path.append(os.path.abspath(
     os.path.join(os.path.dirname(__file__), '../../')))
 
 from utils._enums import DirectoryPaths, Solvers
-from utils.get_common_data import get_common_data
 from utils.output_writer import OutputWriterDoWhy
-from utils.general_utilities import solver_parse_arguments, log_solver_results, configure_environment, get_debug_data_for_dowhy
+from utils.general_utilities import solver_parse_arguments, get_common_data, configure_environment, get_debug_data_for_dowhy
 from utils.validator import Validator
+from utils.solver_results import ATE, SolverResultsFactory
 
 
 def get_estimands(identified_estimand) -> List[str]:
@@ -244,7 +245,8 @@ def main():
     method_and_ate = run_dowhy_solver(data, args.fast)
     time_taken = time.time() - start_time
 
-    log_solver_results(Solvers.DOWHY.value, data['test_name'], method_and_ate, time_taken)
+    solver_result = SolverResultsFactory().get_solver_results_object(Solvers.DOWHY.value, data['test_name'])
+    solver_result.log_solver_results(ATE(method_and_ate), time_taken)
 
 
 if __name__ == "__main__":
