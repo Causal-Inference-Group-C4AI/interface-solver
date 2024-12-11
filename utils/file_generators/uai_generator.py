@@ -260,7 +260,9 @@ class UAIGenerator:
             for node in nodes:
                 mechanism = mechanisms[node]
                 uai.write(
-                    f"{len(mechanism)}   {' '.join(map(str, mechanism))}\n")
+                    f"{len(mechanism)}   {' '.join(f'{val:.15f}'.rstrip('0').rstrip('.') if isinstance(val, float) else str(val) for val in mechanism)}\n"
+                )
+
 
     def get_mapping_str(self) -> str:
         """
