@@ -12,6 +12,7 @@ sys.path.append(os.path.abspath(
 
 from utils._enums import DirectoryPaths
 from utils.canonical_partitions.canonicalPartitions import completeRelaxed
+from utils.validator import Validator
 
 
 class Node():
@@ -42,65 +43,44 @@ class Node():
         self._children.append(child)
 
 
-class Nodes():
-    def __init__(self):
-        self.__nodes: Dict[str, Node] = {}
-
-    def __str__(self):
-        return str(self.__nodes)
-
-    def __repr__(self):
-        return f"Nodes({str(self)})"
-
-    def get_nodes(self):
-        return self.__nodes
-
-    def get_or_create_node(self, node_value: str):
-        if node_value not in self.__nodes:
-            self.__nodes[node_value] = Node(node_value)
-        return self.__nodes[node_value]
-
-
 class Edge():
-    def __init__(self, edge_str: str, nodes: Nodes):
-        self._edge_str: str = edge_str
-        self._nodes: Nodes = nodes
-        self._start: Node = None
-        self._end: Node = None
-        self._edge: Tuple[Node, Node] = self._edge_str_parser()
-
-        self._create_nodes_connections()
+    def __init__(self, source: Node, destination: Node):
+        self._source: Node = source
+        self._destination: Node = destination
+        self._edge: Tuple[Node, Node] = self._create_edge()
 
     def __str__(self):
-        return f"{self._start} -> {self._end}"
+        return f"{self._source} -> {self._destination}"
 
     def __repr__(self):
         return f"Edge({str(self)})"
 
-    def _edge_str_parser(self):
-        start_str, end_str = self._edge_str.split(" -> ")
-        self._start = self._nodes.get_or_create_node(start_str)
-        self._end = self._nodes.get_or_create_node(end_str)
-        return self._start, self._end
-
-    def _create_nodes_connections(self):
-        self._start.add_child(self._end)
-        self._end.add_parent(self._start)
+    def _create_edge(self):
+        self._source.add_child(self._destination)
+        self._destination.add_parent(self._source)
+        return (self._source, self._destination)
 
     def get_edge(self):
         return self._edge
 
     def get_nodes(self):
-        return [self._start, self._end]
+        return [self._source, self._destination]
 
 
 class Graph():
     def __init__(self, edges_str: str):
-        self._edges_str: str = edges_str
-        self._edges: List[Edge] = []
-        self._nodes: Nodes = Nodes()
+        self._validator: Validator = Validator()
 
-        self._edges_str_parser()
+        self._edges_str: str = ""
+        self._edges: List[Edge] = []
+        self._nodes_str: List[str] = []
+        self._nodes: Dict[str, Node] = {}
+        self._nodes_parents: Dict[Node, List[Node]] = {}
+        self._nodes_children: Dict[Node, List[Node]] = {}
+        self._endogenous: List[Node] = []
+        self._exogenous: List[Node] = []
+
+        self._create_graph(edges_str)
 
     def __str__(self):
         return self._edges_str
@@ -108,74 +88,64 @@ class Graph():
     def __repr__(self):
         return f"Graph({str(self._edges)})"
 
-    def _edges_str_parser(self):
-        """
-        Parses a string of edges and returns a list of tuples representing the
-        edges.
+    def _create_graph(self, edges_str: str):
+        self._edges_str, edges = self._validator.get_valid_edges_in_string(
+            edges_str)
+        for source, destination in edges:
+            source_node = self.get_node(source)
+            destination_node = self.get_node(destination)
+            self._edges.append(Edge(source_node, destination_node))
 
-        Args:
-            edges_str (str): A string representing the edges of the graph,
-                where each edge is in the format "parent -> child" and edges
-                are separated by commas.
-
-        Returns:
-            List: A list of tuples where each Tuple represents an
-            edge in the format (parent, child).
-        """
-        for edge in self._edges_str.split(", "):
-            self._edges.append(Edge(edge, self._nodes))
+        self.get_parents()
+        self.get_children()
+        self.get_endogenous()
+        self.get_exogenous()
 
     def get_edges(self):
         return self._edges
 
-    # def get_nodes(self) -> Tuple[List[str], Dict[str, List[str]], Dict[str, List[str]]]:
-    #     """
-    #     Extracts nodes, their parents, and their children from a list of edges.
+    def get_nodes(self):
+        return list(self._nodes.values())
 
-    #     Args:
-    #         edges (List[Tuple[str, str]]): A list of tuples where each tuple
-    #             represents an edge in the format (parent, child).
+    def get_node(self, node_value: str):
+        if node_value not in self._nodes:
+            self._nodes[node_value] = Node(node_value)
+        return self._nodes[node_value]
 
-    #     Returns:
-    #         Tuple:
-    #             - nodes (List[str]): A list of all unique nodes in the graph.
-    #             - node_parents (Dict[str, List[str]]): A dictionary where keys
-    #             are nodes and values are lists of parent nodes.
-    #             - node_children (Dict[str, List[str]]): A dictionary where keys
-    #             are nodes and values are lists of child nodes.
-    #     """
-    #     node_parents = {}
-    #     node_children = {}
-    #     nodes = set()
-    #     for parent, child in edges:
-    #         node_parents.setdefault(child, []).append(parent)
-    #         node_children.setdefault(parent, []).append(child)
-    #         nodes.update([parent, child])
+    def get_parents(self):
+        if not self._nodes_parents:
+            for node in list(self._nodes.values()):
+                self._nodes_parents[node] = node.get_parents()
 
-    #     return list(nodes), node_parents, node_children
+        return self._nodes_parents
 
+    def get_children(self):
+        if not self._nodes_children:
+            for node in list(self._nodes.values()):
+                self._nodes_children[node] = node.get_children()
 
-def define_nodes(
-    nodes: List[str],
-    node_parents: Dict[str, List[str]]
-) -> Tuple[List[str], List[str]]:
-    """Define endogenous and exogenous nodes
+        return self._nodes_children
 
-    Args:
-        nodes (List[str]): List of all unique nodes in the graph.
-        node_parents (Dict[str, List[str]]): A dictionary where keys are nodes
-            and values are lists of parent nodes.
+    def get_endogenous(self):
+        if not self._endogenous:
+            for node, children in list(self.get_children().items()):
+                if not children:
+                    self._endogenous.append(node)
+        return self._endogenous
 
-    Returns:
-        Tuple:
-            - endogenous (List[str]): A list of endogenous nodes.
-            - exogenous (List[str]): A list of exogenous nodes.
-    """
-    endogenous = [node for node in nodes if node in node_parents]
-    exogenous = [node for node in nodes if node not in node_parents]
-    return endogenous, exogenous
+    def get_exogenous(self):
+        if not self._exogenous:
+            for node, parents in list(self.get_parents().items()):
+                if not parents:
+                    self._exogenous.append(node)
+        return self._exogenous
 
 
+graph = Graph("E -> D, T -> D, T -> Y, D -> Y, U -> T, U -> Y")
+print(graph._nodes_parents)
+
+
+# TODO: Implement the following functions
 def define_mechanisms(
     df: pd.DataFrame,
     node_parents: Dict[str, List[str]],
