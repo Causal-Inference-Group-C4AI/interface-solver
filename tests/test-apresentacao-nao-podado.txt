@@ -1,0 +1,6 @@
+teste_apresentacao_itau_nao_podado
+autobounds
+Z -> X, X -> Y, U -> X, U -> Y, U -> A, U -> B, U -> C, PA -> A, D -> Z, U1 -> D, U1 -> Z, 
+X
+Y
+data/inputs/csv/nao_podado_balke_pearl.csv
