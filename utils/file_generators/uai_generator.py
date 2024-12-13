@@ -20,12 +20,14 @@ class Node():
         self._parents: List[Node] = []
         self._children: List[Node] = []
         self._value: str = str(value)
+        self.cardinality: int = 0
+        self.r_function: List[Tuple[int, ...]] = None
 
     def __str__(self):
         return self._value
 
     def __repr__(self):
-        return f"Node({str(self)})"
+        return f"Node('{self._value}')"
 
     def get_value(self):
         return self._value
@@ -42,6 +44,12 @@ class Node():
     def add_child(self, child: 'Node'):
         self._children.append(child)
 
+    def is_exogenous(self) -> bool:
+        return not self._parents
+
+    def is_endogenous(self) -> bool:
+        return not self.is_exogenous()
+
 
 class Edge():
     def __init__(self, source: Node, destination: Node):
@@ -53,7 +61,7 @@ class Edge():
         return f"{self._source} -> {self._destination}"
 
     def __repr__(self):
-        return f"Edge({str(self)})"
+        return f"Edge({self._source!r}, {self._destination!r})"
 
     def _create_edge(self):
         self._source.add_child(self._destination)
@@ -86,7 +94,7 @@ class Graph():
         return self._edges_str
 
     def __repr__(self):
-        return f"Graph({str(self._edges)})"
+        return f"Graph('{self._edges_str}')"
 
     def _create_graph(self, edges_str: str):
         self._edges_str, edges = self._validator.get_valid_edges_in_string(
@@ -114,111 +122,129 @@ class Graph():
 
     def get_parents(self):
         if not self._nodes_parents:
-            for node in list(self._nodes.values()):
+            for node in self.get_nodes():
                 self._nodes_parents[node] = node.get_parents()
 
         return self._nodes_parents
 
     def get_children(self):
         if not self._nodes_children:
-            for node in list(self._nodes.values()):
+            for node in self.get_nodes():
                 self._nodes_children[node] = node.get_children()
 
         return self._nodes_children
 
     def get_endogenous(self):
         if not self._endogenous:
-            for node, children in list(self.get_children().items()):
-                if not children:
+            for node in self.get_nodes():
+                if node.is_endogenous():
                     self._endogenous.append(node)
         return self._endogenous
 
     def get_exogenous(self):
         if not self._exogenous:
-            for node, parents in list(self.get_parents().items()):
-                if not parents:
+            for node in self.get_nodes():
+                if node.is_exogenous():
                     self._exogenous.append(node)
         return self._exogenous
 
 
-graph = Graph("E -> D, T -> D, T -> Y, D -> Y, U -> T, U -> Y")
-print(graph._nodes_parents)
+class Mechanism():
+    pass
 
+
+class MechanismsDefiner():
+    def __init__(self, graph: Graph, df: pd.DataFrame):
+        self._graph: Graph = graph
+        self._df: pd.DataFrame = df
+
+    def define_r_function(self, node: Node):
+        mult = 1
+        for parent in node.get_parents():
+            if parent.is_endogenous():
+                mult *= parent.cardinality
+
+        node.r_function = list(
+            product(*[np.arange(node.cardinality).tolist()]*mult))
 
 # TODO: Implement the following functions
-def define_mechanisms(
-    df: pd.DataFrame,
-    node_parents: Dict[str, List[str]],
-    node_children: Dict[str, List[str]],
-    cardinalities: Dict[str, int],
-    endogenous: List[str],
-    exogenous: List[str]
-) -> Dict[str, List[Union[int, float]]]:
-    """
-    Defines the mechanisms for endogenous and exogenous nodes in the graph.
+    def define_exogenous_mechanism(self, node: Node):
+        pass
 
-    Args:
-        df (pd.DataFrame): The DataFrame containing the data.
-        node_parents (Dict[str, List[str]]): A dictionary where keys are nodes
-            and values are lists of parent nodes.
-        node_children (Dict[str, List[str]]): A dictionary where keys are nodes
-            and values are lists of child nodes.
-        cardinalities (Dict[str, int]): List of cardinalities for each node.
-        endogenous (List[str]): List of endogenous nodes.
-        exogenous (List[str]): List of exogenous nodes.
 
-    Returns:
-        Dict: A dictionary where keys are nodes and values are their
-        corresponding mechanisms.
-    """
-    # Define r functions
-    r = {}
-    for end in endogenous:
-        mult = 1
-        for parent in node_parents[end]:
-            if parent in endogenous:
-                mult *= cardinalities[parent]
+# def define_mechanisms(
+#     df: pd.DataFrame,
+#     node_parents: Dict[str, List[str]],
+#     node_children: Dict[str, List[str]],
+#     cardinalities: Dict[str, int],
+#     endogenous: List[str],
+#     exogenous: List[str]
+# ) -> Dict[str, List[Union[int, float]]]:
+#     """
+#     Defines the mechanisms for endogenous and exogenous nodes in the graph.
 
-        r[end] = list(
-            product(*[list(np.arange(cardinalities[end]))]*mult))
+#     Args:
+#         df (pd.DataFrame): The DataFrame containing the data.
+#         node_parents (Dict[str, List[str]]): A dictionary where keys are nodes
+#             and values are lists of parent nodes.
+#         node_children (Dict[str, List[str]]): A dictionary where keys are nodes
+#             and values are lists of child nodes.
+#         cardinalities (Dict[str, int]): List of cardinalities for each node.
+#         endogenous (List[str]): List of endogenous nodes.
+#         exogenous (List[str]): List of exogenous nodes.
 
-    # Define exogenous mechanisms and r functions indexing
-    mechanisms: Dict[str, List[Union[int, float]]] = {}
-    r_index = {}
-    for ex in exogenous:
-        mechanisms[ex] = [1/cardinalities[ex]]*cardinalities[ex]
-        combinations = list(product(*[list(np.arange(len(r[child])))
-                                    for child in node_children[ex]]))
-        r_index[ex] = [{child: combination[i] for i, child in enumerate(
-            node_children[ex])} for combination in combinations]
+#     Returns:
+#         Dict: A dictionary where keys are nodes and values are their
+#         corresponding mechanisms.
+#     """
+#     # Define r functions
+#     r = {}
+#     for end in endogenous:
+#         mult = 1
+#         for parent in node_parents[end]:
+#             if parent in endogenous:
+#                 mult *= cardinalities[parent]
 
-    # Define endogenous mechanisms
-    for end in endogenous:
-        ex_parents = set(exogenous).intersection(node_parents[end])
-        mechanism = []
-        if ex_parents:
-            for ex_parent in ex_parents:
-                for indexes in r_index[ex_parent]:
-                    mechanism += [*r[end][indexes[end]]]
+#         r[end] = list(
+#             product(*[list(np.arange(cardinalities[end]))]*mult))
 
-            num_columns = len(r[end][0])
-            reshaped_mechanism = np.array(
-                mechanism).reshape(-1, num_columns).T
-            mechanism = reshaped_mechanism.flatten().tolist()
-        else:
-            parents_values = [
-                list(np.arange(cardinalities[parent]))
-                for parent in node_parents[end]
-            ]
-            parents_combinations = list(product(*parents_values))
-            for combination in parents_combinations:
-                rows = df[(df[node_parents[end]] == combination).all(1)]
-                mechanism += [rows[end].value_counts().idxmax()
-                              ] if not rows.empty else [0]
+#     # Define exogenous mechanisms and r functions indexing
+#     mechanisms: Dict[str, List[Union[int, float]]] = {}
+#     r_index = {}
+#     for ex in exogenous:
+#         mechanisms[ex] = [1/cardinalities[ex]]*cardinalities[ex]
+#         combinations = list(product(*[np.arange(len(r[child]).tolist())
+#                                     for child in node_children[ex]]))
+#         r_index[ex] = [{child: combination[i] for i, child in enumerate(
+#             node_children[ex])} for combination in combinations]
 
-        mechanisms[end] = mechanism
+#     # Define endogenous mechanisms
+#     for end in endogenous:
+#         ex_parents = set(exogenous).intersection(node_parents[end])
+#         mechanism = []
+#         if ex_parents:
+#             for ex_parent in ex_parents:
+#                 for indexes in r_index[ex_parent]:
+#                     mechanism += [*r[end][indexes[end]]]
 
-    return mechanisms
+#             num_columns = len(r[end][0])
+#             reshaped_mechanism = np.array(
+#                 mechanism).reshape(-1, num_columns).T
+#             mechanism = reshaped_mechanism.flatten().tolist()
+#         else:
+#             parents_values = [
+#                 np.arange(cardinalities[parent]).tolist()
+#                 for parent in node_parents[end]
+#             ]
+#             parents_combinations = list(product(*parents_values))
+#             for combination in parents_combinations:
+#                 rows = df[(df[node_parents[end]] == combination).all(1)]
+#                 mechanism += [rows[end].value_counts().idxmax()
+#                               ] if not rows.empty else [0]
+
+#         mechanisms[end] = mechanism
+
+#     return mechanisms
 
 
 # class UAIGenerator:
@@ -244,8 +270,9 @@ def define_mechanisms(
 #         self.test_name: str = test_name
 #         self.edges_str: str = edges_str
 #         self.csv_file: str = csv_file
-#         self.uai_path: str = f"{DirectoryPaths.UAI.value}/{self.test_name}.uai"
-#         self.mapping: Dict[str, int] = {}
+#         self._uai_path: str = ""
+#         self._mapping: Dict[str, int] = {}
+
 #         self.generate()
 
 #     def write_uai_file(
@@ -312,6 +339,9 @@ def define_mechanisms(
 #         """
 #         Generates a UAI file based on the provided parameters.
 #         """
+#         # Define UAI path
+#         self._uai_path = f"{DirectoryPaths.UAI.value}/{self.test_name}.uai"
+
 #         # Load data
 #         df = pd.read_csv(self.csv_file)
 
