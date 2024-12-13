@@ -42,12 +42,34 @@ class Node():
         self._children.append(child)
 
 
+class Nodes():
+    def __init__(self):
+        self.__nodes: Dict[str, Node] = {}
+
+    def __str__(self):
+        return str(self.__nodes)
+
+    def __repr__(self):
+        return f"Nodes({str(self)})"
+
+    def get_nodes(self):
+        return self.__nodes
+
+    def get_or_create_node(self, node_value: str):
+        if node_value not in self.__nodes:
+            self.__nodes[node_value] = Node(node_value)
+        return self.__nodes[node_value]
+
+
 class Edge():
-    def __init__(self, edge_str: str):
+    def __init__(self, edge_str: str, nodes: Nodes):
         self._edge_str: str = edge_str
+        self._nodes: Nodes = nodes
         self._start: Node = None
         self._end: Node = None
-        self._value: Tuple[Node, Node] = self._edge_str_parser()
+        self._edge: Tuple[Node, Node] = self._edge_str_parser()
+
+        self._create_nodes_connections()
 
     def __str__(self):
         return f"{self._start} -> {self._end}"
@@ -57,24 +79,34 @@ class Edge():
 
     def _edge_str_parser(self):
         start_str, end_str = self._edge_str.split(" -> ")
-        self._start = Node(start_str)
-        self._end = Node(end_str)
+        self._start = self._nodes.get_or_create_node(start_str)
+        self._end = self._nodes.get_or_create_node(end_str)
         return self._start, self._end
 
-    def get_value(self) -> Tuple[Node, Node]:
-        return self._value
+    def _create_nodes_connections(self):
+        self._start.add_child(self._end)
+        self._end.add_parent(self._start)
+
+    def get_edge(self):
+        return self._edge
+
+    def get_nodes(self):
+        return [self._start, self._end]
 
 
-class Edges():
+class Graph():
     def __init__(self, edges_str: str):
         self._edges_str: str = edges_str
-        self._edges: List[Edge] = self._edges_str_parser()
+        self._edges: List[Edge] = []
+        self._nodes: Nodes = Nodes()
+
+        self._edges_str_parser()
 
     def __str__(self):
         return self._edges_str
 
     def __repr__(self):
-        return f"Edges({str(self)})"
+        return f"Graph({str(self._edges)})"
 
     def _edges_str_parser(self):
         """
@@ -90,36 +122,37 @@ class Edges():
             List: A list of tuples where each Tuple represents an
             edge in the format (parent, child).
         """
-        self._edges = [Edge(edge) for edge in self._edges_str.split(", ")]
+        for edge in self._edges_str.split(", "):
+            self._edges.append(Edge(edge, self._nodes))
 
     def get_edges(self):
         return self._edges
 
-    def get_nodes(self) -> Tuple[List[str], Dict[str, List[str]], Dict[str, List[str]]]:
-        """
-        Extracts nodes, their parents, and their children from a list of edges.
+    # def get_nodes(self) -> Tuple[List[str], Dict[str, List[str]], Dict[str, List[str]]]:
+    #     """
+    #     Extracts nodes, their parents, and their children from a list of edges.
 
-        Args:
-            edges (List[Tuple[str, str]]): A list of tuples where each tuple
-                represents an edge in the format (parent, child).
+    #     Args:
+    #         edges (List[Tuple[str, str]]): A list of tuples where each tuple
+    #             represents an edge in the format (parent, child).
 
-        Returns:
-            Tuple:
-                - nodes (List[str]): A list of all unique nodes in the graph.
-                - node_parents (Dict[str, List[str]]): A dictionary where keys
-                are nodes and values are lists of parent nodes.
-                - node_children (Dict[str, List[str]]): A dictionary where keys
-                are nodes and values are lists of child nodes.
-        """
-        node_parents = {}
-        node_children = {}
-        nodes = set()
-        for parent, child in edges:
-            node_parents.setdefault(child, []).append(parent)
-            node_children.setdefault(parent, []).append(child)
-            nodes.update([parent, child])
+    #     Returns:
+    #         Tuple:
+    #             - nodes (List[str]): A list of all unique nodes in the graph.
+    #             - node_parents (Dict[str, List[str]]): A dictionary where keys
+    #             are nodes and values are lists of parent nodes.
+    #             - node_children (Dict[str, List[str]]): A dictionary where keys
+    #             are nodes and values are lists of child nodes.
+    #     """
+    #     node_parents = {}
+    #     node_children = {}
+    #     nodes = set()
+    #     for parent, child in edges:
+    #         node_parents.setdefault(child, []).append(parent)
+    #         node_children.setdefault(parent, []).append(child)
+    #         nodes.update([parent, child])
 
-        return list(nodes), node_parents, node_children
+    #     return list(nodes), node_parents, node_children
 
 
 def define_nodes(
