@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+from abc import ABC, abstractmethod
 from itertools import product
 from typing import Any, Dict, List, Tuple, Union
 
@@ -21,7 +22,7 @@ class Node():
         self._children: List[Node] = []
         self._value: str = str(value)
         self.cardinality: int = 0
-        self.r_function: List[Tuple[int, ...]] = None
+        self.mechanism: Mechanism = None
 
     def __str__(self):
         return self._value
@@ -34,6 +35,9 @@ class Node():
 
     def get_parents(self):
         return self._parents
+
+    def get_parents_values(self):
+        return [parent.get_value() for parent in self.get_parents()]
 
     def get_children(self):
         return self._children
@@ -149,8 +153,43 @@ class Graph():
         return self._exogenous
 
 
-class Mechanism():
-    pass
+class Mechanism(ABC):
+    def __init__(self, mechanism: List[Union[int, float]] = None):
+        if mechanism:
+            self._mechanism = mechanism
+        else:
+            self._mechanism: List[Union[int, float]] = None
+
+    def __str__(self):
+        return str(self._mechanism)
+
+    @abstractmethod
+    def __repr__(self):
+        pass
+
+    def set_mechanism(self, mechanism: List[Union[int, float]]):
+        self._mechanism = mechanism
+
+    def get_mechanism(self):
+        return self._mechanism
+
+
+class EndogenousMechanism(Mechanism):
+    def __init__(self):
+        super().__init__()
+        self.r_function: List[Tuple[int, ...]] = None
+
+    def __repr__(self):
+        return f"EndogenousMechanism({self._mechanism!r})"
+
+
+class ExogenousMechanism(Mechanism):
+    def __init__(self):
+        super().__init__()
+        self.r_index: List[Dict[Node, int]] = None
+
+    def __repr__(self):
+        return f"ExogenousMechanism({self._mechanism!r})"
 
 
 class MechanismsDefiner():
@@ -158,19 +197,105 @@ class MechanismsDefiner():
         self._graph: Graph = graph
         self._df: pd.DataFrame = df
 
-    def define_r_function(self, node: Node):
+    def _define_r_functions(self, node: Node):
+        if not node.is_endogenous():
+            raise ValueError("Node must be endogenous to use this method.")
         mult = 1
         for parent in node.get_parents():
             if parent.is_endogenous():
                 mult *= parent.cardinality
 
-        node.r_function = list(
+        node.mechanism.r_function = list(
             product(*[np.arange(node.cardinality).tolist()]*mult))
 
-# TODO: Implement the following functions
-    def define_exogenous_mechanism(self, node: Node):
-        pass
+    def _define_r_index(self, node: Node):
+        combinations: List[Tuple[int, ...]] = list(
+            product(*[
+                np.arange(len(child.mechanism.r_function)).tolist()
+                for child in node.get_children()
+            ])
+        )
+        node.mechanism.r_index = [
+            {child: combination[i] for i, child in enumerate(
+                node.get_children())}
+            for combination in combinations
+        ]
 
+    def _define_exogenous_mechanisms(self, node: Node):
+        if not node.is_exogenous():
+            raise ValueError("Node must be exogenous to use this method.")
+        node.mechanism.set_mechanism([1/node.cardinality]*node.cardinality)
+        self._define_r_index(node)
+
+    def _define_mechanism_for_exogenous_parents(
+        self, node: Node, ex_parents: set[Node]
+    ):
+        mechanism: List[int] = []
+        for ex_parent in ex_parents:
+            for indexes in ex_parent.mechanism.r_index:
+                mechanism += [*node.mechanism.r_function[indexes[node]]]
+
+            num_columns = len(node.mechanism.r_function[0])
+            reshaped_mechanism = np.array(
+                mechanism).reshape(-1, num_columns).T
+            mechanism = reshaped_mechanism.flatten().tolist()
+
+        node.mechanism.set_mechanism(mechanism)
+
+    def _define_mechanism_for_endogenous_parents(self, node: Node):
+        mechanism: List[int] = []
+        parents_values: List[List[int]] = [
+            np.arange(parent.cardinality).tolist()
+            for parent in node.get_parents()
+        ]
+        parents_combinations = list(product(*parents_values))
+        for combination in parents_combinations:
+            parents_str = [
+                parent.get_value() for parent in node.get_parents()
+            ]
+            rows = df[(df[parents_str] == combination).all(1)]
+            # FIXME: Implements creation of latent variable for non
+            # deterministic functions
+            mechanism += [int(rows[node.get_value()].value_counts().idxmax())
+                          ] if not rows.empty else [0]
+
+        node.mechanism.set_mechanism(mechanism)
+
+    def _define_endogenous_mechanisms(self, node: Node):
+        if not node.is_endogenous():
+            raise ValueError("Node must be endogenous to use this method.")
+        ex_parents = set(self._graph.get_exogenous()).intersection(
+            node.get_parents())
+        if ex_parents:
+            self._define_mechanism_for_exogenous_parents(node, ex_parents)
+        else:
+            self._define_mechanism_for_endogenous_parents(node)
+
+    def define_mechanisms(self):
+        # 1st: Define r functions for endogenous nodes
+        for endogenous_node in self._graph.get_endogenous():
+            endogenous_node.mechanism = EndogenousMechanism()
+            self._define_r_functions(endogenous_node)
+
+        # 2nd: Define mechanisms and r functions indexing for exogenous nodes
+        for exogenous_node in self._graph.get_exogenous():
+            exogenous_node.mechanism = ExogenousMechanism()
+            self._define_exogenous_mechanisms(exogenous_node)
+
+        # 3rd: Define mechanisms for endogenous nodes
+        for endogenous_node in self._graph.get_endogenous():
+            self._define_endogenous_mechanisms(endogenous_node)
+
+
+graph = Graph("Z -> X, X -> Y")
+df = pd.read_csv("data/inputs/csv/balke_pearl.csv")
+definer = MechanismsDefiner(graph, df)
+for node in graph.get_nodes():
+    node.cardinality = len(df[node.get_value()].unique())
+definer.define_mechanisms()
+print(graph.get_node("X").mechanism)
+print(repr(graph.get_node("Z").mechanism))
+print(graph.get_node("Y").mechanism)
 
 # def define_mechanisms(
 #     df: pd.DataFrame,
@@ -247,6 +372,7 @@ class MechanismsDefiner():
 #     return mechanisms
 
 
+# TODO: Implement the following functions
 # class UAIGenerator:
 #     """
 #     A class to generate UAI files for causal inference.
