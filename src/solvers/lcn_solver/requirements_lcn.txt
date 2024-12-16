@@ -11,3 +11,4 @@ ipykernel
 ipywidgets
 pyomo
 gravis
+Flask==3.1.0
