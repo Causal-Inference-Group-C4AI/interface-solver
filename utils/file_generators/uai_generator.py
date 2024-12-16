@@ -1,4 +1,3 @@
-from functools import singledispatch, singledispatchmethod
 import json
 import os
 import sys
@@ -24,6 +23,7 @@ class Node():
         self._value: str = str(value)
         self.cardinality: int = 0
         self.mechanism: Mechanism = None
+        self.number: int = None
 
     def __str__(self):
         return self._value
@@ -100,18 +100,22 @@ class Graph():
     def __repr__(self):
         return f"Graph('{self._edges_str}')"
 
+    def _create_edge(self, source: str, destination: str):
+        source_node = self.get_node(source)
+        destination_node = self.get_node(destination)
+        self._edges.append(Edge(source_node, destination_node))
+
     def _create_graph(self, edges_str: str):
         self._edges_str, edges = self._validator.get_valid_edges_in_string(
             edges_str)
         for source, destination in edges:
-            source_node = self.get_node(source)
-            destination_node = self.get_node(destination)
-            self._edges.append(Edge(source_node, destination_node))
+            self._create_edge(source, destination)
 
-        self.get_parents()
-        self.get_children()
-        self.get_endogenous()
-        self.get_exogenous()
+        self.set_parents()
+        self.set_children()
+        self.set_endogenous()
+        self.set_exogenous()
+        self.set_nodes_numbers()
 
     def get_edges(self):
         return self._edges
@@ -129,31 +133,49 @@ class Graph():
 
     def get_parents(self):
         if not self._nodes_parents:
-            for node in self.get_nodes():
-                self._nodes_parents[node] = node.get_parents()
-
+            self.set_parents()
         return self._nodes_parents
+
+    def set_parents(self):
+        for node in self.get_nodes():
+            self._nodes_parents[node] = node.get_parents()
 
     def get_children(self):
         if not self._nodes_children:
-            for node in self.get_nodes():
-                self._nodes_children[node] = node.get_children()
-
+            self.set_children()
         return self._nodes_children
+
+    def set_children(self):
+        for node in self.get_nodes():
+            self._nodes_children[node] = node.get_children()
 
     def get_endogenous(self):
         if not self._endogenous:
-            for node in self.get_nodes():
-                if node.is_endogenous():
-                    self._endogenous.append(node)
+            self.set_endogenous()
         return self._endogenous
+
+    def set_endogenous(self):
+        endogenous = []
+        for node in self.get_nodes():
+            if node.is_endogenous():
+                endogenous.append(node)
+        self._endogenous = endogenous
 
     def get_exogenous(self):
         if not self._exogenous:
-            for node in self.get_nodes():
-                if node.is_exogenous():
-                    self._exogenous.append(node)
+            self.set_exogenous()
         return self._exogenous
+
+    def set_exogenous(self):
+        exogenous = []
+        for node in self.get_nodes():
+            if node.is_exogenous():
+                exogenous.append(node)
+        self._exogenous = exogenous
+
+    def set_nodes_numbers(self):
+        for i, node in enumerate(self._nodes.values()):
+            node.number = i
 
 
 class Mechanism(ABC):
@@ -354,22 +376,32 @@ class ValidUAIGraph(Graph):
         for node_str in fixed_nodes:
             self._nodes[node_str] = self.__old_graph.get_node(node_str)
 
+    def _add_dummy_node(self, node: Node, exogenous: set[Node]):
+        dummy_node = self.get_node(f"{node}_dummy")
+        dummy_node.cardinality = node.cardinality
+        exogenous.add(dummy_node)
+        self._endogenous.append(node)
+        exogenous.remove(node)
+        self._edges_str += f", {node}_dummy -> {node}"
+        self._create_edge(f"{dummy_node}", f"{node}")
+
     def _check_observable_exogenous_nodes(self):
         new_exogenous = set(self.get_exogenous())
         for ex in self._exogenous:
             ex_str = ex.get_value()
             if ex_str in self._df.columns:
-                dummy_node = self.get_node(f"{ex_str}_dummy")
-                dummy_node.cardinality = ex.cardinality
-                new_exogenous.add(dummy_node)
-                self._endogenous.append(ex)
-                new_exogenous.remove(ex)
-                self._edges_str += f", {ex_str}_dummy -> {ex_str}"
+                self._add_dummy_node(ex, new_exogenous)
 
         self._exogenous = list(new_exogenous)
 
+    def _reorder_nodes(self):
+        self._nodes = {end.get_value(): end for end in self._endogenous}
+        self._nodes.update({ex.get_value(): ex for ex in self._exogenous})
+        self.set_nodes_numbers()
+
     def check_validity(self):
         self._check_observable_exogenous_nodes()
+        self._reorder_nodes()
 
 
 class CanonicalPartitionsAdapter():
@@ -381,7 +413,6 @@ class CanonicalPartitionsAdapter():
             "nodes": nodes,
             "edges": edges
         }
-
         relaxed, ex, ex_card = completeRelaxed(
             predefined_data=canonicalPartitions_data
         )
@@ -389,16 +420,9 @@ class CanonicalPartitionsAdapter():
         return relaxed, ex, ex_card
 
 
-df = pd.read_csv("data/inputs/csv/balke_pearl.csv")
-graph = RelaxedGraphGenerator.generate(Graph("Z -> X, Z -> Y, X -> Y, U -> X, U -> Y"), df)
-for node in graph.get_nodes():
-    print(node, node.cardinality)
-
-
 class UAIGenerator:
-    def __init__(self, test_name: str, edges_str: str, csv_file: str) -> None:
-        self._uai_path: str = ""
-        self._mapping: Dict[str, int] = {}
+    def __init__(self, test_name: str, edges_str: str, csv_file: str):
+        self.uai_path: str = ""
         self.test_name: str = test_name
         self.edges_str: str = edges_str
         self.csv_file: str = csv_file
@@ -407,14 +431,17 @@ class UAIGenerator:
 
         self.generate()
 
-# TODO: Implement the following functions
-    def write_uai_file(
-        self,
-        nodes: List[str],
-        cardinalities: Dict[str, int],
-        edges_per_node: Dict[str, List[int]],
-        mechanisms: Dict[str, List[Union[int, float]]]
-    ) -> None:
+    def _get_edges_per_node(self):
+        nodes = self.graph.get_nodes()
+        edges_per_node: Dict[Node, List[int]] = {}
+        for node in nodes:
+            edges_per_node[node] = sorted(
+                [parent.number for parent in node.get_parents()]
+            )
+            edges_per_node[node].append(node.number)
+        return edges_per_node
+
+    def write_uai_file(self):
         """
         Writes the UAI file with the specified parameters.
 
@@ -426,25 +453,25 @@ class UAIGenerator:
             mechanisms (Dict[str, List[Union[int, float]]]): A dictionary where
                 keys are nodes and values are their corresponding mechanisms.
         """
+        edges_per_node = self._get_edges_per_node()
+        nodes = self.graph.get_nodes()
         with open(self.uai_path, "w") as uai:
             uai.write("CAUSAL\n")
             uai.write(f"{len(nodes)}\n")
             uai.write(
                 " ".join(
-                    map(str, [cardinalities[node] for node in nodes])
+                    map(str, [node.cardinality for node in nodes])
                 ) + "\n"
             )
             uai.write(f"{len(nodes)}\n")
-            for node, node_i in self.mapping.items():
-                node_edges = edges_per_node[node]
+            for node in edges_per_node:
                 uai.write(
-                    f"{len(node_edges)+1}   "
-                    f"{' '.join(map(str, node_edges+[node_i]))}\n"
+                    f"{len(edges_per_node[node])} "
+                    f"{' '.join(map(str, edges_per_node[node]))}\n"
                 )
-
             uai.write("\n")
             for node in nodes:
-                mechanism = mechanisms[node]
+                mechanism = node.mechanism.get_mechanism()
                 mechanism_str = ' '.join(
                     f'{val:.15f}'.rstrip('0').rstrip('.')
                     if isinstance(val, float) else str(val)
@@ -465,15 +492,16 @@ class UAIGenerator:
             str: A JSON string representing the new mapping of variable names
             to nodes.
         """
-        new_mapping = {f"V{i}": node for i, node in enumerate(self.mapping)}
-        return json.dumps(new_mapping)
+        nodes = self.graph.get_nodes()
+        mapping = {f"V{node.number}": node.get_value() for node in nodes}
+        return json.dumps(mapping)
 
-    def generate(self) -> None:
+    def generate(self):
         """
         Generates a UAI file based on the provided parameters.
         """
         # Define UAI path
-        self._uai_path = f"{DirectoryPaths.UAI.value}/{self.test_name}.uai"
+        self.uai_path = f"{DirectoryPaths.UAI.value}/{self.test_name}.uai"
 
         # Load data
         df = pd.read_csv(self.csv_file)
@@ -481,53 +509,20 @@ class UAIGenerator:
         # Define graph
         self.graph = RelaxedGraphGenerator.generate(Graph(self.edges_str), df)
 
-        # Define canonical partitions and relaxed graph
-        canonicalPartitions_data = {
-            "num_nodes": len(endogenous) + len(exogenous),
-            "num_edges": len(self.edges_str.split(", ")),
-            "nodes": [f"{end} {end_card[end]}" for end in endogenous]
-            + [f"{ex} 0" for ex in exogenous],
-            "edges": self.edges_str.split(", ")
-        }
-
-        relaxed, ex, ex_card = completeRelaxed(
-            predefined_data=canonicalPartitions_data
-        )
-        edges = get_edges(relaxed)
-        nodes, node_parents, node_children = get_nodes(edges)
-        endogenous, exogenous = define_nodes(nodes, node_parents)
-        nodes = endogenous + exogenous  # Reorder nodes
-
-        # Define cardinalities, mapping and edges per node
-        ex_card = list(map(int, ex_card.split(", ")))
-        cardinalities = {**end_card, **
-                         {f"U{i}": card for i, card in enumerate(ex_card)}}
-        self.mapping = {node: i for i, node in enumerate(nodes)}
-        print(self.mapping)
-        edges_per_node = {
-            node:
-            sorted([self.mapping[parent]
-                    for parent in node_parents.get(node, [])])
-            for node in nodes
-        }
-
         # Define mechanisms
-        mechanisms = define_mechanisms(
-            df, node_parents, node_children,
-            cardinalities, endogenous, exogenous
-        )
+        mechanisms_definer = MechanismsDefiner(self.graph, df)
+        mechanisms_definer.define_mechanisms()
 
         # Write UAI file
-        uai_path = self.write_uai_file(
-            nodes, cardinalities, edges_per_node, mechanisms)
+        self.write_uai_file()
 
-        return uai_path
+        return self.uai_path
 
 
 # Example
 if __name__ == "__main__":
-    # uai = UAIGenerator(
-    #     "itau_teste",
-    #     "E -> D, T -> D, T -> Y, D -> Y, U -> T, U -> Y",
-    #     "data/csv/unob_itau
-    pass
+    uai = UAIGenerator(
+        "balke-pearl-teste",
+        "Z -> X, X -> Y, U -> X, U -> Y",
+        "data/inputs/csv/balke_pearl.csv"
+    )
