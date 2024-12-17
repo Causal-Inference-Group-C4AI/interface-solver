@@ -8,15 +8,17 @@ import numpy as np
 import pandas as pd
 from dowhy import CausalModel
 
-
 sys.path.append(os.path.abspath(
     os.path.join(os.path.dirname(__file__), '../../')))
 
 from utils._enums import DirectoryPaths, Solvers
 from utils.output_writer import OutputWriterDoWhy
-from utils.general_utilities import solver_parse_arguments, get_common_data, configure_environment, get_debug_data_for_dowhy
+from utils.general_utilities import  get_common_data, configure_environment, log_solver_error
 from utils.validator import Validator
 from utils.solver_results import ATE, SolverResultsFactory
+from flask import Flask, request, jsonify 
+
+app = Flask(__name__)
 
 
 def get_estimands(identified_estimand) -> List[str]:
@@ -228,26 +230,37 @@ def run_dowhy_solver(data, fast_mode):
         fast=fast_mode
     )
 
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({"status": "healthy"}), 200
 
-def main():
-    """Main function to execute the DoWhy solver."""
-    args = solver_parse_arguments()
+@app.route('/solve', methods=['POST'])
+def solve_endpoint():
 
-    configure_environment(args.verbose)
+    json_input = request.get_json()
+
+    configure_environment(json_input['verbose'])
 
     validator = Validator()
-    if args.debug:
-        data = get_debug_data_for_dowhy()
-    else:
-        data = get_common_data(validator.get_valid_path(args.common_data))
+    data = get_common_data(validator.get_valid_path(json_input['common_data']))
+    
+    
+    try:
+        start_time = time.time()
+        method_and_ate = run_dowhy_solver(data, json_input['fast'])
+        time_taken = time.time() - start_time
 
-    start_time = time.time()
-    method_and_ate = run_dowhy_solver(data, args.fast)
-    time_taken = time.time() - start_time
+        solver_result = SolverResultsFactory().get_solver_results_object(Solvers.DOWHY.value, data['test_name'])
+        solver_result.log_solver_results(ATE(method_and_ate), time_taken)
 
-    solver_result = SolverResultsFactory().get_solver_results_object(Solvers.DOWHY.value, data['test_name'])
-    solver_result.log_solver_results(ATE(method_and_ate), time_taken)
+        return jsonify({
+            "status": "success",
+            "time_taken": time_taken
+        }), 200
+    except Exception as e:
+        log_solver_error(e, "dowhy", data['test_name'])
+        return jsonify({"error": str(e), "error_code": "SOLVER_FAILED"}), 500
 
 
 if __name__ == "__main__":
-    main()
+    app.run(host='0.0.0.0', port=5002)

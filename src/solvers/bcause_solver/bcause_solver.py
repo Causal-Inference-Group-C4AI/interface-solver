@@ -12,8 +12,7 @@ from bcause.inference.causal.multi import EMCC
 from bcause.models.cmodel import StructuralCausalModel
 
 from utils._enums import DirectoryPaths, Solvers
-from utils.general_utilities import (configure_environment, get_common_data,
-                                     solver_parse_arguments)
+from utils.general_utilities import (configure_environment, get_common_data, log_solver_error)
 from utils.output_writer import OutputWriterBcause
 from utils.validator import Validator
 from utils.solver_results import ATE, SolverResultsFactory
@@ -72,6 +71,10 @@ def run_bcause_solver(data):
         mapping=data['uai_mapping'],
     )
 
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({"status": "healthy"}), 200
+
 @app.route('/solve', methods=['POST'])
 def solve_endpoint():
 
@@ -82,8 +85,8 @@ def solve_endpoint():
     validator = Validator()
     data = get_common_data(validator.get_valid_path(json_input['common_data']))
     
-    start_time = time.time()
     try:
+        start_time = time.time()
         lower_bound, upper_bound = run_bcause_solver(data)
         time_taken = time.time() - start_time
 
@@ -97,6 +100,7 @@ def solve_endpoint():
             "time_taken": time_taken
         }), 200
     except Exception as e:
+        log_solver_error(e, "bcause", data['test_name'])
         return jsonify({"error": str(e), "error_code": "SOLVER_FAILED"}), 500
 
 
