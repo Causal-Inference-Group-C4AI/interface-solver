@@ -46,8 +46,18 @@ class Node():
     def add_parent(self, parent: 'Node'):
         self._parents.append(parent)
 
+    def reset_parents(self):
+        self._parents = []
+
     def add_child(self, child: 'Node'):
         self._children.append(child)
+
+    def reset_children(self):
+        self._children = []
+
+    def reset_node(self):
+        self.reset_parents()
+        self.reset_children()
 
     def is_exogenous(self) -> bool:
         return not self._parents
@@ -278,7 +288,7 @@ class MechanismsDefiner():
             parents_str = [
                 parent.get_value() for parent in node.get_parents()
             ]
-            rows = df[(df[parents_str] == combination).all(1)]
+            rows = self._df[(self._df[parents_str] == combination).all(1)]
             # FIXME: Implements creation of latent variable for non
             # deterministic functions
             mechanism += [int(rows[node.get_value()].value_counts().idxmax())
@@ -375,6 +385,7 @@ class ValidUAIGraph(Graph):
     def _fix_nodes(self, fixed_nodes: List[str]):
         for node_str in fixed_nodes:
             self._nodes[node_str] = self.__old_graph.get_node(node_str)
+            self._nodes[node_str].reset_node()
 
     def _add_dummy_node(self, node: Node, exogenous: set[Node]):
         dummy_node = self.get_node(f"{node}_dummy")
@@ -466,7 +477,7 @@ class UAIGenerator:
             uai.write(f"{len(nodes)}\n")
             for node in edges_per_node:
                 uai.write(
-                    f"{len(edges_per_node[node])} "
+                    f"{len(edges_per_node[node])}   "
                     f"{' '.join(map(str, edges_per_node[node]))}\n"
                 )
             uai.write("\n")
