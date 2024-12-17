@@ -43,6 +43,9 @@ class Node():
     def get_children(self):
         return self._children
 
+    def get_children_values(self):
+        return [child.get_value() for child in self.get_children()]
+
     def add_parent(self, parent: 'Node'):
         self._parents.append(parent)
 
@@ -187,6 +190,26 @@ class Graph():
         for i, node in enumerate(self._nodes.values()):
             node.number = i
 
+    def add_dummy_node(
+        self, node: Node, cardinality: int = None
+    ):
+        if not cardinality:
+            cardinality = node.cardinality
+
+        dummy_node = self.get_node(f"{node}_dummy")
+        dummy_node.cardinality = cardinality
+        self._edges_str += f", {node}_dummy -> {node}"
+        self._create_edge(f"{dummy_node}", f"{node}")
+        self.set_endogenous()
+        self.set_exogenous()
+        self.set_nodes_numbers()
+        return dummy_node
+
+    def define_latents_cardinalities(self, latents: List[str], lat_card: str):
+        latents_card = [int(card) for card in lat_card.split(", ") if card]
+        for card, latent in zip(latents_card, latents):
+            self.get_node(latent).cardinality = card
+
 
 class Mechanism(ABC):
     def __init__(self, mechanism: List[Union[int, float]] = None):
@@ -265,17 +288,25 @@ class MechanismsDefiner():
     def _define_mechanism_for_exogenous_parents(
         self, node: Node, ex_parents: set[Node]
     ):
+        # FIXME: Mecanismos de D estão sendo apagados depois de D e antes de E
         mechanism: List[int] = []
         for ex_parent in ex_parents:
             for indexes in ex_parent.mechanism.r_index:
                 mechanism += [*node.mechanism.r_function[indexes[node]]]
-
             num_columns = len(node.mechanism.r_function[0])
             reshaped_mechanism = np.array(
                 mechanism).reshape(-1, num_columns).T
             mechanism = reshaped_mechanism.flatten().tolist()
-
         node.mechanism.set_mechanism(mechanism)
+
+    def _prob_to_deterministic(
+        self, node: Node, possible_functions: List[int]
+    ):
+        number_of_functions = len(possible_functions)
+        dummy_node = self._graph.add_dummy_node(node, number_of_functions)
+        dummy_node.mechanism = ExogenousMechanism()
+        self._define_exogenous_mechanisms(dummy_node)
+        self._define_endogenous_mechanisms(node)
 
     def _define_mechanism_for_endogenous_parents(self, node: Node):
         mechanism: List[int] = []
@@ -289,10 +320,14 @@ class MechanismsDefiner():
                 parent.get_value() for parent in node.get_parents()
             ]
             rows = self._df[(self._df[parents_str] == combination).all(1)]
-            # FIXME: Implements creation of latent variable for non
-            # deterministic functions
-            mechanism += [int(rows[node.get_value()].value_counts().idxmax())
-                          ] if not rows.empty else [0]
+            possible_functions = rows[node.get_value()].unique()
+            if len(possible_functions) > 1:  # Probabilistic function
+                self._prob_to_deterministic(node, possible_functions)
+                break
+            elif len(possible_functions) == 1:  # Deterministic function
+                mechanism += [int(possible_functions[0])]
+            else:  # Not in the data
+                mechanism += [0]
 
         node.mechanism.set_mechanism(mechanism)
 
@@ -321,6 +356,9 @@ class MechanismsDefiner():
         for endogenous_node in self._graph.get_endogenous():
             self._define_endogenous_mechanisms(endogenous_node)
 
+        print("Final dos mecanismos: ")
+        print(self._graph.get_node("D").mechanism.get_mechanism())
+
 
 class RelaxedGraphGenerator():
     _graph: Graph = None
@@ -329,13 +367,6 @@ class RelaxedGraphGenerator():
     @classmethod
     def _define_observable_cardinality(cls, node: Node):
         node.cardinality = len(cls._df[node.get_value()].unique())
-
-    @classmethod
-    def _define_latents_cardinalities(cls, lat: str, lat_card: str):
-        latents = lat.split(", ")
-        latents_card = [int(card) for card in lat_card.split(", ")]
-        for card, latent in zip(latents_card, latents):
-            cls._graph.get_node(latent).cardinality = card
 
     @classmethod
     def generate(cls, graph: Graph, df: pd.DataFrame):
@@ -354,8 +385,11 @@ class RelaxedGraphGenerator():
         relaxed, lat, lat_card = CanonicalPartitionsAdapter.get_relaxed_graph(
             nodes_str, cls._graph.get_edges_as_str()
         )
+
         cls._graph = ValidUAIGraph(relaxed, cls._df, cls._graph, obs_nodes)
-        cls._define_latents_cardinalities(lat, lat_card)
+        lat = lat.split(", ")
+        cls._graph.define_latents_cardinalities(lat, lat_card)
+        cls._graph._mechanisms_definer.define_mechanisms()
 
         return cls._graph
 
@@ -380,30 +414,23 @@ class ValidUAIGraph(Graph):
             self._create_graph(edges_str)
 
         self._df = df
+        self._mechanisms_definer: MechanismsDefiner = None
+        self._complete_valid_uai_graph()
+
+    def _complete_valid_uai_graph(self):
         self.check_validity()
+        self._mechanisms_definer = MechanismsDefiner(self, self._df)
 
     def _fix_nodes(self, fixed_nodes: List[str]):
         for node_str in fixed_nodes:
             self._nodes[node_str] = self.__old_graph.get_node(node_str)
             self._nodes[node_str].reset_node()
 
-    def _add_dummy_node(self, node: Node, exogenous: set[Node]):
-        dummy_node = self.get_node(f"{node}_dummy")
-        dummy_node.cardinality = node.cardinality
-        exogenous.add(dummy_node)
-        self._endogenous.append(node)
-        exogenous.remove(node)
-        self._edges_str += f", {node}_dummy -> {node}"
-        self._create_edge(f"{dummy_node}", f"{node}")
-
-    def _check_observable_exogenous_nodes(self):
-        new_exogenous = set(self.get_exogenous())
+    def _check_exogenous_nodes(self):
         for ex in self._exogenous:
             ex_str = ex.get_value()
             if ex_str in self._df.columns:
-                self._add_dummy_node(ex, new_exogenous)
-
-        self._exogenous = list(new_exogenous)
+                self.add_dummy_node(ex)
 
     def _reorder_nodes(self):
         self._nodes = {end.get_value(): end for end in self._endogenous}
@@ -411,7 +438,7 @@ class ValidUAIGraph(Graph):
         self.set_nodes_numbers()
 
     def check_validity(self):
-        self._check_observable_exogenous_nodes()
+        self._check_exogenous_nodes()
         self._reorder_nodes()
 
 
@@ -520,10 +547,6 @@ class UAIGenerator:
         # Define graph
         self.graph = RelaxedGraphGenerator.generate(Graph(self.edges_str), df)
 
-        # Define mechanisms
-        mechanisms_definer = MechanismsDefiner(self.graph, df)
-        mechanisms_definer.define_mechanisms()
-
         # Write UAI file
         self.write_uai_file()
 
@@ -533,7 +556,8 @@ class UAIGenerator:
 # Example
 if __name__ == "__main__":
     uai = UAIGenerator(
-        "balke-pearl-teste",
-        "Z -> X, X -> Y, U -> X, U -> Y",
-        "data/inputs/csv/balke_pearl.csv"
+        "NAO_OBSERVAVEL_itau-teste",
+        "T -> Y, T -> D, U -> Y, U -> T, D -> Y, E -> D",
+        "data/inputs/csv/NAO_OBSERVAVEL_itau-teste.csv"
     )
+    print(uai.graph.get_node("D").mechanism.get_mechanism())
