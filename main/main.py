@@ -47,13 +47,13 @@ def run_task(script, env_path=None, args=None, time_limit=None):
 
 def process_input(file_path: str, output_path: str):
     try:
-        logging.info(f"Processing input file: {file_path}")
+        print("Running Input Processor...")
 
         input_processor = InputProcessor(file_path)
 
         generate_shared_data(output_path, input_processor.data_test)
 
-        logging.info(f"Shared data generated at: {output_path}")
+        print("Input processor done!")
     except Exception as e:
         logging.error(f"Error processing input file: {e}")
         raise
@@ -88,7 +88,7 @@ def execute_solvers(command_line_args, data, common_data_path):
             url = solver_urls[solver_name]
             wait_for_solver(url)
 
-            logging.info(f"Executing solver: {solver_name}")
+            print(f"{solver_name} solver running...")
             payload = {
                 "common_data": common_data_path,
                 "verbose": command_line_args.verbose,
@@ -97,59 +97,17 @@ def execute_solvers(command_line_args, data, common_data_path):
             
             response = requests.post(f"{url}/solve", json=payload, timeout=data["time_limit"])
             if response.status_code == 200:
-                # Success
                 result = response.json()
-                # Process result
+                print(f"Time taken by {solver_name}: {result['time_taken']:.6f} seconds.")
             else:
-                # Error
                 error_info = response.json().get("error", "Unknown error")
                 log_solver_error(error_info, solver_name, data['test_name'])
         except Exception as e:
             print(e)
             log_solver_error(e, solver_name, data['test_name'])
 
-
-    # solvers = {
-    #     Solvers.LCN.value: [
-    #         FilePaths.LCN_SOLVER.value, FilePaths.LCN_VENV.value
-    #     ],
-    #     Solvers.DOWHY.value: [
-    #         FilePaths.DOWHY_SOLVER.value, FilePaths.DOWHY_VENV.value
-    #     ],
-    #     Solvers.BCAUSE.value: [
-    #         FilePaths.BCAUSE_SOLVER.value, FilePaths.BCAUSE_VENV.value
-    #     ],
-    #     Solvers.AUTOBOUNDS.value: [
-    #         FilePaths.AUTOBOUNDS_SOLVER.value, FilePaths.AUTOBOUNDS_VENV.value
-    #     ],
-    # }
-
-    # for solver_name, [script_path, venv_path] in solvers.items():
-    #     if solver_name in data["solvers"]:
-    #         try:
-    #             logging.info(f"Executing solver: {solver_name}")
-
-    #             task_args = ["--common_data", common_data_path]
-    #             if command_line_args.verbose:
-    #                 task_args.append("--verbose")
-    #             if command_line_args.fast:
-    #                 task_args.append("--fast")
-
-    #             run_task(
-    #                 script_path,
-    #                 env_path=venv_path,
-    #                 args=task_args,
-    #                 time_limit=data["time_limit"]
-    #             )
-    #         except Exception as e:
-    #             print(e)
-    #             log_solver_error(e, solver_name, data['test_name'])
-
-
 def main(args):
-    logging.info("Main function started.")
     try:
-        logging.info("Configuring environment...")
         configure_environment(args.verbose)
 
         logging.info(f"Validating file path: {args.file_path}")
@@ -193,9 +151,5 @@ def main(args):
     except Exception as e:
         logging.exception(f"Unhandled exception: {type(e).__module__}.{type(e).__name__}: {e}")
 
-    
-
-
 if __name__ == "__main__":
-    #app.run(host='0.0.0.0', port=8080, debug=True)
     main(input_parse_arguments())
