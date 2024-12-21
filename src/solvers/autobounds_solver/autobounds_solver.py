@@ -13,11 +13,13 @@ from autobounds.causalProblem import causalProblem
 from autobounds.DAG import DAG
 from utils._enums import DirectoryPaths, Solvers
 from utils.output_writer import OutputWriterAutobounds
-from utils.general_utilities import solver_parse_arguments, configure_environment, log_solver_error, get_common_data
+from utils.general_utilities import configure_environment, log_solver_error, get_common_data
 from utils.validator import Validator
 from utils.solver_error import SolverError, InfeasibleProblemError
 from utils.solver_results import ATE, SolverResultsFactory
+from flask import Flask, request, jsonify 
 
+app = Flask(__name__)
 
 def autobounds_solver(
         test_name: str,
@@ -104,15 +106,21 @@ def run_autobounds_solver(data):
         outcome=data['outcome'],
     )
 
-def main():
-    """Main function to execute the Autobounds solver."""
-    args = solver_parse_arguments()
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({"status": "healthy"}), 200
 
-    configure_environment(args.verbose)
+@app.route('/solve', methods=['POST'])
+def solve_endpoint():
+
+    json_input = request.get_json()
+
+    configure_environment(json_input['verbose'])
 
     validator = Validator()
-    data = get_common_data(validator.get_valid_path(args.common_data))
-
+    data = get_common_data(validator.get_valid_path(json_input['common_data']))
+    
+    
     try:
         start_time = time.time()
         lower_bound, upper_bound = run_autobounds_solver(data)
@@ -120,8 +128,17 @@ def main():
 
         solver_result = SolverResultsFactory().get_solver_results_object(Solvers.AUTOBOUNDS.value, data['test_name'])
         solver_result.log_solver_results(ATE((lower_bound, upper_bound)), time_taken)
+
+        return jsonify({
+            "status": "success",
+            "lower_bound": lower_bound,
+            "upper_bound": upper_bound,
+            "time_taken": time_taken
+        }), 200
     except Exception as e:
         log_solver_error(e, "autobounds", data['test_name'])
+        return jsonify({"error": str(e), "error_code": "SOLVER_FAILED"}), 500
+
 
 if __name__ == "__main__":
-    main()
+    app.run(host='0.0.0.0', port=5004)

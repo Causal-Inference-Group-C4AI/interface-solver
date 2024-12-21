@@ -9,3 +9,4 @@ plotnine
 pyscipopt==5.0.1
 sympy
 scipy
+Flask==3.1.0

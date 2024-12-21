@@ -12,12 +12,13 @@ from bcause.inference.causal.multi import EMCC
 from bcause.models.cmodel import StructuralCausalModel
 
 from utils._enums import DirectoryPaths, Solvers
-from utils.general_utilities import (configure_environment, get_common_data,
-                                     solver_parse_arguments)
+from utils.general_utilities import (configure_environment, get_common_data, log_solver_error)
 from utils.output_writer import OutputWriterBcause
 from utils.validator import Validator
 from utils.solver_results import ATE, SolverResultsFactory
+from flask import Flask, request, jsonify 
 
+app = Flask(__name__)
 
 def bcause_solver(
         test_name: str,
@@ -70,23 +71,38 @@ def run_bcause_solver(data):
         mapping=data['uai_mapping'],
     )
 
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({"status": "healthy"}), 200
 
-def main():
-    """Main function to execute the Bcause solver."""
-    args = solver_parse_arguments()
+@app.route('/solve', methods=['POST'])
+def solve_endpoint():
 
-    configure_environment(args.verbose)
+    json_input = request.get_json()
+
+    configure_environment(json_input['verbose'])
 
     validator = Validator()
-    data = get_common_data(validator.get_valid_path(args.common_data))
+    data = get_common_data(validator.get_valid_path(json_input['common_data']))
+    
+    try:
+        start_time = time.time()
+        lower_bound, upper_bound = run_bcause_solver(data)
+        time_taken = time.time() - start_time
 
-    start_time = time.time()
-    lower_bound, upper_bound = run_bcause_solver(data)
-    time_taken = time.time() - start_time
+        solver_result = SolverResultsFactory().get_solver_results_object(Solvers.BCAUSE.value, data['test_name'])
+        solver_result.log_solver_results(ATE((lower_bound, upper_bound)), time_taken)
 
-    solver_result = SolverResultsFactory().get_solver_results_object(Solvers.BCAUSE.value, data['test_name'])
-    solver_result.log_solver_results(ATE((lower_bound, upper_bound)), time_taken)
+        return jsonify({
+            "status": "success",
+            "lower_bound": lower_bound,
+            "upper_bound": upper_bound,
+            "time_taken": time_taken
+        }), 200
+    except Exception as e:
+        log_solver_error(e, "bcause", data['test_name'])
+        return jsonify({"error": str(e), "error_code": "SOLVER_FAILED"}), 500
 
 
 if __name__ == "__main__":
-    main()
+    app.run(host='0.0.0.0', port=5003)

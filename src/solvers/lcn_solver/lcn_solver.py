@@ -13,10 +13,13 @@ from lcn.model import LCN
 from utils._enums import DirectoryPaths, Solvers
 from utils.file_generators.lcn_file_generator import create_lcn
 from utils.output_writer import OutputWriterLCN
-from utils.general_utilities import solver_parse_arguments, get_common_data, configure_environment
+from utils.general_utilities import solver_parse_arguments, get_common_data, configure_environment, log_solver_error
 from utils.validator import Validator
 from utils.solver_results import SolverResultsFactory, ATE
 
+from flask import Flask, request, jsonify 
+
+app = Flask(__name__)
 
 def lcn_solver(
         test_name: str,
@@ -144,6 +147,37 @@ def run_lcn_solver(data):
         outcome=data['outcome'],
     )
 
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({"status": "healthy"}), 200
+
+@app.route('/solve', methods=['POST'])
+def solve_endpoint():
+
+    json_input = request.get_json()
+
+    configure_environment(json_input['verbose'])
+
+    validator = Validator()
+    data = get_common_data(validator.get_valid_path(json_input['common_data']))
+    
+    try:
+        start_time = time.time()
+        lower_bound, upper_bound = run_lcn_solver(data)
+        time_taken = time.time() - start_time
+
+        solver_result = SolverResultsFactory().get_solver_results_object(Solvers.LCN.value, data['test_name'])
+        solver_result.log_solver_results(ATE((lower_bound, upper_bound)), time_taken)
+
+        return jsonify({
+            "status": "success",
+            "lower_bound": lower_bound,
+            "upper_bound": upper_bound,
+            "time_taken": time_taken
+        }), 200
+    except Exception as e:
+        log_solver_error(e, "lcn", data['test_name'])
+        return jsonify({"error": str(e), "error_code": "SOLVER_FAILED"}), 500
 
 def main():
     """Main function to execute the LCN solver."""
@@ -163,4 +197,4 @@ def main():
     solver_result.log_solver_results(ATE((lower_bound, upper_bound)), time_taken)
 
 if __name__ == "__main__":
-    main()
+    app.run(host='0.0.0.0', port=5001)
