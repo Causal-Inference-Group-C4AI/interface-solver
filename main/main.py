@@ -6,8 +6,7 @@ from utils.general_utilities import (configure_environment,
                                      input_parse_arguments, log_solver_error)
 from utils.data_cleaner import DataCleaner
 from utils._enums import DirectoryPaths, FilePaths, SolversURL, Solvers
-# TODO
-# mudar do src para utils
+# TODO mudar do src para utils
 from src.input_processor import InputProcessor, generate_shared_data
 import logging
 import os
@@ -17,20 +16,11 @@ import requests
 import time
 from datetime import datetime
 from pathlib import Path
-from flask import Flask, request, jsonify
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError, ReadTimeout
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-
-app = Flask(__name__)
-
-
-@app.route('/')
-def hello():
-    return "Aujourd'hui, maman est morte. Ou peut-être hier, je ne sais pas."
-
 
 def run_task(script, env_path=None, args=None, time_limit=None):
     """Run a Python script in a specific virtual environment."""
@@ -102,9 +92,16 @@ def execute_solvers(command_line_args, data, common_data_path):
             else:
                 error_info = response.json().get("error", "Unknown error")
                 log_solver_error(error_info, solver_name, data['test_name'])
+        except ReadTimeout:
+            error_message = (
+                f"Solver {solver_name} timed out after {data['time_limit']} seconds. "
+            )
+            print(error_message)
+            log_solver_error(error_message, solver_name, data['test_name'])
         except Exception as e:
-            print(e)
-            log_solver_error(e, solver_name, data['test_name'])
+            error_message = f"An unexpected error occurred while communicating with solver {solver_name}: {str(e)}"
+            print(error_message)
+            log_solver_error(error_message, solver_name, data['test_name'])
 
 def main(args):
     try:
