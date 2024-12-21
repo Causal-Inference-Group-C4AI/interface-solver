@@ -15,6 +15,7 @@ services:
       - dowhy_solver
       - bcause_solver
       - autobounds_solver
+    command: ["tests/test-simples.txt", "-v"]
 
   lcn_solver:
     build:
