@@ -22,19 +22,6 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def run_task(script, env_path=None, args=None, time_limit=None):
-    """Run a Python script in a specific virtual environment."""
-    python_executable = f"{env_path}/bin/python3" if env_path else "python3"
-    command = [python_executable, script, *args]
-    if args:
-        command.extend(args)
-    try:
-        subprocess.run(command, cwd="./", check=True, timeout=time_limit)
-    except subprocess.TimeoutExpired as e:
-        raise TimedOutError(time_limit)
-    except subprocess.CalledProcessError as e:
-        raise Exception(f"Error running task {script}: {e}")
-
 def process_input(file_path: str, output_path: str):
     try:
         print("Running Input Processor...")
