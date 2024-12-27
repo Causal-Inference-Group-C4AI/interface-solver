@@ -186,6 +186,9 @@ class Graph():
                 exogenous.append(node)
         self._exogenous = exogenous
 
+    def get_ex_parents(self, node: Node):
+        return set(self._exogenous).intersection(node.get_parents())
+
     def set_nodes_numbers(self):
         for i, node in enumerate(self._nodes.values()):
             node.number = i
@@ -267,12 +270,19 @@ class MechanismsDefiner():
             product(*[np.arange(node.cardinality).tolist()]*mult))
 
     def _define_r_index(self, node: Node):
-        combinations: List[Tuple[int, ...]] = list(
-            product(*[
-                np.arange(len(child.mechanism.r_function)).tolist()
-                for child in node.get_children()
-            ])
-        )
+        if not node.is_exogenous():
+            raise ValueError("Node must be exogenous to use this method.")
+        if "dummy" in node.get_value():
+            combinations = list(
+                product(*[np.arange(node.cardinality).tolist()])
+            )
+        else:
+            combinations: List[Tuple[int, ...]] = list(
+                product(*[
+                    np.arange(len(child.mechanism.r_function)).tolist()
+                    for child in node.get_children()
+                ])
+            )
         node.mechanism.r_index = [
             {child: combination[i] for i, child in enumerate(
                 node.get_children())}
@@ -288,7 +298,6 @@ class MechanismsDefiner():
     def _define_mechanism_for_exogenous_parents(
         self, node: Node, ex_parents: set[Node]
     ):
-        # FIXME: Mecanismos de D estão sendo apagados depois de D e antes de E
         mechanism: List[int] = []
         for ex_parent in ex_parents:
             for indexes in ex_parent.mechanism.r_index:
@@ -299,15 +308,6 @@ class MechanismsDefiner():
             mechanism = reshaped_mechanism.flatten().tolist()
         node.mechanism.set_mechanism(mechanism)
 
-    def _prob_to_deterministic(
-        self, node: Node, possible_functions: List[int]
-    ):
-        number_of_functions = len(possible_functions)
-        dummy_node = self._graph.add_dummy_node(node, number_of_functions)
-        dummy_node.mechanism = ExogenousMechanism()
-        self._define_exogenous_mechanisms(dummy_node)
-        self._define_endogenous_mechanisms(node)
-
     def _define_mechanism_for_endogenous_parents(self, node: Node):
         mechanism: List[int] = []
         parents_values: List[List[int]] = [
@@ -315,16 +315,13 @@ class MechanismsDefiner():
             for parent in node.get_parents()
         ]
         parents_combinations = list(product(*parents_values))
+        parents_str = [
+            parent.get_value() for parent in node.get_parents()
+        ]
         for combination in parents_combinations:
-            parents_str = [
-                parent.get_value() for parent in node.get_parents()
-            ]
             rows = self._df[(self._df[parents_str] == combination).all(1)]
             possible_functions = rows[node.get_value()].unique()
-            if len(possible_functions) > 1:  # Probabilistic function
-                self._prob_to_deterministic(node, possible_functions)
-                break
-            elif len(possible_functions) == 1:  # Deterministic function
+            if len(possible_functions) == 1:
                 mechanism += [int(possible_functions[0])]
             else:  # Not in the data
                 mechanism += [0]
@@ -355,9 +352,6 @@ class MechanismsDefiner():
         # 3rd: Define mechanisms for endogenous nodes
         for endogenous_node in self._graph.get_endogenous():
             self._define_endogenous_mechanisms(endogenous_node)
-
-        print("Final dos mecanismos: ")
-        print(self._graph.get_node("D").mechanism.get_mechanism())
 
 
 class RelaxedGraphGenerator():
@@ -432,6 +426,19 @@ class ValidUAIGraph(Graph):
             if ex_str in self._df.columns:
                 self.add_dummy_node(ex)
 
+    def _check_non_deterministic_nodes(self):
+        for node in self._endogenous:
+            if self.get_ex_parents(node):
+                continue
+            functions = self._df.drop_duplicates(
+                subset=node.get_parents_values() + [node.get_value()]
+            )
+            parents_combinations = functions.drop_duplicates(
+                subset=node.get_parents_values()
+            )
+            if len(functions) != len(parents_combinations):
+                self.add_dummy_node(node, len(functions))
+
     def _reorder_nodes(self):
         self._nodes = {end.get_value(): end for end in self._endogenous}
         self._nodes.update({ex.get_value(): ex for ex in self._exogenous})
@@ -439,6 +446,7 @@ class ValidUAIGraph(Graph):
 
     def check_validity(self):
         self._check_exogenous_nodes()
+        self._check_non_deterministic_nodes()
         self._reorder_nodes()
 
 
@@ -556,8 +564,10 @@ class UAIGenerator:
 # Example
 if __name__ == "__main__":
     uai = UAIGenerator(
-        "NAO_OBSERVAVEL_itau-teste",
+        "OBSERVAVEL_itau",
         "T -> Y, T -> D, U -> Y, U -> T, D -> Y, E -> D",
-        "data/inputs/csv/NAO_OBSERVAVEL_itau-teste.csv"
+        "data/inputs/csv/OBSERVAVEL_itau.csv"
     )
-    print(uai.graph.get_node("D").mechanism.get_mechanism())
+    print(uai.get_mapping_str())
+
+# TODO: Testar os resultados comparando com outros softwares e resultados

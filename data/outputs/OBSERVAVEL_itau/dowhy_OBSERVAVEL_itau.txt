@@ -1,42 +1,19 @@
 Estimands found: backdoor
 --------------------------------------------------------------------------------
 Estimation using backdoor.linear_regression:
+Time taken: 8.396469 seconds
 ATE = 0.46680665388482556
 P-value: [1.26117131e-33]
-Confidence interval: [0.4012216053682842, 0.5333500022886146]
+Confidence interval: [0.40209511168552825, 0.5258513241509263]
 
+Time taken: 2.018391 seconds
 Refute: Use a Placebo Treatment
 Estimated effect:0.46680665388482556
-New effect:0.003062138422636761
-p value:0.8799999999999999
+New effect:0.007050345626279458
+p value:0.8600000000000001
 
-Refute: Use a subset of data
-Estimated effect:0.46680665388482556
-New effect:0.46624571111718105
-p value:0.92
-
-Refute: Add a random common cause
-Estimated effect:0.46680665388482556
-New effect:0.46656963653386485
-p value:0.9
-
+Time taken: 1.989737 seconds
 Refute: Use a Dummy Outcome
 Estimated effect:0
-New effect:0.015313308101641575
-p value:0.8400000000000001
---------------------------------------------------------------------------------
-Estimation using backdoor.propensity_score_matching:
-ATE = 0.756
-P-value: (0, 0.001)
-Confidence interval: [0.734, 1.601]
-
-Refute: Use a Placebo Treatment
-Estimated effect:0.756
-New effect:-0.026789999999999994
-p value:0.98
-
-Refute: Use a subset of data
-Estimated effect:0.756
-New effect:0.4880125000000001
-p value:0.28
-
+New effect:-0.00864253296912928
+p value:1.0
