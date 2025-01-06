@@ -1,8 +1,9 @@
 import json
 import os
-import pandas as pd
 from pathlib import Path
-from typing import Dict, List, Tuple, Generator
+from typing import Dict, Generator, List, Tuple
+
+import pandas as pd
 
 
 class InvalidInputFormatError(Exception):

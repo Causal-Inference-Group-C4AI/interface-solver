@@ -10,8 +10,9 @@ sys.path.append(os.path.abspath(
 from utils._enums import Solvers
 from utils.file_generators.parser_uai import UAIParser
 from utils.file_generators.uai_generator import UAIGenerator
-from utils.suppress_print import suppress_print
+from utils.suppressors import suppress_print
 from utils.validator import InvalidInputFormatError, Validator
+from utils.general_utilities import input_processor_parse_arguments
 
 
 class InputProcessor:
@@ -54,6 +55,13 @@ class InputProcessor:
                     file.readline().strip())
                 data_test['solvers'] = validator.get_valid_solver_list(
                     file.readline().strip())
+                before_time_limit_line = file.tell()
+                time_limit_line = file.readline().strip()
+                if time_limit_line.isdigit():
+                    data_test['time_limit'] = int(time_limit_line)
+                else:
+                    data_test['time_limit'] = None
+                    file.seek(before_time_limit_line)
 
                 data_test['edges'] = {}
                 edges_str, edges_list = validator.get_valid_edges_in_string(
@@ -107,11 +115,7 @@ def generate_shared_data(output_path: str, data_test: Dict):
 
 if __name__ == "__main__":
     print("Running Input Processor...")
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--output", required=True,
-                        help="Path to output the processed data")
-    parser.add_argument("--input", required=True, help="Path to input data")
-    args = parser.parse_args()
+    args = input_processor_parse_arguments()
 
     processed_data = InputProcessor(args.input)
     generate_shared_data(args.output, processed_data.data_test)

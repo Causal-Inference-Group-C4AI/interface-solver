@@ -1,7 +1,0 @@
-nao_observavel_teste_itau
-bcause
-T -> Y, T -> D, U -> Y, U -> T, D -> Y, E -> D
-T
-Y
-data/uai/nao_observavel_teste_itau.uai
-{"V0": "E", "V1": "T", "V2": "D", "V3": "Y"}

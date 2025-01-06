@@ -1,5 +1,6 @@
 nome do teste
 lista de solvers para esse teste: (escreva os solvers separador por espaço: 'dowhy bcause lcn autobounds')
+tempo limite em segundos para cada solver (opcional)
 arestas
 treatment
 outcome

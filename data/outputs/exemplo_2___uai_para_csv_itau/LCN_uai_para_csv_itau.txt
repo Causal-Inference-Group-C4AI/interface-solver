@@ -1,0 +1,4 @@
+# Comentário adicionado posteriormente à execução
+Teste com LCN não rodou
+Erro apresentado:
+subprocess.CalledProcessError: Command '['venv_lcn/bin/python3', 'src/solvers/lcn_solver.py', '--common_data', 'data/shared/common_data.json', '--common_data', 'data/shared/common_data.json']' died with <Signals.SIGKILL: 9>.
