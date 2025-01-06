@@ -37,8 +37,8 @@ def bcause_solver(
     p_do0 = inf.causal_query(outcome, do={treatment: 0})
     p_do1 = inf.causal_query(outcome, do={treatment: 1})
 
-    lower_bound = p_do1.values[1] - p_do0.values[1]
-    upper_bound = p_do1.values[3] - p_do0.values[3]
+    lower_bound = p_do1.values[1] - p_do0.values[3]
+    upper_bound = p_do1.values[3] - p_do0.values[1]
 
     output_file = (
         f"{DirectoryPaths.OUTPUTS.value}/{test_name}/bcause_{test_name}.txt"
