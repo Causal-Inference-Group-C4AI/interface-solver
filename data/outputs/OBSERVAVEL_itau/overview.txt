@@ -1,44 +1,18 @@
-Test 'OBSERVAVEL_itau' on 2024-11-27
---------------------------------------------
 ********************************************************************************
-Test 'OBSERVAVEL_itau' on 2024-12-18 15:47:19
+Test 'OBSERVAVEL_itau' on 2025-01-06 18:29:42
 --------------------------------------------
 dowhy
-   Time taken by dowhy: 8.618179 seconds
+   Time taken by dowhy: 71.439104 seconds
    Estimate method: backdoor.linear_regression
    ATE is: 0.46680665388482556
+   Estimate method: backdoor.propensity_score_matching
+   ATE is: 0.756
+   Estimate method: backdoor.propensity_score_stratification
+   ATE is: 0.466847032136931
+   Estimate method: backdoor.propensity_score_weighting
+   ATE is: 0.46773682204135414
 --------------------------------------------
 bcause
-   Solver bcause failed with error: Error running task src/solvers/bcause_solver
-.py: Command '['venv_bcause/bin/python3', 'src/solvers/bcause_solver.py', '--com
-mon_data', 'data/shared/common_data.json', '--fast', '--common_data', 'data/shar
-ed/common_data.json', '--fast']' returned non-zero exit status 1.
---------------------------------------------
-********************************************************************************
-Test 'OBSERVAVEL_itau' on 2024-12-27 16:58:40
---------------------------------------------
-bcause
-   Solver bcause failed with error: Error running task src/solvers/bcause_solver
-.py: Command '['venv_bcause/bin/python3', 'src/solvers/bcause_solver.py', '--com
-mon_data', 'data/shared/common_data.json', '--fast', '--common_data', 'data/shar
-ed/common_data.json', '--fast']' returned non-zero exit status 1.
---------------------------------------------
-********************************************************************************
-Test 'OBSERVAVEL_itau' on 2024-12-27 19:49:49
---------------------------------------------
-bcause
-   Time taken by bcause: 150.826466 seconds
-   ATE lies in the interval: [0.6844189223051644, 0.6864693054959555]
---------------------------------------------
-********************************************************************************
-Test 'OBSERVAVEL_itau' on 2024-12-27 19:56:14
---------------------------------------------
-dowhy
-   Time taken by dowhy: 12.568485 seconds
-   Estimate method: backdoor.linear_regression
-   ATE is: 0.46680665388482556
---------------------------------------------
-bcause
-   Time taken by bcause: 151.735174 seconds
-   ATE lies in the interval: [0.684815191011439, 0.6862584808590191]
+   Time taken by bcause: 103.324886 seconds
+   ATE lies in the interval: [0.6835675205364996, 0.6861456572016815]
 --------------------------------------------

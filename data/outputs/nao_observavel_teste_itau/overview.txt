@@ -1,0 +1,14 @@
+********************************************************************************
+Test 'nao_observavel_teste_itau' on 2025-01-06 18:45:11
+--------------------------------------------
+dowhy
+   Time taken by dowhy: 0.029753 seconds
+--------------------------------------------
+bcause
+   Time taken by bcause: 46.647755 seconds
+   ATE lies in the interval: [0.2508653153388083, 0.2345150547164645]
+--------------------------------------------
+autobounds
+   Solver autobounds failed with error: Problem is infeasible. Returning without
+ solutions
+--------------------------------------------
