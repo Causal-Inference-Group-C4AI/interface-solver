@@ -7,7 +7,6 @@ from typing import Any, Dict, List, Set, Tuple, Union
 
 import numpy as np
 import pandas as pd
-from sympy import E
 
 sys.path.append(os.path.abspath(
     os.path.join(os.path.dirname(__file__), '../../')))
