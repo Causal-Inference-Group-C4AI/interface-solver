@@ -55,13 +55,13 @@ class InputProcessor:
                     file.readline().strip())
                 data_test['solvers'] = validator.get_valid_solver_list(
                     file.readline().strip())
-                
+                before_time_limit_line = file.tell()
                 time_limit_line = file.readline().strip()
                 if time_limit_line.isdigit():
                     data_test['time_limit'] = int(time_limit_line)
                 else:
                     data_test['time_limit'] = None
-                    file.seek(file.tell() - len(time_limit_line) - 1)
+                    file.seek(before_time_limit_line)
 
                 data_test['edges'] = {}
                 edges_str, edges_list = validator.get_valid_edges_in_string(
