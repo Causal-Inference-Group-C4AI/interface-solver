@@ -1,4 +1,4 @@
-balke_pearl
+uai_generator_test
 bcause
 Z -> X, X -> Y, U -> X, U -> Y
 X

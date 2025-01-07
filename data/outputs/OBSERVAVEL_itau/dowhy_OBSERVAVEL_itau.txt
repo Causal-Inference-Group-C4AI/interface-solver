@@ -1,42 +1,121 @@
 Estimands found: backdoor
 --------------------------------------------------------------------------------
 Estimation using backdoor.linear_regression:
+Time taken: 5.466686 seconds
 ATE = 0.46680665388482556
 P-value: [1.26117131e-33]
-Confidence interval: [0.4012216053682842, 0.5333500022886146]
+Confidence interval: [0.40658967857835826, 0.5255069665699998]
 
+Time taken: 1.461334 seconds
 Refute: Use a Placebo Treatment
 Estimated effect:0.46680665388482556
-New effect:0.003062138422636761
+New effect:0.002982435390420584
 p value:0.8799999999999999
 
-Refute: Use a subset of data
-Estimated effect:0.46680665388482556
-New effect:0.46624571111718105
-p value:0.92
-
-Refute: Add a random common cause
-Estimated effect:0.46680665388482556
-New effect:0.46656963653386485
-p value:0.9
-
+Time taken: 1.323184 seconds
 Refute: Use a Dummy Outcome
 Estimated effect:0
-New effect:0.015313308101641575
-p value:0.8400000000000001
---------------------------------------------------------------------------------
-Estimation using backdoor.propensity_score_matching:
-ATE = 0.756
-P-value: (0, 0.001)
-Confidence interval: [0.734, 1.601]
-
-Refute: Use a Placebo Treatment
-Estimated effect:0.756
-New effect:-0.026789999999999994
+New effect:-0.0012960682486550849
 p value:0.98
 
+Time taken: 1.291502 seconds
+Refute: Add a random common cause
+Estimated effect:0.46680665388482556
+New effect:0.4669308992902456
+p value:0.98
+
+Time taken: 1.287426 seconds
+Refute: Use a subset of data
+Estimated effect:0.46680665388482556
+New effect:0.4704624235837835
+p value:0.76
+--------------------------------------------------------------------------------
+Estimation using backdoor.propensity_score_matching:
+Time taken: 6.033031 seconds
+ATE = 0.756
+P-value: (0, 0.001)
+Confidence interval: [0.74, 1.619]
+
+Time taken: 0.541127 seconds
+Refute: Use a Placebo Treatment
+Estimated effect:0.756
+New effect:0.004029999999999999
+p value:0.9199999999999999
+
+Time taken: 0.454462 seconds
+Refute: Use a Dummy Outcome
+Estimated effect:0
+New effect:-0.016749302081836094
+p value:0.98
+
+Time taken: 0.414659 seconds
+Refute: Add a random common cause
+Estimated effect:0.756
+New effect:0.7560000000000001
+p value:1.0
+
+Time taken: 0.364243 seconds
 Refute: Use a subset of data
 Estimated effect:0.756
-New effect:0.4880125000000001
-p value:0.28
+New effect:0.5110375
+p value:0.34
+--------------------------------------------------------------------------------
+Estimation using backdoor.propensity_score_stratification:
+Time taken: 33.453671 seconds
+ATE = 0.466847032136931
+P-value: (0, 0.001)
+Confidence interval: [0.4123009881632089, 0.5319028237675895]
 
+Time taken: 2.453226 seconds
+Refute: Use a Placebo Treatment
+Estimated effect:0.466847032136931
+New effect:0.0016400252665187615
+p value:0.94
+
+Time taken: 2.341340 seconds
+Refute: Use a Dummy Outcome
+Estimated effect:0
+New effect:-0.0065319079168765695
+p value:1.0
+
+Time taken: 2.411356 seconds
+Refute: Add a random common cause
+Estimated effect:0.466847032136931
+New effect:0.4668470321369311
+p value:1.0
+
+Time taken: 2.856327 seconds
+Refute: Use a subset of data
+Estimated effect:0.466847032136931
+New effect:0.46680712253704854
+p value:0.94
+--------------------------------------------------------------------------------
+Estimation using backdoor.propensity_score_weighting:
+Time taken: 6.885368 seconds
+ATE = 0.46773682204135414
+P-value: (0, 0.001)
+Confidence interval: [0.4142323406991477, 0.5286455184504854]
+
+Time taken: 0.520584 seconds
+Refute: Use a Placebo Treatment
+Estimated effect:0.46773682204135414
+New effect:-0.11983452434261702
+p value:0.0
+
+Time taken: 0.518282 seconds
+Refute: Use a Dummy Outcome
+Estimated effect:0
+New effect:-0.007442918912042026
+p value:0.86
+
+Time taken: 0.508088 seconds
+Refute: Add a random common cause
+Estimated effect:0.46773682204135414
+New effect:0.46773682204135414
+p value:1.0
+
+Time taken: 0.462079 seconds
+Refute: Use a subset of data
+Estimated effect:0.46773682204135414
+New effect:0.4680505803538813
+p value:1.0

@@ -1,8 +1,6 @@
 nao_observavel_teste_itau
-autobounds 
+autobounds bcause dowhy 
 T -> Y, T -> D, U -> Y, U -> T, D -> Y, E -> D
 T
 Y
-data/csv/unob_itau_teste.csv
-data/uai/teste_itau.uai
-{"V0": "Y", "V1": "T", "V2": "U", "V3": "D", "V4": "E"}
+data/inputs/csv/unob_itau_teste.csv
