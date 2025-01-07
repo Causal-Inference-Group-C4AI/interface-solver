@@ -6,8 +6,7 @@ from utils.general_utilities import (configure_environment,
                                      input_parse_arguments, log_solver_error)
 from utils.data_cleaner import DataCleaner
 from utils._enums import DirectoryPaths, FilePaths, SolversURL, Solvers
-# TODO mudar do src para utils
-from src.input_processor import InputProcessor, generate_shared_data
+from utils.file_generators.input_processor import InputProcessor, generate_shared_data
 import logging
 import os
 import subprocess
