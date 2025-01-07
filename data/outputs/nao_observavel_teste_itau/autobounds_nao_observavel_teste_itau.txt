@@ -1,0 +1,3 @@
+=============================================
+Solver autobounds failed with error: Problem is infeasible. Returning without so
+lutions

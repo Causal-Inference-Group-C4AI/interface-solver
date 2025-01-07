@@ -1,273 +1,922 @@
 import json
+import os
+import sys
+from abc import ABC, abstractmethod
 from itertools import product
-from typing import Dict, List, Tuple, Union
+from typing import Any, Dict, List, Set, Tuple, Union
 
 import numpy as np
 import pandas as pd
 
-from utils.canonical_partitions.canonicalPartitions import completeRelaxed
+sys.path.append(os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '../../')))
+
 from utils._enums import DirectoryPaths
+from utils.canonical_partitions.canonicalPartitions import completeRelaxed
+from utils.validator import Validator
 
 
-def get_edges(edges_str: str) -> List[Tuple[str, str]]:
+class Node():
+    """Node class to represent a node in a graph.
+
+    Attributes:
+        cardinality (int): The cardinality of the node.
+        mechanism (Mechanism): The mechanism of the node.
+        number (int): The number of the node.
     """
-    Parses a string of edges and returns a list of tuples representing the
-    edges.
+    def __init__(self, value: Any) -> None:
+        """Initializes the Node class.
 
-    Args:
-        edges_str (str): A string representing the edges of the graph,
-            where each edge is in the format "parent -> child" and edges
-            are separated by commas.
+        Args:
+            value (Any): The value of the node.
+        """
+        self._parents: List[Node] = []
+        self._children: List[Node] = []
+        self._value: str = str(value)
+        self.cardinality: int = int(0)
+        self.mechanism: Mechanism = None
+        self.number: int = None
 
-    Returns:
-        List: A list of tuples where each Tuple represents an
-        edge in the format (parent, child).
+    def __str__(self) -> str:
+        return self._value
 
-    Example:
-        >>> edges_str = "A -> B, A -> C, B -> D"
-        >>> edges = get_edges(edges_str)
-        >>> edges
-        [('A', 'B'), ('A', 'C'), ('B', 'D')]
+    def __repr__(self) -> str:
+        return f"Node('{self._value}')"
+
+    def get_value(self) -> str:
+        """Returns the value of the node.
+
+        Returns:
+            str: The value of the node.
+        """
+        return str(self._value)
+
+    def get_parents(self) -> List['Node']:
+        """Returns the parents of the node.
+
+        Returns:
+            List[Node]: The parents of the node.
+        """
+        return self._parents
+
+    def get_parents_values(self) -> List[str]:
+        """Returns the values of the parents of the node.
+
+        Returns:
+            List[str]: The values of the parents of the node.
+        """
+        return [parent.get_value() for parent in self.get_parents()]
+
+    def get_children(self) -> List['Node']:
+        """Returns the children of the node.
+
+        Returns:
+            List[Node]: The children of the node.
+        """
+        return self._children
+
+    def get_children_values(self) -> List[str]:
+        """Returns the values of the children of the node.
+
+        Returns:
+            List[str]: The values of the children of the node.
+        """
+        return [child.get_value() for child in self.get_children()]
+
+    def add_parent(self, parent: 'Node') -> None:
+        """Adds a parent to the node.
+
+        Args:
+            parent (Node): The parent node to add.
+        """
+        self._parents.append(parent)
+
+    def reset_parents(self) -> None:
+        """Resets the parents of the node."""
+        self._parents = []
+
+    def add_child(self, child: 'Node') -> None:
+        """Adds a child to the node.
+
+        Args:
+            child (Node): The child node to add.
+        """
+        self._children.append(child)
+
+    def reset_children(self) -> None:
+        """Resets the children of the node."""
+        self._children = []
+
+    def reset_node(self):
+        """Resets the node, deleting its parents and children."""
+        self.reset_parents()
+        self.reset_children()
+
+    def is_exogenous(self) -> bool:
+        """Returns True if the node is exogenous, False otherwise.
+
+        Returns:
+            bool: True if the node is exogenous, False otherwise.
+        """
+        return not self._parents
+
+    def is_endogenous(self) -> bool:
+        """Returns True if the node is endogenous, False otherwise.
+
+        Returns:
+            bool: True if the node is endogenous, False otherwise.
+        """
+        return not self.is_exogenous()
+
+
+class Edge():
+    """Edge class to represent an edge in a graph."""
+    def __init__(self, source: Node, destination: Node) -> None:
+        """Initializes the Edge class.
+
+        Args:
+            source (Node): The source node of the edge.
+            destination (Node): The destination node of the edge.
+        """
+        self._source: Node = source
+        self._destination: Node = destination
+        self._edge: Tuple[Node, Node] = self._create_edge()
+
+    def __str__(self) -> str:
+        return f"{self._source} -> {self._destination}"
+
+    def __repr__(self) -> str:
+        return f"Edge({self._source!r}, {self._destination!r})"
+
+    def _create_edge(self) -> Tuple[Node, Node]:
+        """Creates an edge between the source and destination nodes.
+
+        Returns:
+            Tuple[Node, Node]: The edge value.
+        """
+        self._source.add_child(self._destination)
+        self._destination.add_parent(self._source)
+        return (self._source, self._destination)
+
+    def get_edge(self) -> Tuple[Node, Node]:
+        """Returns the edge.
+
+        Returns:
+            Tuple[Node, Node]: The edge.
+        """
+        return self._edge
+
+    def get_nodes(self) -> List[Node]:
+        """Returns the nodes of the edge.
+
+        Returns:
+            List[Node]: The nodes of the edge.
+        """
+        return [self._source, self._destination]
+
+
+class Graph():
+    """Graph class to represent a graph."""
+    def __init__(self, edges_str: str) -> None:
+        """Initializes the Graph class.
+
+        Args:
+            edges_str (str): The edges of the graph as a string, using the
+                format "A -> B, B -> C, C -> D".
+        """
+        self._validator: Validator = Validator()
+
+        self._edges_str: str = str("")
+        self._edges: List[Edge] = []
+        self._nodes: Dict[str, Node] = {}
+        self._nodes_parents: Dict[Node, List[Node]] = {}
+        self._nodes_children: Dict[Node, List[Node]] = {}
+        self._endogenous: List[Node] = []
+        self._exogenous: List[Node] = []
+
+        self._create_graph(edges_str)
+
+    def __str__(self) -> str:
+        return self._edges_str
+
+    def __repr__(self) -> str:
+        return f"Graph('{self._edges_str}')"
+
+    def _create_edge(self, source: str, destination: str) -> None:
+        """Creates an edge between the source and destination nodes.
+
+        Args:
+            source (str): The value of the source node of the edge.
+            destination (str): The value of the destination node of the edge.
+        """
+        source_node = self.get_node(source)
+        destination_node = self.get_node(destination)
+        self._edges.append(Edge(source_node, destination_node))
+
+    def _create_graph(self, edges_str: str) -> None:
+        """Creates a graph based on the edges string.
+
+        Args:
+            edges_str (str): The edges of the graph as a string, using the
+                format "A -> B, B -> C, C -> D".
+        """
+        self._edges_str, edges = self._validator.get_valid_edges_in_string(
+            edges_str)
+        for source, destination in edges:
+            self._create_edge(source, destination)
+
+        self.set_parents()
+        self.set_children()
+        self.set_endogenous()
+        self.set_exogenous()
+        self.set_nodes_numbers()
+
+    def get_edges(self) -> List[Edge]:
+        """Returns the edges of the graph.
+
+        Returns:
+            List[Edge]: The edges of the graph.
+        """
+        return self._edges
+
+    def get_edges_as_str(self) -> List[str]:
+        """Returns the edges of the graph as strings.
+
+        Returns:
+            List[str]: The edges of the graph as strings.
+        """
+        return [str(edge) for edge in self.get_edges()]
+
+    def get_nodes(self) -> List[Node]:
+        """Returns the nodes of the graph.
+
+        Returns:
+            List[Node]: The nodes of the graph.
+        """
+        return list(self._nodes.values())
+
+    def get_node(self, node_value: str) -> Node:
+        """Returns a node from the graph. If the node does not exist, it is
+        created.
+
+        Args:
+            node_value (str): The value of the node.
+
+        Returns:
+            Node: The node from the graph with the specified value.
+        """
+        if node_value not in self._nodes:
+            self._nodes[node_value] = Node(node_value)
+        return self._nodes[node_value]
+
+    def get_parents(self) -> Dict[Node, List[Node]]:
+        """Returns the parents of the nodes in the graph. If the parents have
+        not been set, they are set.
+
+        Returns:
+            Dict[Node, List[Node]]: The parents of the nodes in the graph. The
+                keys are the nodes and the values are the parents of the nodes.
+        """
+        if not self._nodes_parents:
+            self.set_parents()
+        return self._nodes_parents
+
+    def set_parents(self) -> None:
+        """Sets the nodes parents dictionary."""
+        for node in self.get_nodes():
+            self._nodes_parents[node] = node.get_parents()
+
+    def get_children(self) -> Dict[Node, List[Node]]:
+        """Returns the children of the nodes in the graph. If the children have
+        not been set, they are set.
+
+        Returns:
+            Dict[Node, List[Node]]: The children of the nodes in the graph. The
+                keys are the nodes and the values are the children of the nodes
+        """
+        if not self._nodes_children:
+            self.set_children()
+        return self._nodes_children
+
+    def set_children(self) -> None:
+        """Sets the nodes children dictionary."""
+        for node in self.get_nodes():
+            self._nodes_children[node] = node.get_children()
+
+    def get_endogenous(self) -> List[Node]:
+        """Returns the endogenous nodes in the graph. If the list of endogenous
+        nodes has not been set, it is set.
+
+        Returns:
+            List[Node]: The endogenous nodes in the graph.
+        """
+        if not self._endogenous:
+            self.set_endogenous()
+        return self._endogenous
+
+    def set_endogenous(self) -> None:
+        """Sets the list of endogenous nodes in the graph."""
+        endogenous: List[Node] = []
+        for node in self.get_nodes():
+            if node.is_endogenous():
+                endogenous.append(node)
+        self._endogenous = endogenous
+
+    def get_exogenous(self) -> List[Node]:
+        """Returns the exogenous nodes in the graph. If the list of exogenous
+        nodes has not been set, it is set.
+
+        Returns:
+            List[Node]: The exogenous nodes in the graph.
+        """
+        if not self._exogenous:
+            self.set_exogenous()
+        return self._exogenous
+
+    def set_exogenous(self) -> None:
+        """Sets the list of exogenous nodes in the graph."""
+        exogenous: List[Node] = []
+        for node in self.get_nodes():
+            if node.is_exogenous():
+                exogenous.append(node)
+        self._exogenous = exogenous
+
+    def get_ex_parents(self, node: Node) -> Set[Node]:
+        """Returns the exogenous parents of a node.
+
+        Args:
+            node (Node): The node to get the exogenous parents from.
+
+        Returns:
+            Set[Node]: The exogenous parents of the node.
+        """
+        return set(self._exogenous).intersection(node.get_parents())
+
+    def set_nodes_numbers(self) -> None:
+        """Sets the numbers of all nodes in the graph. The numbers are used to
+        identify the sequence of nodes in the graph."""
+        for i, node in enumerate(self._nodes.values()):
+            node.number = i
+
+    def add_dummy_node(
+        self, node: Node, cardinality: int = None
+    ) -> Node:
+        """Adds a dummy node to the graph.
+
+        Args:
+            node (Node): The node to add the dummy node to.
+            cardinality (:obj:`int`, optional): The cardinality of the dummy
+                node. Defaults to None.
+
+        Returns:
+            Node: The dummy node added to the graph.
+        """
+        if not cardinality:
+            cardinality = node.cardinality
+
+        dummy_node = self.get_node(f"{node}_dummy")
+        dummy_node.cardinality = cardinality
+        self._edges_str += f", {node}_dummy -> {node}"
+        self._create_edge(f"{dummy_node}", f"{node}")
+        self.set_endogenous()
+        self.set_exogenous()
+        self.set_nodes_numbers()
+        return dummy_node
+
+    def define_latents_cardinalities(
+        self, latents: List[str], lat_card: str
+    ) -> None:
+        """Defines the cardinalities of the latent nodes in the relaxed graph.
+
+        Args:
+            latents (List[str]): The values of the latent nodes in the graph.
+            lat_card (str): The cardinalities of the latent nodes in the graph.
+                Using the format "2, 3, 4".
+        """
+        latents_card = [int(card) for card in lat_card.split(", ") if card]
+        for card, latent in zip(latents_card, latents):
+            self.get_node(latent).cardinality = card
+
+
+class Mechanism(ABC):
+    """Abstract class to represent a mechanism.
+
+    Attributes:
+        _mechanism (List[int | float]): The mechanism.
     """
-    return [tuple(_.split(" -> ")) for _ in edges_str.split(", ")]
+    def __init__(self, mechanism: List[Union[int, float]] = None) -> None:
+        """Initializes the Mechanism class.
+
+        Args:
+            mechanism (:obj:`List[int | float]`, optional): The mechanism.
+                Defaults to None.
+        """
+        self._mechanism = mechanism
+
+    def __str__(self) -> str:
+        return str(self._mechanism)
+
+    @abstractmethod
+    def __repr__(self) -> str:
+        pass
+
+    def set_mechanism(self, mechanism: List[Union[int, float]]) -> None:
+        """Sets the mechanism."""
+        self._mechanism = mechanism
+
+    def get_mechanism(self) -> List[Union[int, float]]:
+        """Returns the mechanism.
+
+        Returns:
+            List[int | float]: The mechanism.
+        """
+        return self._mechanism
 
 
-def get_nodes(
-    edges: List[Tuple[str, str]]
-) -> Tuple[List[str], Dict[str, List[str]], Dict[str, List[str]]]:
+class EndogenousMechanism(Mechanism):
+    """Class to represent an endogenous mechanism. Inherits from Mechanism.
+
+    Attributes:
+        r_function (List[Tuple[int, ...]]): The r function. The r function is a
+            list of tuples, where each tuple represents a possible combination
+            of values for the node's parents. For example, if the node has two
+            parents with cardinalities 2 and 3, the r function will be
+            [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)].
     """
-    Extracts nodes, their parents, and their children from a list of edges.
+    def __init__(self, mechanism: List[Union[int, float]] = None) -> None:
+        """Initializes the EndogenousMechanism class.
 
-    Args:
-        edges (List[Tuple[str, str]]): A list of tuples where each tuple
-            represents an edge in the format (parent, child).
+        Args:
+            mechanism (:obj:`List[Union[int, float]]`, optional): The
+                mechanism. Defaults to None.
+        """
+        super().__init__(mechanism)
+        self.r_function: List[Tuple[int, ...]] = None
 
-    Returns:
-        Tuple:
-            - nodes (List[str]): A list of all unique nodes in the graph.
-            - node_parents (Dict[str, List[str]]): A dictionary where keys
-            are nodes and values are lists of parent nodes.
-            - node_children (Dict[str, List[str]]): A dictionary where keys
-            are nodes and values are lists of child nodes.
+    def __repr__(self) -> str:
+        return f"EndogenousMechanism({self._mechanism!r})"
 
-    Example:
-        >>> edges = [("A", "B"), ("A", "C"), ("B", "D")]
-        >>> nodes, node_parents, node_children = get_nodes(edges)
-        >>> nodes
-        ['A', 'B', 'C', 'D']
-        >>> node_parents
-        {'B': ['A'], 'C': ['A'], 'D': ['B']}
-        >>> node_children
-        {'A': ['B', 'C'], 'B': ['D']}
+
+class ExogenousMechanism(Mechanism):
+    """Class to represent an exogenous mechanism. Inherits from Mechanism.
+
+    Attributes:
+        r_index (List[Dict[Node, int]]): The r index. The keys are the children
+            of the node and the values are the indexes. For example, if the
+            node has two children, the r index will be
+            [{child1: 0, child2: 0}, ...].
     """
-    node_parents = {}
-    node_children = {}
-    nodes = set()
-    for parent, child in edges:
-        node_parents.setdefault(child, []).append(parent)
-        node_children.setdefault(parent, []).append(child)
-        nodes.update([parent, child])
+    def __init__(self, mechanism: List[Union[int, float]] = None) -> None:
+        """Initializes the ExogenousMechanism class.
 
-    return list(nodes), node_parents, node_children
+        Args:
+            mechanism (:obj:`List[Union[int, float]]`, optional): The
+                mechanism. Defaults to None.
+        """
+        super().__init__(mechanism)
+        self.r_index: List[Dict[Node, int]] = None
 
-
-def define_nodes(
-    nodes: List[str],
-    node_parents: Dict[str, List[str]]
-) -> Tuple[List[str], List[str]]:
-    """Define endogenous and exogenous nodes
-
-    Args:
-        nodes (List[str]): List of all unique nodes in the graph.
-        node_parents (Dict[str, List[str]]): A dictionary where keys are nodes
-            and values are lists of parent nodes.
-
-    Returns:
-        Tuple:
-            - endogenous (List[str]): A list of endogenous nodes.
-            - exogenous (List[str]): A list of exogenous nodes.
-
-    Example:
-        >>> nodes = ['A', 'B', 'C', 'D']
-        >>> node_parents = {'B': ['A'], 'C': ['A'], 'D': ['B']}
-        >>> endogenous, exogenous = define_nodes(nodes, node_parents)
-        >>> endogenous
-        ['B', 'C', 'D']
-        >>> exogenous
-        ['A']
-    """
-    endogenous = [node for node in nodes if node in node_parents]
-    exogenous = [node for node in nodes if node not in node_parents]
-    return endogenous, exogenous
+    def __repr__(self) -> str:
+        return f"ExogenousMechanism({self._mechanism!r})"
 
 
-def define_mechanisms(
-    df: pd.DataFrame,
-    node_parents: Dict[str, List[str]],
-    node_children: Dict[str, List[str]],
-    cardinalities: Dict[str, int],
-    endogenous: List[str],
-    exogenous: List[str]
-) -> Dict[str, List[Union[int, float]]]:
-    """
-    Defines the mechanisms for endogenous and exogenous nodes in the graph.
+class MechanismsDefiner():
+    """Class to define the mechanisms of the nodes in a graph."""
+    def __init__(self, graph: Graph, df: pd.DataFrame) -> None:
+        """Initializes the MechanismsDefiner class.
 
-    Args:
-        df (pd.DataFrame): The DataFrame containing the data.
-        node_parents (Dict[str, List[str]]): A dictionary where keys are nodes
-            and values are lists of parent nodes.
-        node_children (Dict[str, List[str]]): A dictionary where keys are nodes
-            and values are lists of child nodes.
-        cardinalities (Dict[str, int]): List of cardinalities for each node.
-        endogenous (List[str]): List of endogenous nodes.
-        exogenous (List[str]): List of exogenous nodes.
+        Args:
+            graph (Graph): The graph.
+            df (pd.DataFrame): The data frame.
+        """
+        self._graph: Graph = graph
+        self._df: pd.DataFrame = df
 
-    Returns:
-        Dict: A dictionary where keys are nodes and values are their
-        corresponding mechanisms.
+    def _define_r_functions(self, node: Node) -> None:
+        """Defines the r functions for endogenous nodes.
 
-    Example:
-        >>> df = pd.DataFrame({
-        ...     'A': [0, 1, 0, 1],
-        ...     'B': [0, 0, 1, 1],
-        ...     'C': [1, 0, 1, 0]
-        ... })
-        >>> nodes = ['A', 'B', 'C']
-        >>> node_parents = {'B': ['A'], 'C': ['A', 'B']}
-        >>> node_children = {'A': ['B', 'C'], 'B': ['C']}
-        >>> cardinalities = ['A': 2, 'B': 2, 'C': 2]
-        >>> exogenous = ['A']
-        >>> endogenous = ['B', 'C']
-        >>> mechanisms = define_mechanisms(
-        ...     df, node_parents, node_children,
-        ...     cardinalities, endogenous, exogenous
-        ... )
-        >>> mechanisms
-        {'A': [0.5, 0.5], 'B': [...], 'C': [...]}
-    """
-    # Define r functions
-    r = {}
-    for end in endogenous:
-        mult = 1
-        for parent in node_parents[end]:
-            if parent in endogenous:
-                mult *= cardinalities[parent]
+        Args:
+            node (Node): The node to define the r functions for. Must be
+                endogenous.
 
-        r[end] = list(
-            product(*[list(np.arange(cardinalities[end]))]*mult))
+        Raises:
+            ValueError: If the node is not endogenous.
+        """
+        if not node.is_endogenous():
+            raise ValueError("Node must be endogenous to use this method.")
+        mult = int(1)
+        for parent in node.get_parents():
+            if parent.is_endogenous():
+                mult *= parent.cardinality
 
-    # Define exogenous mechanisms and r functions indexing
-    mechanisms: Dict[str, List[Union[int, float]]] = {}
-    r_index = {}
-    for ex in exogenous:
-        mechanisms[ex] = [1/cardinalities[ex]]*cardinalities[ex]
-        combinations = list(product(*[list(np.arange(len(r[child])))
-                                    for child in node_children[ex]]))
-        r_index[ex] = [{child: combination[i] for i, child in enumerate(
-            node_children[ex])} for combination in combinations]
+        node.mechanism.r_function = list(
+            product(*[np.arange(node.cardinality).tolist()]*mult))
 
-    # Define endogenous mechanisms
-    for end in endogenous:
-        ex_parents = set(exogenous).intersection(node_parents[end])
-        mechanism = []
-        if ex_parents:
-            for ex_parent in ex_parents:
-                for indexes in r_index[ex_parent]:
-                    mechanism += [*r[end][indexes[end]]]
+    def _define_r_index(self, node: Node) -> None:
+        """Defines the r index for exogenous nodes.
 
-            num_columns = len(r[end][0])
+        Args:
+            node (Node): The node to define the r index for. Must be exogenous.
+
+        Raises:
+            ValueError: If the node is not exogenous.
+        """
+        if not node.is_exogenous():
+            raise ValueError("Node must be exogenous to use this method.")
+        if "dummy" in node.get_value():
+            combinations = list(
+                product(*[np.arange(node.cardinality).tolist()])
+            )
+        else:
+            combinations: List[Tuple[int, ...]] = list(
+                product(*[
+                    np.arange(len(child.mechanism.r_function)).tolist()
+                    for child in node.get_children()
+                ])
+            )
+        node.mechanism.r_index = [
+            {child: combination[i] for i, child in enumerate(
+                node.get_children())}
+            for combination in combinations
+        ]
+
+    def _define_exogenous_mechanisms(self, node: Node) -> None:
+        """Defines the mechanisms for exogenous nodes.
+
+        Args:
+            node (Node): The node to define the mechanisms for. Must be
+                exogenous.
+
+        Raises:
+            ValueError: If the node is not exogenous.
+        """
+        if not node.is_exogenous():
+            raise ValueError("Node must be exogenous to use this method.")
+        node.mechanism.set_mechanism([1/node.cardinality]*node.cardinality)
+        self._define_r_index(node)
+
+    def _define_mechanism_for_exogenous_parents(
+        self, node: Node, ex_parents: Set[Node]
+    ) -> None:
+        """Defines the mechanism for endogenous nodes with exogenous parents.
+
+        Args:
+            node (Node): The node to define the mechanism for.
+            ex_parents (Set[Node]): The exogenous parents of the node.
+        """
+        mechanism: List[int] = []
+        for ex_parent in ex_parents:
+            for indexes in ex_parent.mechanism.r_index:
+                mechanism += [*node.mechanism.r_function[indexes[node]]]
+            num_columns = len(node.mechanism.r_function[0])
             reshaped_mechanism = np.array(
                 mechanism).reshape(-1, num_columns).T
             mechanism = reshaped_mechanism.flatten().tolist()
+        node.mechanism.set_mechanism(mechanism)
+
+    def _define_mechanism_for_endogenous_parents(self, node: Node) -> None:
+        """Defines the mechanism for endogenous nodes with only endogenous
+        parents.
+
+        Args:
+            node (Node): The node to define the mechanism for.
+        """
+        mechanism: List[int] = []
+        parents_values: List[List[int]] = [
+            np.arange(parent.cardinality).tolist()
+            for parent in node.get_parents()
+        ]
+        parents_combinations = list(product(*parents_values))
+        parents_str = [
+            parent.get_value() for parent in node.get_parents()
+        ]
+        for combination in parents_combinations:
+            rows = self._df[(self._df[parents_str] == combination).all(1)]
+            possible_functions = rows[node.get_value()].unique()
+            if len(possible_functions) == 1:
+                mechanism += [int(possible_functions[0])]
+            else:  # Not in the data
+                mechanism += [0]
+
+        node.mechanism.set_mechanism(mechanism)
+
+    def _define_endogenous_mechanisms(self, node: Node) -> None:
+        """Defines the mechanisms for endogenous nodes.
+
+        Args:
+            node (Node): The node to define the mechanisms for. Must be
+                endogenous.
+
+        Raises:
+            ValueError: If the node is not endogenous.
+        """
+        if not node.is_endogenous():
+            raise ValueError("Node must be endogenous to use this method.")
+        ex_parents = self._graph.get_ex_parents(node)
+        if ex_parents:
+            self._define_mechanism_for_exogenous_parents(node, ex_parents)
         else:
-            parents_values = [
-                list(np.arange(cardinalities[parent]))
-                for parent in node_parents[end]
-            ]
-            parents_combinations = list(product(*parents_values))
-            for combination in parents_combinations:
-                rows = df[(df[node_parents[end]] == combination).all(1)]
-                mechanism += [rows[end].value_counts().idxmax()
-                              ] if not rows.empty else [0]
+            self._define_mechanism_for_endogenous_parents(node)
 
-        mechanisms[end] = mechanism
+    def define_mechanisms(self) -> None:
+        """Defines the mechanisms for the nodes in the graph."""
+        # 1st: Define r functions for endogenous nodes
+        for endogenous_node in self._graph.get_endogenous():
+            endogenous_node.mechanism = EndogenousMechanism()
+            self._define_r_functions(endogenous_node)
 
-    return mechanisms
+        # 2nd: Define mechanisms and r functions indexing for exogenous nodes
+        for exogenous_node in self._graph.get_exogenous():
+            exogenous_node.mechanism = ExogenousMechanism()
+            self._define_exogenous_mechanisms(exogenous_node)
+
+        # 3rd: Define mechanisms for endogenous nodes
+        for endogenous_node in self._graph.get_endogenous():
+            self._define_endogenous_mechanisms(endogenous_node)
+
+
+class RelaxedGraphGenerator():
+    """Class to generate a relaxed graph."""
+    _graph: Graph = None
+    _df: pd.DataFrame = None
+
+    @classmethod
+    def _define_observable_cardinality(cls, node: Node) -> None:
+        """Defines the cardinality of an observable node, based on the unique
+        values in the data frame.
+
+        Args:
+            node (Node): The node to define the cardinality for. Must be
+                observable.
+
+        Raises:
+            Exception: If an error occurs while defining the cardinality.
+        """
+        try:
+            node.cardinality = len(cls._df[node.get_value()].unique())
+        except Exception as e:
+            print(e)
+
+    @classmethod
+    def generate(cls, graph: Graph, df: pd.DataFrame) -> 'ValidUAIGraph':
+        """Generates a relaxed graph.
+
+        Args:
+            graph (Graph): The graph to generate the relaxed graph from.
+            df (pd.DataFrame): The data frame.
+
+        Returns:
+            ValidUAIGraph: The relaxed graph.
+        """
+        cls._graph = graph
+        cls._df = df
+        nodes_str: List[str] = []
+        obs_nodes: List[str] = []
+        for node in cls._graph.get_nodes():
+            if node.get_value() in cls._df.columns:
+                cls._define_observable_cardinality(node)
+                nodes_str.append(f"{node} {node.cardinality}")
+                obs_nodes.append(node.get_value())
+            else:
+                nodes_str.append(f"{node} 0")
+
+        relaxed, lat, lat_card = CanonicalPartitionsAdapter.get_relaxed_graph(
+            nodes_str, cls._graph.get_edges_as_str()
+        )
+
+        cls._graph = ValidUAIGraph(relaxed, cls._df, cls._graph, obs_nodes)
+        lat = lat.split(", ")
+        cls._graph.define_latents_cardinalities(lat, lat_card)
+        cls._graph._mechanisms_definer.define_mechanisms()
+
+        return cls._graph
+
+
+class ValidUAIGraph(Graph):
+    """Class to represent a valid UAI graph. Inherits from Graph."""
+    def __init__(self, edges_str: str, df: pd.DataFrame, graph: Graph = None,
+                 fixed_nodes: List[str] = None) -> None:
+        """Initializes the ValidUAIGraph class.
+
+        Args:
+            edges_str (str): The edges of the graph as a string, using the
+                format "A -> B, B -> C, C -> D".
+            df (pd.DataFrame): The data frame.
+            graph (:obj:`Graph`, optional): The graph used to create the valid
+                UAI graph. Defaults to None.
+            fixed_nodes (:obj:`List[str]`, optional): The nodes to be fixed.
+                Defaults to None.
+        """
+        if not graph:
+            super().__init__(edges_str)
+        else:
+            self._validator: Validator = graph._validator
+            self._edges_str: str = ""
+            self._edges: List[Edge] = []
+            self._nodes: Dict[str, Node] = {}
+            self._nodes_parents: Dict[Node, List[Node]] = {}
+            self._nodes_children: Dict[Node, List[Node]] = {}
+            self._endogenous: List[Node] = []
+            self._exogenous: List[Node] = []
+            self.__old_graph: Graph = graph
+            if fixed_nodes:
+                self._fix_nodes(fixed_nodes)
+            self._create_graph(edges_str)
+
+        self._df = df
+        self._mechanisms_definer: MechanismsDefiner = None
+        self._complete_valid_uai_graph()
+
+    def _complete_valid_uai_graph(self) -> None:
+        """Completes the valid UAI graph by defining the mechanisms and
+        checking the validity of the graph.
+        """
+        self.check_validity()
+        self._mechanisms_definer = MechanismsDefiner(self, self._df)
+
+    def _fix_nodes(self, fixed_nodes: List[str]) -> None:
+        """Fixes the selected nodes in the graph. The fixed nodes are added to
+        the new graph.
+
+        Args:
+            fixed_nodes (List[str]): The nodes to be fixed.
+        """
+        for node_str in fixed_nodes:
+            self._nodes[node_str] = self.__old_graph.get_node(node_str)
+            self._nodes[node_str].reset_node()
+
+    def _check_exogenous_nodes(self) -> None:
+        """Checks the exogenous nodes in the graph. If an exogenous node is in
+        the data frame (is observable), a dummy node is added to the graph."""
+        for ex in self._exogenous:
+            ex_str = ex.get_value()
+            if ex_str in self._df.columns:
+                self.add_dummy_node(ex)
+
+    def _check_non_deterministic_nodes(self) -> None:
+        """Checks for non-deterministic nodes in the graph. If a node has
+        parents and the number of functions is different from the number of
+        parent combinations (it means the functions are probabilistic),a dummy
+        node is added to the graph.
+        """
+        for node in self._endogenous:
+            if self.get_ex_parents(node):
+                continue
+            functions = self._df.drop_duplicates(
+                subset=node.get_parents_values() + [node.get_value()]
+            )
+            parents_combinations = functions.drop_duplicates(
+                subset=node.get_parents_values()
+            )
+            if len(functions) != len(parents_combinations):
+                self.add_dummy_node(node, len(functions))
+
+    def _reorder_nodes(self) -> None:
+        """Reorders the nodes in the graph. The endogenous nodes are placed
+        first, followed by the exogenous nodes. The nodes are numbered in the
+        order they are placed in the graph."""
+        self._nodes = {end.get_value(): end for end in self._endogenous}
+        self._nodes.update({ex.get_value(): ex for ex in self._exogenous})
+        self.set_nodes_numbers()
+
+    def check_validity(self) -> None:
+        """Checks the validity of the graph, calling the necessary methods to
+        check the exogenous nodes, non-deterministic nodes, and reorder the
+        nodes."""
+        self._check_exogenous_nodes()
+        self._check_non_deterministic_nodes()
+        self._reorder_nodes()
+
+
+class CanonicalPartitionsAdapter():
+    """Adapter class to use the canonical partitions method."""
+    """[INTERNAL COMMENT]
+            DESIGN PATTERN: Adapter
+
+            O padrão Adapter permite que objetos com interfaces incompatíveis
+            trabalhem juntos, convertendo a interface de uma classe em outra
+            interface que um cliente espera.
+
+            Benefícios do padrão Adapter:
+            - Permite a integração de classes que, de outra forma, não poderiam
+            trabalhar juntas devido a interfaces incompatíveis.
+            - Promove a reutilização de código, permitindo o uso de classes
+            existentes sem modificação.
+            - Aumenta a flexibilidade e a manutenibilidade ao desacoplar o
+            código do cliente das implementações específicas das classes que
+            ele usa.
+    """
+    @staticmethod
+    def get_relaxed_graph(
+        nodes: List[str], edges: List[str]
+    ) -> Tuple[str, str, str]:
+        """Gets the relaxed graph using the canonical partitions method.
+
+        Args:
+            nodes (List[str]): The list of nodes in the graph.
+            edges (List[str]): The list of edges in the graph. The edges are
+                represented as strings, using the format "A -> B".
+
+        Returns:
+            relaxed (str): The relaxed graph, represented as a string using the
+                format "A -> B, B -> C, C -> D".
+            ex (str): The exogenous nodes in the graph, represented as a string
+                using the format "A, B, C".
+            ex_card (str): The cardinalities of the exogenous nodes in the
+                graph, represented as a string using the format "2, 3, 4".
+        """
+        canonicalPartitions_data = {
+            "num_nodes": len(nodes),
+            "num_edges": len(edges),
+            "nodes": nodes,
+            "edges": edges
+        }
+        relaxed, ex, ex_card = completeRelaxed(
+            predefined_data=canonicalPartitions_data
+        )
+
+        return relaxed, ex, ex_card
 
 
 class UAIGenerator:
-    """
-    A class to generate UAI files for causal inference.
+    """Class to generate a UAI file.
 
-    This class provides methods to parse edges, define nodes, and mechanisms,
-    and write UAI files based on the provided parameters.
+    Attributes:
+        uai_path (str): The path of the UAI file.
+        test_name (str): The name of the test.
+        edges_str (str): The edges of the graph as a string, using the format
+            "A -> B, B -> C, C -> D".
+        csv_file (str): The path of the CSV file.
+        graph (ValidUAIGraph): The graph.
+        df (pd.DataFrame): The data frame.
     """
-
     def __init__(self, test_name: str, edges_str: str, csv_file: str) -> None:
-        """
-        Initializes the UaiGenerator with the given test name, edges string,
-        and CSV file path.
+        """Initializes the UAIGenerator class.
 
         Args:
             test_name (str): The name of the test.
-            edges_str (str): A string representing the edges of the graph,
-                where each edge is in the format "parent -> child" and edges
-                are separated by commas.
-            csv_file (str): The path to the CSV file containing the data.
+            edges_str (str): The edges of the graph as a string, using the
+                format "A -> B, B -> C, C -> D".
+            csv_file (str): The path of the CSV file.
         """
+        self.uai_path: str = ""
         self.test_name: str = test_name
         self.edges_str: str = edges_str
         self.csv_file: str = csv_file
-        self.uai_path: str = f"{DirectoryPaths.UAI.value}/{self.test_name}.uai"
-        self.mapping: Dict[str, int] = {}
+        self.graph: ValidUAIGraph = None
+        self.df = pd.read_csv(csv_file)
+
         self.generate()
 
-    def write_uai_file(
-        self,
-        nodes: List[str],
-        cardinalities: Dict[str, int],
-        edges_per_node: Dict[str, List[int]],
-        mechanisms: Dict[str, List[Union[int, float]]]
-    ) -> None:
-        """
-        Writes the UAI file with the specified parameters.
+    def _get_edges_per_node(self) -> Dict[Node, List[int]]:
+        """Gets the edges for each node. The edges are represented as a list of
+        integers, where each integer is the number of the node.
 
-        Args:
-            nodes (List[str]): List of all unique nodes in the graph.
-            cardinalities (Dict[str, int]): List of cardinalities for each
-                node.
-            edges_per_node (Dict[str, List[int]]): Dict of edges for each node.
-            mechanisms (Dict[str, List[Union[int, float]]]): A dictionary where
-                keys are nodes and values are their corresponding mechanisms.
+        Returns:
+            Dict[Node, List[int]]: The edges for each node. The keys are the
+                nodes and the values are the nodes parents and the node itself
+                numbers.
         """
+        nodes = self.graph.get_nodes()
+        edges_per_node: Dict[Node, List[int]] = {}
+        for node in nodes:
+            edges_per_node[node] = sorted(
+                [parent.number for parent in node.get_parents()]
+            )
+            edges_per_node[node].append(node.number)
+        return edges_per_node
+
+    def write_uai_file(self) -> None:
+        """Writes the UAI file with the specified parameters."""
+        edges_per_node = self._get_edges_per_node()
+        nodes = self.graph.get_nodes()
         with open(self.uai_path, "w") as uai:
             uai.write("CAUSAL\n")
             uai.write(f"{len(nodes)}\n")
             uai.write(
                 " ".join(
-                    map(str, [cardinalities[node] for node in nodes])
+                    map(str, [node.cardinality for node in nodes])
                 ) + "\n"
             )
             uai.write(f"{len(nodes)}\n")
-            for node, node_i in self.mapping.items():
-                node_edges = edges_per_node[node]
+            for node in edges_per_node:
                 uai.write(
-                    f"{len(node_edges)+1}   "
-                    f"{' '.join(map(str, node_edges+[node_i]))}\n"
+                    f"{len(edges_per_node[node])}   "
+                    f"{' '.join(map(str, edges_per_node[node]))}\n"
                 )
-
             uai.write("\n")
             for node in nodes:
-                mechanism = mechanisms[node]
-                uai.write(
-                    f"{len(mechanism)}   {' '.join(f'{val:.15f}'.rstrip('0').rstrip('.') if isinstance(val, float) else str(val) for val in mechanism)}\n"
+                mechanism = node.mechanism.get_mechanism()
+                mechanism_str = ' '.join(
+                    f'{val:.15f}'.rstrip('0').rstrip('.')
+                    if isinstance(val, float) else str(val)
+                    for val in mechanism
                 )
-
+                uai.write("{}   {}\n".format(len(mechanism), mechanism_str))
 
     def get_mapping_str(self) -> str:
-        """
-        Returns the mapping of nodes to their corresponding variable names as a
-        JSON string.
+        """Returns the mapping of nodes to their corresponding variable names
+        as a JSON string.
 
         This method creates a new mapping where each node is assigned a
         variable name in the format "V{i}", where {i} is the index of the
@@ -277,82 +926,36 @@ class UAIGenerator:
             str: A JSON string representing the new mapping of variable names
             to nodes.
         """
-        new_mapping = {f"V{i}": node for i, node in enumerate(self.mapping)}
-        return json.dumps(new_mapping)
+        nodes = self.graph.get_nodes()
+        mapping = {f"V{node.number}": node.get_value() for node in nodes}
+        return json.dumps(mapping)
 
-    def generate(self) -> None:
+    def generate(self) -> str:
+        """Generates a UAI file based on the provided parameters.
+
+        Returns:
+            str: The path of the generated UAI file.
         """
-        Generates a UAI file based on the provided parameters.
-        """
+        # Define UAI path
+        self.uai_path = f"{DirectoryPaths.UAI.value}/{self.test_name}.uai"
+
         # Load data
         df = pd.read_csv(self.csv_file)
 
-        # Define edges
-        edges = get_edges(self.edges_str)
-
-        # Define nodes
-        nodes, node_parents, node_children = get_nodes(edges)
-        endogenous, exogenous = define_nodes(nodes, node_parents)
-        # Create dummy variable for exogenous observed nodes
-        for ex in exogenous:
-            new_exogenous = exogenous.copy()
-            if ex in df.columns:
-                new_exogenous.append(f"{ex}_dummy")
-                endogenous.append(ex)
-                new_exogenous.remove(ex)
-                self.edges_str += f", {ex}_dummy -> {ex}"
-            exogenous = new_exogenous
-
-        # Define endogenous nodes cardinality
-        end_card = {end: len(df[end].unique()) for end in endogenous}
-
-        # Define canonical partitions and relaxed graph
-        canonicalPartitions_data = {
-            "num_nodes": len(endogenous) + len(exogenous),
-            "num_edges": len(self.edges_str.split(", ")),
-            "nodes": [f"{end} {end_card[end]}" for end in endogenous]
-            + [f"{ex} 0" for ex in exogenous],
-            "edges": self.edges_str.split(", ")
-        }
-
-        relaxed, ex, ex_card = completeRelaxed(
-            predefined_data=canonicalPartitions_data
-        )
-        edges = get_edges(relaxed)
-        nodes, node_parents, node_children = get_nodes(edges)
-        endogenous, exogenous = define_nodes(nodes, node_parents)
-        nodes = endogenous + exogenous  # Reorder nodes
-
-        # Define cardinalities, mapping and edges per node
-        ex_card = list(map(int, ex_card.split(", ")))
-        cardinalities = {**end_card, **
-                         {f"U{i}": card for i, card in enumerate(ex_card)}}
-        self.mapping = {node: i for i, node in enumerate(nodes)}
-        print(self.mapping)
-        edges_per_node = {
-            node:
-            sorted([self.mapping[parent]
-                    for parent in node_parents.get(node, [])])
-            for node in nodes
-        }
-
-        # Define mechanisms
-        mechanisms = define_mechanisms(
-            df, node_parents, node_children,
-            cardinalities, endogenous, exogenous
-        )
+        # Define graph
+        self.graph = RelaxedGraphGenerator.generate(Graph(self.edges_str), df)
 
         # Write UAI file
-        uai_path = self.write_uai_file(
-            nodes, cardinalities, edges_per_node, mechanisms)
+        self.write_uai_file()
 
-        return uai_path
+        return self.uai_path
 
 
 # Example
 if __name__ == "__main__":
     uai = UAIGenerator(
-        "itau_teste",
-        "E -> D, T -> D, T -> Y, D -> Y, U -> T, U -> Y",
-        "data/csv/unob_itau_teste.csv"
+        "OBSERVAVEL_itau",
+        "T -> Y, T -> D, U -> Y, U -> T, D -> Y, E -> D",
+        "data/inputs/csv/OBSERVAVEL_itau.csv"
     )
+    print(uai.get_mapping_str())

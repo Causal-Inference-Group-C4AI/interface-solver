@@ -7,6 +7,11 @@ class Solvers(Enum):
     AUTOBOUNDS = 'autobounds'
     LCN = 'lcn'
 
+class SolversURL(Enum):
+    LCN_URL = 'http://lcn_solver:5001'
+    DOWHY_URL = 'http://dowhy_solver:5002'
+    BCAUSE_URL = 'http://bcause_solver:5003'
+    AUTOBOUNDS_URL = 'http://autobounds_solver:5004'
 
 class DirectoryPaths(Enum):
     OUTPUTS = 'data/outputs'

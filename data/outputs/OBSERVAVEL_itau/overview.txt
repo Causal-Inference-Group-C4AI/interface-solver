@@ -1,2 +1,18 @@
-Test 'OBSERVAVEL_itau' on 2024-11-27
+********************************************************************************
+Test 'OBSERVAVEL_itau' on 2025-01-06 18:29:42
+--------------------------------------------
+dowhy
+   Time taken by dowhy: 71.439104 seconds
+   Estimate method: backdoor.linear_regression
+   ATE is: 0.46680665388482556
+   Estimate method: backdoor.propensity_score_matching
+   ATE is: 0.756
+   Estimate method: backdoor.propensity_score_stratification
+   ATE is: 0.466847032136931
+   Estimate method: backdoor.propensity_score_weighting
+   ATE is: 0.46773682204135414
+--------------------------------------------
+bcause
+   Time taken by bcause: 103.324886 seconds
+   ATE lies in the interval: [0.6835675205364996, 0.6861456572016815]
 --------------------------------------------
