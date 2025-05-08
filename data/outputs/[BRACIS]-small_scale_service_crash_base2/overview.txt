@@ -1,7 +1,7 @@
 ********************************************************************************
-Test '[BRACIS]-small_scale_outage_incident' on 2025-05-08 19:05:35
+Test '[BRACIS]-small_scale_service_crash_base2' on 2025-05-08 19:40:45
 --------------------------------------------
 bcause
-   Time taken by bcause: 650.672827 seconds
+   Time taken by bcause: 727.496457 seconds
    ATE lies in the interval: [0, 0]
 --------------------------------------------
