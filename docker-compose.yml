@@ -5,35 +5,11 @@ services:
       dockerfile: ./main/Dockerfile
     volumes:
       - ./data:/app/data
-      - ./main:/app/main
       - ./tests:/app/tests
-      - ./src:/app/src
     ports:
       - "8080:8080"
     depends_on:
-      - lcn_solver
-      - dowhy_solver
       - bcause_solver
-      - autobounds_solver
-    command: ["tests/test-simples.txt", "-v"]
-
-  lcn_solver:
-    build:
-      context: .
-      dockerfile: ./src/solvers/lcn_solver/Dockerfile
-    volumes:
-      - ./data:/app/data
-    ports:
-      - "5001:5001"
-
-  dowhy_solver:
-    build:
-      context: .
-      dockerfile: ./src/solvers/dowhy_solver/Dockerfile
-    volumes:
-      - ./data:/app/data
-    ports:
-      - "5002:5002"
 
   bcause_solver:
     build:
@@ -43,12 +19,3 @@ services:
       - ./data:/app/data
     ports:
       - "5003:5003"
-
-  autobounds_solver:
-    build:
-      context: .
-      dockerfile: ./src/solvers/autobounds_solver/Dockerfile
-    volumes:
-      - ./data:/app/data
-    ports:
-      - "5004:5004"

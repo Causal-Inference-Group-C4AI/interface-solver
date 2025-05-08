@@ -1,24 +1,28 @@
+import logging
 import os
 import sys
 import time
 from typing import Tuple
 
+import networkx as nx
 import pandas as pd
+from bcause.inference.causal.multi import EMCC
+from bcause.models.cmodel import StructuralCausalModel
+from flask import Flask, jsonify, request
+
+from utils._enums import DirectoryPaths, Solvers
+from utils.general_utilities import (configure_environment, get_common_data,
+                                     log_solver_error)
+from utils.output_writer import OutputWriterBcause
+from utils.solver_results import ATE, SolverResultsFactory
+from utils.validator import Validator
 
 sys.path.append(os.path.abspath(
     os.path.join(os.path.dirname(__file__), '../../')))
 
-from bcause.inference.causal.multi import EMCC
-from bcause.models.cmodel import StructuralCausalModel
-
-from utils._enums import DirectoryPaths, Solvers
-from utils.general_utilities import (configure_environment, get_common_data, log_solver_error)
-from utils.output_writer import OutputWriterBcause
-from utils.validator import Validator
-from utils.solver_results import ATE, SolverResultsFactory
-from flask import Flask, request, jsonify 
 
 app = Flask(__name__)
+
 
 def bcause_solver(
         test_name: str,
@@ -27,18 +31,36 @@ def bcause_solver(
         treatment: str,
         outcome: str,
         mapping: dict) -> Tuple[float, float]:
-    print("Bcause solver running...")
     model = StructuralCausalModel.read(uai_path)
     renamed_model = model.rename_vars(mapping)
 
     dataset = pd.read_csv(csv_path)
     inf = EMCC(renamed_model, dataset, max_iter=100, num_runs=20)
 
-    p_do0 = inf.causal_query(outcome, do={treatment: 0})
-    p_do1 = inf.causal_query(outcome, do={treatment: 1})
+    inf.causal_query(outcome, do={treatment: 0})
 
-    lower_bound = p_do1.values[1] - p_do0.values[3]
-    upper_bound = p_do1.values[3] - p_do0.values[1]
+    graph = renamed_model.graph
+    logging.info(f"Graph: {graph}")
+    all_nodes = list(nx.topological_sort(graph))
+    logging.info(f"All nodes: {all_nodes}")
+    outcome_index = all_nodes.index(outcome)
+    logging.info(f"Outcome index: {outcome_index}")
+    treatment_nodes = all_nodes[:outcome_index]
+    logging.info(f"Treatment nodes: {treatment_nodes}")
+
+    pn_dict = {}
+    ps_dict = {}
+    pns_dict = {}
+    for treatment_var in treatment_nodes:
+        if treatment_var not in renamed_model.endogenous:
+            continue
+        logging.info(f"Calculating for treatment variable: {treatment_var}")
+        PN = inf.prob_necessity(treatment_var, outcome)
+        PS = inf.prob_sufficiency(treatment_var, outcome)
+        PNS = inf.prob_necessity_sufficiency(treatment_var, outcome)
+        pn_dict[treatment_var] = PN
+        ps_dict[treatment_var] = PS
+        pns_dict[treatment_var] = PNS
 
     output_file = (
         f"{DirectoryPaths.OUTPUTS.value}/{test_name}/"
@@ -47,17 +69,12 @@ def bcause_solver(
     writer = OutputWriterBcause(output_file)
 
     writer("==============================================")
-    writer(
-        f'P({outcome}=1|do({treatment}=0)) = '
-        f'{[p_do0.values[1], p_do0.values[3]]}')
-    writer(
-        f'P({outcome}=1|do({treatment}=1)) = '
-        f'{[p_do1.values[1], p_do1.values[3]]}')
-    writer(
-        f"Causal effect lies in the interval [{lower_bound}, {upper_bound}]")
+    writer(f'PN = {pn_dict}')
+    writer(f'PS = {ps_dict}')
+    writer(f'PNS = {pns_dict}')
     writer("==============================================")
-    print("Bcause solver Done.")
-    return lower_bound, upper_bound
+    logging.info("Bcause solver Done.")
+    return 0, 0
 
 
 def run_bcause_solver(data):
@@ -71,27 +88,30 @@ def run_bcause_solver(data):
         mapping=data['uai_mapping'],
     )
 
+
 @app.route('/health', methods=['GET'])
 def health():
     return jsonify({"status": "healthy"}), 200
 
+
 @app.route('/solve', methods=['POST'])
 def solve_endpoint():
-
     json_input = request.get_json()
 
     configure_environment(json_input['verbose'])
 
     validator = Validator()
     data = get_common_data(validator.get_valid_path(json_input['common_data']))
-    
+
     try:
         start_time = time.time()
         lower_bound, upper_bound = run_bcause_solver(data)
         time_taken = time.time() - start_time
 
-        solver_result = SolverResultsFactory().get_solver_results_object(Solvers.BCAUSE.value, data['test_name'])
-        solver_result.log_solver_results(ATE((lower_bound, upper_bound)), time_taken)
+        solver_result = SolverResultsFactory().get_solver_results_object(
+            Solvers.BCAUSE.value, data['test_name'])
+        solver_result.log_solver_results(
+            ATE((lower_bound, upper_bound)), time_taken)
 
         return jsonify({
             "status": "success",
