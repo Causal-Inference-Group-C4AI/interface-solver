@@ -37,8 +37,6 @@ def bcause_solver(
     dataset = pd.read_csv(csv_path)
     inf = EMCC(renamed_model, dataset, max_iter=100, num_runs=20)
 
-    inf.causal_query(outcome, do={treatment: 0})
-
     graph = renamed_model.graph
     logging.info(f"Graph: {graph}")
     all_nodes = list(nx.topological_sort(graph))
@@ -51,16 +49,24 @@ def bcause_solver(
     pn_dict = {}
     ps_dict = {}
     pns_dict = {}
+    weak_pn = {}
+    weak_ps = {}
     for treatment_var in treatment_nodes:
         if treatment_var not in renamed_model.endogenous:
             continue
         logging.info(f"Calculating for treatment variable: {treatment_var}")
+        do0 = inf.causal_query(outcome, do={treatment_var: 0})
+        do1 = inf.causal_query(outcome, do={treatment_var: 1})
+        ps = [do1.values[1], do1.values[3]]
+        pn = [do0.values[0], do0.values[2]]
         PN = inf.prob_necessity(treatment_var, outcome)
         PS = inf.prob_sufficiency(treatment_var, outcome)
         PNS = inf.prob_necessity_sufficiency(treatment_var, outcome)
         pn_dict[treatment_var] = PN
         ps_dict[treatment_var] = PS
         pns_dict[treatment_var] = PNS
+        weak_pn[treatment_var] = pn
+        weak_ps[treatment_var] = ps
 
     output_file = (
         f"{DirectoryPaths.OUTPUTS.value}/{test_name}/"
@@ -72,6 +78,8 @@ def bcause_solver(
     writer(f'PN = {pn_dict}')
     writer(f'PS = {ps_dict}')
     writer(f'PNS = {pns_dict}')
+    writer(f'Weak PN = {weak_pn}')
+    writer(f'Weak PS = {weak_ps}')
     writer("==============================================")
     logging.info("Bcause solver Done.")
     return 0, 0
