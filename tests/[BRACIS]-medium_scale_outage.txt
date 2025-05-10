@@ -1,0 +1,6 @@
+[BRACIS]-medium_scale_outage
+bcause
+DB_Change -> DB_Latency, DB_Latency -> MS-B_Latency, MS-B_Latency -> MS-B_Error, MS-B_Latency -> MS-A_Latency, MS-B_Error -> MS-A_Error, MS-A_Latency -> MS-A_Threads, MS-A_Threads -> MS-A_Crash, MS-A_Error -> Outage, MS-A_Crash -> Outage, HeavyTraffic -> MS-B_Latency, HeavyTraffic -> MS-A_Latency
+DB_Change
+Outage
+data/inputs/csv/medium_scale_outage_incident_seed42.csv

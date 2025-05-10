@@ -1,35 +1,32 @@
 ********************************************************************************
-Test '[BRACIS]-small_scale_outage_incident_base2' on 2025-05-08 18:58:07
---------------------------------------------
-********************************************************************************
-Test '[BRACIS]-small_scale_outage_incident_base2' on 2025-05-08 19:16:33
+Test '[BRACIS]-medium_scale_outage' on 2025-05-09 22:19:35
 --------------------------------------------
 bcause
-   Time taken by bcause: 684.643811 seconds
+   Time taken by bcause: 479.394614 seconds
    ATE lies in the interval: [0, 0]
 --------------------------------------------
 ********************************************************************************
-Test '[BRACIS]-small_scale_outage_incident_base2' on 2025-05-09 20:18:59
+Test '[BRACIS]-medium_scale_outage' on 2025-05-09 23:04:19
 --------------------------------------------
 bcause
-   Solver bcause failed with error: 'IntervalProbFactor' object is not subscript
-able
+   Solver bcause failed with error: one or more specified nodes not found in the
+ graph
 --------------------------------------------
 bcause
-   Solver bcause failed with error: 'IntervalProbFactor' object is not subscript
-able
+   Solver bcause failed with error: one or more specified nodes not found in the
+ graph
 --------------------------------------------
 ********************************************************************************
-Test '[BRACIS]-small_scale_outage_incident_base2' on 2025-05-09 20:43:22
+Test '[BRACIS]-medium_scale_outage' on 2025-05-09 23:05:32
 --------------------------------------------
 bcause
-   Time taken by bcause: 210.165944 seconds
+   Time taken by bcause: 667.459633 seconds
    ATE lies in the interval: [0, 0]
 --------------------------------------------
 ********************************************************************************
-Test '[BRACIS]-small_scale_outage_incident_base2' on 2025-05-09 21:03:22
+Test '[BRACIS]-medium_scale_outage' on 2025-05-09 23:38:12
 --------------------------------------------
 bcause
-   Time taken by bcause: 84.639598 seconds
+   Time taken by bcause: 658.278356 seconds
    ATE lies in the interval: [0, 0]
 --------------------------------------------

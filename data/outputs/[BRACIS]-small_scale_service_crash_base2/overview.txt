@@ -5,3 +5,28 @@ bcause
    Time taken by bcause: 727.496457 seconds
    ATE lies in the interval: [0, 0]
 --------------------------------------------
+********************************************************************************
+Test '[BRACIS]-small_scale_service_crash_base2' on 2025-05-09 20:28:11
+--------------------------------------------
+bcause
+   Solver bcause failed with error: 'IntervalProbFactor' object is not subscript
+able
+--------------------------------------------
+bcause
+   Solver bcause failed with error: 'IntervalProbFactor' object is not subscript
+able
+--------------------------------------------
+********************************************************************************
+Test '[BRACIS]-small_scale_service_crash_base2' on 2025-05-09 20:50:36
+--------------------------------------------
+bcause
+   Time taken by bcause: 206.066207 seconds
+   ATE lies in the interval: [0, 0]
+--------------------------------------------
+********************************************************************************
+Test '[BRACIS]-small_scale_service_crash_base2' on 2025-05-09 21:06:25
+--------------------------------------------
+bcause
+   Time taken by bcause: 94.089182 seconds
+   ATE lies in the interval: [0, 0]
+--------------------------------------------
