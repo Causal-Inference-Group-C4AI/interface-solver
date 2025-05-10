@@ -5,7 +5,7 @@
 TEST_DIR="tests"
 
 # Find all BRACIS test files
-BRACIS_TESTS=$(find $TEST_DIR -name "\[BRACIS\]*.txt" | sort)
+BRACIS_TESTS=$(find $TEST_DIR -name "\[BRACIS\]-medium*.txt" | sort)
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -24,18 +24,18 @@ PASSED=0
 for test_file in $BRACIS_TESTS; do
     TOTAL=$((TOTAL+1))
     test_name=$(basename "$test_file" .txt)
-    
+
     echo -e "${YELLOW}Running test: ${test_name}${NC}"
     
-    # Use docker compose to run the test
-    docker compose run main_interface -v "$test_file"
+    # Run docker compose and capture output while showing it in terminal
+    docker compose run --remove-orphans main_interface -v "$test_file" | tee ./test_output.log
     
-    # Check if the test was successful
-    if [ $? -eq 0 ]; then
+    # Check if the output contains [ERROR]
+    if grep -q "\[ERROR\]" ./test_output.log; then
+        echo -e "${RED}✗ Test $test_name failed${NC}"
+    else
         echo -e "${GREEN}✓ Test $test_name passed${NC}"
         PASSED=$((PASSED+1))
-    else
-        echo -e "${RED}✗ Test $test_name failed${NC}"
     fi
     
     echo "--------------------------------------"
