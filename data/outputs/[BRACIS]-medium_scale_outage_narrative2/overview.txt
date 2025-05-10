@@ -12,3 +12,10 @@ bcause
    Time taken by bcause: 810.089134 seconds
    ATE lies in the interval: [0, 0]
 --------------------------------------------
+********************************************************************************
+Test '[BRACIS]-medium_scale_outage_narrative2' on 2025-05-10 17:57:49
+--------------------------------------------
+bcause
+   Time taken by bcause: 550.791467 seconds
+   ATE lies in the interval: [0, 0]
+--------------------------------------------

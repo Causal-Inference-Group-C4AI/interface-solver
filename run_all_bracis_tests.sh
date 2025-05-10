@@ -27,8 +27,8 @@ for test_file in $BRACIS_TESTS; do
 
     echo -e "${YELLOW}Running test: ${test_name}${NC}"
     
-    # Run docker compose and capture output while showing it in terminal
-    docker compose run --remove-orphans main_interface -v "$test_file" | tee ./test_output.log
+    # Run docker compose and capture output (including stderr) while showing it in terminal
+    docker compose run --remove-orphans main_interface -v "$test_file" 2>&1 | tee ./test_output.log
     
     # Check if the output contains [ERROR]
     if grep -q "\[ERROR\]" ./test_output.log; then
