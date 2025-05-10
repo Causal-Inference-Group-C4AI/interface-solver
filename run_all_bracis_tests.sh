@@ -5,7 +5,7 @@
 TEST_DIR="tests"
 
 # Find all BRACIS test files
-BRACIS_TESTS=$(find $TEST_DIR -name "\[BRACIS\]-medium*.txt" | sort)
+BRACIS_TESTS=$(find $TEST_DIR -name "\[BRACIS\]-small*.txt" | sort)
 
 # Colors for output
 GREEN='\033[0;32m'

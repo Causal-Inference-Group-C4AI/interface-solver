@@ -1,6 +1,6 @@
-[BRACIS]-small_scale_outage_incident
+[BRACIS]-small_scale_outage_incident_narrative_1
 bcause
 NewDeploy -> MemLeak, MemLeak -> MemUsageHigh, MemUsageHigh -> ServiceCrash, ServiceCrash -> Outage, HeavyTraffic -> MemUsageHigh, HeavyTraffic -> ServiceCrash
 ServiceCrash
 Outage
-data/inputs/csv/small_scale_outage_incident_seed42.csv
+data/inputs/csv/small_scale_outage_incident_seed42_narrative_1.csv
