@@ -177,7 +177,7 @@ class Edge():
 
 class Graph():
     """Graph class to represent a graph."""
-    def __init__(self, edges_str: str) -> None:
+    def __init__(self, edges_str: str, df: pd.DataFrame) -> None:
         """Initializes the Graph class.
 
         Args:
@@ -193,6 +193,7 @@ class Graph():
         self._nodes_children: Dict[Node, List[Node]] = {}
         self._endogenous: List[Node] = []
         self._exogenous: List[Node] = []
+        self.df = df
 
         self._create_graph(edges_str)
 
@@ -482,15 +483,13 @@ class ExogenousMechanism(Mechanism):
 
 class MechanismsDefiner():
     """Class to define the mechanisms of the nodes in a graph."""
-    def __init__(self, graph: Graph, df: pd.DataFrame) -> None:
+    def __init__(self, graph: Graph) -> None:
         """Initializes the MechanismsDefiner class.
 
         Args:
             graph (Graph): The graph.
-            df (pd.DataFrame): The data frame.
         """
         self._graph: Graph = graph
-        self._df: pd.DataFrame = df
 
     def _define_r_functions(self, node: Node) -> None:
         """Defines the r functions for endogenous nodes.
@@ -590,9 +589,13 @@ class MechanismsDefiner():
         parents_str = [
             parent.get_value() for parent in node.get_parents()
         ]
+        _grouped_df = self._graph.df.groupby(parents_str)
         for combination in parents_combinations:
-            rows = self._df[(self._df[parents_str] == combination).all(1)]
-            possible_functions = rows[node.get_value()].unique()
+            try:
+                rows = _grouped_df.get_group(combination)
+                possible_functions = rows[node.get_value()].unique()
+            except KeyError:
+                possible_functions = []
             if len(possible_functions) == 1:
                 mechanism += [int(possible_functions[0])]
             else:  # Not in the data
@@ -638,7 +641,6 @@ class MechanismsDefiner():
 class RelaxedGraphGenerator():
     """Class to generate a relaxed graph."""
     _graph: Graph = None
-    _df: pd.DataFrame = None
 
     @classmethod
     def _define_observable_cardinality(cls, node: Node) -> None:
@@ -653,12 +655,12 @@ class RelaxedGraphGenerator():
             Exception: If an error occurs while defining the cardinality.
         """
         try:
-            node.cardinality = len(cls._df[node.get_value()].unique())
+            node.cardinality = len(cls._graph.df[node.get_value()].unique())
         except Exception as e:
             print(e)
 
     @classmethod
-    def generate(cls, graph: Graph, df: pd.DataFrame) -> 'ValidUAIGraph':
+    def generate(cls, graph: Graph) -> 'ValidUAIGraph':
         """Generates a relaxed graph.
 
         Args:
@@ -669,11 +671,10 @@ class RelaxedGraphGenerator():
             ValidUAIGraph: The relaxed graph.
         """
         cls._graph = graph
-        cls._df = df
         nodes_str: List[str] = []
         obs_nodes: List[str] = []
         for node in cls._graph.get_nodes():
-            if node.get_value() in cls._df.columns:
+            if node.get_value() in cls._graph.df.columns:
                 cls._define_observable_cardinality(node)
                 nodes_str.append(f"{node} {node.cardinality}")
                 obs_nodes.append(node.get_value())
@@ -684,7 +685,7 @@ class RelaxedGraphGenerator():
             nodes_str, cls._graph.get_edges_as_str()
         )
 
-        cls._graph = ValidUAIGraph(relaxed, cls._df, cls._graph, obs_nodes)
+        cls._graph = ValidUAIGraph(relaxed, cls._graph, obs_nodes)
         lat = lat.split(", ")
         cls._graph.define_latents_cardinalities(lat, lat_card)
         cls._graph._mechanisms_definer.define_mechanisms()
@@ -694,7 +695,7 @@ class RelaxedGraphGenerator():
 
 class ValidUAIGraph(Graph):
     """Class to represent a valid UAI graph. Inherits from Graph."""
-    def __init__(self, edges_str: str, df: pd.DataFrame, graph: Graph = None,
+    def __init__(self, edges_str: str, graph: Graph = None,
                  fixed_nodes: List[str] = None) -> None:
         """Initializes the ValidUAIGraph class.
 
@@ -723,7 +724,6 @@ class ValidUAIGraph(Graph):
                 self._fix_nodes(fixed_nodes)
             self._create_graph(edges_str)
 
-        self._df = df
         self._mechanisms_definer: MechanismsDefiner = None
         self._complete_valid_uai_graph()
 
@@ -732,7 +732,7 @@ class ValidUAIGraph(Graph):
         checking the validity of the graph.
         """
         self.check_validity()
-        self._mechanisms_definer = MechanismsDefiner(self, self._df)
+        self._mechanisms_definer = MechanismsDefiner(self)
 
     def _fix_nodes(self, fixed_nodes: List[str]) -> None:
         """Fixes the selected nodes in the graph. The fixed nodes are added to
@@ -750,7 +750,7 @@ class ValidUAIGraph(Graph):
         the data frame (is observable), a dummy node is added to the graph."""
         for ex in self._exogenous:
             ex_str = ex.get_value()
-            if ex_str in self._df.columns:
+            if ex_str in self.__old_graph.df.columns:
                 self.add_dummy_node(ex)
 
     def _check_non_deterministic_nodes(self) -> None:
@@ -762,12 +762,19 @@ class ValidUAIGraph(Graph):
         for node in self._endogenous:
             if self.get_ex_parents(node):
                 continue
-            functions = self._df.drop_duplicates(
-                subset=node.get_parents_values() + [node.get_value()]
-            )
-            parents_combinations = functions.drop_duplicates(
-                subset=node.get_parents_values()
-            )
+            # functions = self.__old_graph.df.drop_duplicates(
+            #     subset=node.get_parents_values() + [node.get_value()]
+            # )
+            # parents_combinations = functions.drop_duplicates(
+            #     subset=node.get_parents_values()
+            # )
+
+            subset_cols = node.get_parents_values() + [node.get_value()]
+            
+            functions = self.__old_graph.df.drop_duplicates(subset=subset_cols)
+            
+            parents_combinations = functions.drop_duplicates(subset=node.get_parents_values())
+
             if len(functions) != len(parents_combinations):
                 self.add_dummy_node(node, len(functions))
 
@@ -864,7 +871,6 @@ class UAIGenerator:
         self.edges_str: str = edges_str
         self.csv_file: str = csv_file
         self.graph: ValidUAIGraph = None
-        self.df = pd.read_csv(csv_file)
 
         self.generate()
 
@@ -943,7 +949,7 @@ class UAIGenerator:
         df = pd.read_csv(self.csv_file)
 
         # Define graph
-        self.graph = RelaxedGraphGenerator.generate(Graph(self.edges_str), df)
+        self.graph = RelaxedGraphGenerator.generate(Graph(self.edges_str, df))
 
         # Write UAI file
         self.write_uai_file()
