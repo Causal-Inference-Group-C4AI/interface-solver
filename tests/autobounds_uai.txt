@@ -1,0 +1,6 @@
+2_scaling_case
+autobounds 
+X -> A1, X -> B1, B1 -> A1, A1 -> Y, U1 -> X, U1 -> A1, U2 -> B1, U2 -> Y
+X
+Y
+data/inputs/csv/2_scaling_case.csv
