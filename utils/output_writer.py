@@ -1,8 +1,8 @@
 import contextlib
 import logging
+from datetime import datetime
 
-
-from utils._enums import DirectoryPaths
+from utils._enums import DirectoryPaths, Solvers
 
 
 class OutputWriter:
@@ -19,7 +19,7 @@ class OutputWriter:
             Defaults to "data/outputs/dowhy_output_NO_TEST_NAME.txt".
 
     **Methods**:
-        __call__(text: str, end: str):
+        __call__(output: str, end: str, new: bool):
             Prints a message to the console and appends it to the output file.
         reset():
             Resets the content of the output file by clearing it.
@@ -39,7 +39,7 @@ class OutputWriter:
             self.reset()
 
 
-    def __call__(self, output, new=False):
+    def __call__(self, output, end: str = "\n", new=False):
         """
         Write the output to the file.
 
@@ -49,11 +49,16 @@ class OutputWriter:
                 existing one. Defaults to False
         """
         mode = "w" if new else "a"
-        try:
-            with open(self.output_path, mode) as f:
-                f.write(output + "\n")
-        except Exception as e:
-            raise Exception(f"Error while wirting in the file {self.output_path}. Error: {e}")
+        if len(output) > 80 and output.count("\n") == 0:
+            self.__call__(output[:80])
+            self.__call__(output[80:], end=end)
+        else:
+            logging.getLogger().info(output)
+            try:
+                with open(self.output_path, mode) as file:
+                    file.write(output + end)
+            except IOError as e:
+                raise IOError(f"Error writing to file {self.output_path}: {e}")
 
 
     def reset(self) -> None:
@@ -90,33 +95,30 @@ class OutputWriter:
             raise Exception(f"Error: {e}")
 
 
+class OutputWriterOverview(OutputWriter):
+    def __init__(self, output_path=f"{DirectoryPaths.OUTPUTS.value}/overview_output_NO_TEST_NAME.txt", reset=False):
+        super().__init__(output_path, reset)
+
+    def write_test_header(self, test_name: str):
+        self("*"*80)
+        self(f"Test '{test_name}' on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        self("--------------------------------------------")
+
 class OutputWriterBcause(OutputWriter):
-    def __init__(self, output_path=f"{DirectoryPaths.OUTPUTS.value}/bcause_output_NO_TEST_NAME.txt"):
+    def __init__(self, output_path=f"{DirectoryPaths.OUTPUTS.value}/{Solvers.BCAUSE.value}_output_NO_TEST_NAME.txt"):
         super().__init__(output_path)
 
 
 class OutputWriterAutobounds(OutputWriter):
-    def __init__(self, output_path=f"{DirectoryPaths.OUTPUTS.value}/autobounds_output_NO_TEST_NAME.txt"):
+    def __init__(self, output_path=f"{DirectoryPaths.OUTPUTS.value}/{Solvers.AUTOBOUNDS.value}_output_NO_TEST_NAME.txt"):
         super().__init__(output_path)
 
 
 class OutputWriterLCN(OutputWriter):
-    def __init__(self, output_path=f"{DirectoryPaths.OUTPUTS.value}/lcn_output_NO_TEST_NAME.txt"):
+    def __init__(self, output_path=f"{DirectoryPaths.OUTPUTS.value}/{Solvers.LCN.value}_output_NO_TEST_NAME.txt"):
         super().__init__(output_path)
 
 
 class OutputWriterDoWhy(OutputWriter):
-    def __init__(self, output_path: str = f"{DirectoryPaths.OUTPUTS.value}/dowhy_output_NO_TEST_NAME.txt") -> None:
+    def __init__(self, output_path: str = f"{DirectoryPaths.OUTPUTS.value}/{Solvers.DOWHY.value}_output_NO_TEST_NAME.txt") -> None:
         super().__init__(output_path)
-
-    def __call__(self, text: str = "", end: str = "\n") -> None:
-        if len(text) > 80 and text.count("\n") == 0:
-            self.__call__(text[:80])
-            self.__call__(text[80:], end=end)
-        else:
-            logging.getLogger().info(text)
-            try:
-                with open(self.output_path, 'a') as file:
-                    file.write(text + end)
-            except IOError as e:
-                raise IOError(f"Error writing to file {self.output_path}: {e}")

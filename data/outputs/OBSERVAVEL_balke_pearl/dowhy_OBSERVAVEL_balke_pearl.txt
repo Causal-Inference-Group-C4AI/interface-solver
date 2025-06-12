@@ -1,0 +1,151 @@
+Estimands found: backdoor, iv
+--------------------------------------------------------------------------------
+Estimation using backdoor.linear_regression:
+Time taken: 0.103164 seconds
+ATE = 0.2343838923943678
+P-value: [8.66532567e-14]
+Confidence interval: [0.17360169890485816, 0.29516608588387694]
+
+Time taken: 0.801873 seconds
+Refute: Use a Placebo Treatment
+Estimated effect:0.2343838923943678
+New effect:0.00222888463916119
+p value:0.96
+
+Time taken: 1.326876 seconds
+Refute: Use a Dummy Outcome
+Estimated effect:0
+New effect:-0.00603293637223409
+p value:0.98
+
+Time taken: 0.636348 seconds
+Refute: Add a random common cause
+Estimated effect:0.2343838923943678
+New effect:0.2343046928230402
+p value:0.96
+
+Time taken: 0.620349 seconds
+Refute: Use a subset of data
+Estimated effect:0.2343838923943678
+New effect:0.2334057174922006
+p value:0.82
+--------------------------------------------------------------------------------
+Estimation using backdoor.propensity_score_matching:
+Time taken: 5.585614 seconds
+ATE = 0.199
+P-value: 0.249
+Confidence interval: [-0.20899999999999996, 0.6040000000000001]
+
+Time taken: 0.400701 seconds
+Refute: Use a Placebo Treatment
+Estimated effect:0.199
+New effect:0.08684000000000001
+p value:0.0
+
+Time taken: 0.398109 seconds
+Refute: Use a Dummy Outcome
+Estimated effect:0
+New effect:0.06260521723400136
+p value:0.94
+
+Time taken: 0.439547 seconds
+Refute: Add a random common cause
+Estimated effect:0.199
+New effect:0.1990000000000001
+p value:1.0
+
+Time taken: 0.325732 seconds
+Refute: Use a subset of data
+Estimated effect:0.199
+New effect:0.23328750000000004
+p value:0.8600000000000001
+--------------------------------------------------------------------------------
+Estimation using backdoor.propensity_score_stratification:
+Time taken: 33.061106 seconds
+ATE = 0.2344853904016194
+P-value: (0, 0.001)
+Confidence interval: [0.1778283902527769, 0.29271194757031155]
+
+Time taken: 2.390737 seconds
+Refute: Use a Placebo Treatment
+Estimated effect:0.2344853904016194
+New effect:0.0007028547233520979
+p value:0.94
+
+Time taken: 2.273386 seconds
+Refute: Use a Dummy Outcome
+Estimated effect:0
+New effect:-0.006423207119102406
+p value:0.9
+
+Time taken: 2.333127 seconds
+Refute: Add a random common cause
+Estimated effect:0.2344853904016194
+New effect:0.23448539040161936
+p value:1.0
+
+Time taken: 2.204736 seconds
+Refute: Use a subset of data
+Estimated effect:0.2344853904016194
+New effect:0.23400013276031742
+p value:0.92
+--------------------------------------------------------------------------------
+Estimation using backdoor.propensity_score_weighting:
+Time taken: 6.759276 seconds
+ATE = 0.23450145787486515
+P-value: (0, 0.001)
+Confidence interval: [0.17308093738495745, 0.2955749298245176]
+
+Time taken: 0.510168 seconds
+Refute: Use a Placebo Treatment
+Estimated effect:0.23450145787486515
+New effect:-0.0036144662321115945
+p value:0.86
+
+Time taken: 0.499471 seconds
+Refute: Use a Dummy Outcome
+Estimated effect:0
+New effect:0.011643725693639114
+p value:0.8999999999999999
+
+Time taken: 0.497130 seconds
+Refute: Add a random common cause
+Estimated effect:0.23450145787486515
+New effect:0.2345014578748652
+p value:1.0
+
+Time taken: 0.413725 seconds
+Refute: Use a subset of data
+Estimated effect:0.23450145787486515
+New effect:0.2354859323923695
+p value:0.8999999999999999
+--------------------------------------------------------------------------------
+Estimation using iv.instrumental_variable:
+Time taken: 2.856797 seconds
+ATE = -1.3636363636363638
+P-value: (0, 0.001)
+Confidence interval: [-1.6563183704262543, -0.8716936312275299]
+
+Time taken: 0.279678 seconds
+Refute: Use a Placebo Treatment
+Estimated effect:-1.3636363636363638
+New effect:0.02592592592592592
+p value:0.78
+
+Time taken: 0.205637 seconds
+Refute: Use a Dummy Outcome
+Estimated effect:0
+New effect:-0.04025148125333013
+p value:0.92
+
+Time taken: 0.188024 seconds
+Refute: Add a random common cause
+Estimated effect:-1.3636363636363638
+New effect:-1.363636363636364
+p value:1.0
+
+Time taken: 0.170479 seconds
+Refute: Use a subset of data
+Estimated effect:-1.3636363636363638
+New effect:-1.3642211860995987
+p value:0.94

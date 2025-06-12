@@ -1,0 +1,6 @@
+OBSERVAVEL_itau
+bcause dowhy
+T -> Y, T -> D, U -> Y, U -> T, D -> Y, E -> D
+T
+Y
+data/inputs/csv/OBSERVAVEL_itau.csv

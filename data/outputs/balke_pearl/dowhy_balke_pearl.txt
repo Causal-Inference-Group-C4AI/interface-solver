@@ -1,0 +1,16 @@
+Estimands found: iv
+--------------------------------------------------------------------------------
+Estimation using iv.instrumental_variable:
+Time taken: 2.405873 seconds
+ATE = -1.3636363636363638
+P-value: (0, 0.001)
+Confidence interval: [-1.6732446438283208, -0.8960625361899248]
+
+Time taken: 0.244166 seconds
+Failed to refute using placebo_treatment_refuter. Error:get_refutation_method() 
+takes 3 positional arguments but 4 were given
+
+Time taken: 0.172019 seconds
+Failed to refute using dummy_outcome_refuter. Error:get_refutation_method() take
+s 3 positional arguments but 4 were given
+

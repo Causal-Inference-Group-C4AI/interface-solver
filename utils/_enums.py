@@ -7,6 +7,11 @@ class Solvers(Enum):
     AUTOBOUNDS = 'autobounds'
     LCN = 'lcn'
 
+class SolversURL(Enum):
+    LCN_URL = 'http://lcn_solver:5001'
+    DOWHY_URL = 'http://dowhy_solver:5002'
+    BCAUSE_URL = 'http://bcause_solver:5003'
+    AUTOBOUNDS_URL = 'http://autobounds_solver:5004'
 
 class DirectoryPaths(Enum):
     OUTPUTS = 'data/outputs'
@@ -18,7 +23,7 @@ class DirectoryPaths(Enum):
 
 class FilePaths(Enum):
     SHARED_DATA = "data/shared/common_data.json"
-    INPUT_PROCESSOR_SCRIPT = "utils/input_processor.py"
+    INPUT_PROCESSOR_SCRIPT = "src/input_processor.py"
     DOWHY_SOLVER = "src/solvers/dowhy_solver.py"
     BCAUSE_SOLVER = "src/solvers/bcause_solver.py"
     LCN_SOLVER = "src/solvers/lcn_solver.py"
@@ -29,3 +34,8 @@ class FilePaths(Enum):
     AUTOBOUNDS_VENV = "venv_autobounds"
     # TODO: REVER O ENV DAQUI 
     INPUT_PROCESSOR_VENV = "venv_dowhy"
+
+
+class EmptyValues(Enum):
+    DICT_ATE = {"NONE":0.0}
+    TUPLE_ATE = (-1.0, -1.0)

@@ -1,0 +1,281 @@
+Parsed DAG: {'X': ['Z', 'U'], 'Z': [], 'Y': ['X', 'U'], 'U': []}
+Decompositions: {'U': {'X': 2, 'Y': 2}, 'Uaux_Z': {'Z': 1}}
+Total decompositions: {'U': 4, 'Uaux_Z': 1}
+considered exogenous subvariable mappings: {'U': ['U_1', 'U_2', 'U_3', 'U_4'], 'Uaux_Z': ['Uaux_Z_1']}
+exo_vars: ['U_1', 'U_2', 'U_3', 'U_4', 'Uaux_Z_1']
+considered DAG: {'X': ['Z', 'U_1', 'U_2'], 'Z': ['Uaux_Z_1'], 'Y': ['X', 'U_3', 'U_4'], 'U': []}
+considered unobserved variables: ['U_1', 'U_2', 'U_3', 'U_4', 'Uaux_Z_1']
+considered children: {'Z': ['X'], 'X': ['Y'], 'U': ['X', 'Y'], 'Uaux_Z': ['Z']}
+var: X
+dag[var]: ['Z', 'U_1', 'U_2']
+endogenous_parents: ['Z']
+exogenous_parents: ['U_1', 'U_2']
+var: Z
+dag[var]: ['Uaux_Z_1']
+endogenous_parents: []
+exogenous_parents: ['Uaux_Z_1']
+var: Y
+dag[var]: ['X', 'U_3', 'U_4']
+endogenous_parents: ['X']
+exogenous_parents: ['U_3', 'U_4']
+var: U
+dag[var]: []
+endogenous_parents: []
+exogenous_parents: []
+var: Y
+dag[var]: ['X', 'U_3', 'U_4']
+endogenous_parents: ['X']
+exogenous_parents: ['U_3', 'U_4']
+==============================================
+Parsed DAG: {'X': ['Z', 'U'], 'Z': [], 'Y': ['X', 'U'], 'U': []}
+Decompositions: {'U': {'X': 2, 'Y': 2}, 'Uaux_Z': {'Z': 1}}
+Total decompositions: {'U': 4, 'Uaux_Z': 1}
+considered exogenous subvariable mappings: {'U': ['U_1', 'U_2', 'U_3', 'U_4'], 'Uaux_Z': ['Uaux_Z_1']}
+exo_vars: ['U_1', 'U_2', 'U_3', 'U_4', 'Uaux_Z_1']
+considered DAG: {'X': ['Z', 'U_1', 'U_2'], 'Z': ['Uaux_Z_1'], 'Y': ['X', 'U_3', 'U_4'], 'U': []}
+considered unobserved variables: ['U_1', 'U_2', 'U_3', 'U_4', 'Uaux_Z_1']
+considered children: {'Z': ['X'], 'X': ['Y'], 'U': ['X', 'Y'], 'Uaux_Z': ['Z']}
+var: X
+dag[var]: ['Z', 'U_1', 'U_2']
+endogenous_parents: ['Z']
+exogenous_parents: ['U_1', 'U_2']
+var: Z
+dag[var]: ['Uaux_Z_1']
+endogenous_parents: []
+exogenous_parents: ['Uaux_Z_1']
+var: Y
+dag[var]: ['X', 'U_3', 'U_4']
+endogenous_parents: ['X']
+exogenous_parents: ['U_3', 'U_4']
+var: U
+dag[var]: []
+endogenous_parents: []
+exogenous_parents: []
+var: Y
+dag[var]: ['X', 'U_3', 'U_4']
+endogenous_parents: ['X']
+exogenous_parents: ['U_3', 'U_4']
+==============================================
+Parsed LCN format with 38 sentences.
+Build the LCN's primal graph.
+Build the LCN's structure graph.
+Build the LCN's independence assumptions (LMC).
+[Local Markov Condition: 10 independencies]
+(U_1 ⟂ Z, Uaux_Z_1, XL)
+(U_2 ⟂ Z, Uaux_Z_1, XL | U_1)
+(U_3 ⟂ Uaux_Z_1, Z, X, XL | U_2, U_1)
+(U_4 ⟂ Uaux_Z_1, Z, X, XL | U_2, U_3, U_1)
+(Uaux_Z_1 ⟂ U_3, U_1, U_4, U_2, YL, XL)
+(X ⟂ U_3, U_4, YL, Uaux_Z_1, XL | U_2, Z, U_1)
+(XL ⟂ U_3, Z, U_1, U_4, Y, U_2, X, Uaux_Z_1)
+(Y ⟂ Z, U_1, U_2, YL, Uaux_Z_1, XL | U_3, X, U_4)
+(YL ⟂ Z, U_1, Y, U_2, X, Uaux_Z_1 | XL, U_3, U_4)
+(Z ⟂ U_3, U_1, U_4, U_2, YL, XL | Uaux_Z_1)
+vars: ['X', 'U_1', 'U_2', 'Z', 'Uaux_Z_1', 'Y', 'U_3', 'U_4', 'XL', 'YL']
+cardinalities: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+
+adding constraints for independence: (U_1 ⟂ Z, Uaux_Z_1, XL)
+X: ['U_1'], T: ['Z', 'Uaux_Z_1', 'XL'], S: []
+x: U_1, t: Z
+x: U_1, t: Uaux_Z_1
+x: U_1, t: XL
+adding constraints for independence: (U_2 ⟂ Z, Uaux_Z_1, XL | U_1)
+X: ['U_2'], T: ['Z', 'Uaux_Z_1', 'XL'], S: ['U_1']
+adding constraints for independence: (U_3 ⟂ Uaux_Z_1, Z, X, XL | U_2, U_1)
+X: ['U_3'], T: ['Uaux_Z_1', 'Z', 'X', 'XL'], S: ['U_2', 'U_1']
+adding constraints for independence: (U_4 ⟂ Uaux_Z_1, Z, X, XL | U_2, U_3, U_1)
+X: ['U_4'], T: ['Uaux_Z_1', 'Z', 'X', 'XL'], S: ['U_2', 'U_3', 'U_1']
+adding constraints for independence: (Uaux_Z_1 ⟂ U_3, U_1, U_4, U_2, YL, XL)
+X: ['Uaux_Z_1'], T: ['U_3', 'U_1', 'U_4', 'U_2', 'YL', 'XL'], S: []
+x: Uaux_Z_1, t: U_3
+x: Uaux_Z_1, t: U_1
+x: Uaux_Z_1, t: U_4
+x: Uaux_Z_1, t: U_2
+x: Uaux_Z_1, t: YL
+x: Uaux_Z_1, t: XL
+adding constraints for independence: (X ⟂ U_3, U_4, YL, Uaux_Z_1, XL | U_2, Z, U_1)
+X: ['X'], T: ['U_3', 'U_4', 'YL', 'Uaux_Z_1', 'XL'], S: ['U_2', 'Z', 'U_1']
+adding constraints for independence: (XL ⟂ U_3, Z, U_1, U_4, Y, U_2, X, Uaux_Z_1)
+X: ['XL'], T: ['U_3', 'Z', 'U_1', 'U_4', 'Y', 'U_2', 'X', 'Uaux_Z_1'], S: []
+x: XL, t: U_3
+x: XL, t: Z
+x: XL, t: U_1
+x: XL, t: U_4
+x: XL, t: Y
+x: XL, t: U_2
+x: XL, t: X
+x: XL, t: Uaux_Z_1
+adding constraints for independence: (Y ⟂ Z, U_1, U_2, YL, Uaux_Z_1, XL | U_3, X, U_4)
+X: ['Y'], T: ['Z', 'U_1', 'U_2', 'YL', 'Uaux_Z_1', 'XL'], S: ['U_3', 'X', 'U_4']
+adding constraints for independence: (YL ⟂ Z, U_1, Y, U_2, X, Uaux_Z_1 | XL, U_3, U_4)
+X: ['YL'], T: ['Z', 'U_1', 'Y', 'U_2', 'X', 'Uaux_Z_1'], S: ['XL', 'U_3', 'U_4']
+adding constraints for independence: (Z ⟂ U_3, U_1, U_4, U_2, YL, XL | Uaux_Z_1)
+X: ['Z'], T: ['U_3', 'U_1', 'U_4', 'U_2', 'YL', 'XL'], S: ['Uaux_Z_1']
+WARNING: Could not locate the 'ipopt' executable, which is required for solver
+ipopt
+Exception during ipopt: No executable found for solver 'ipopt'
+[Ipopt] objective=None, optimal=False
+vars: ['X', 'U_1', 'U_2', 'Z', 'Uaux_Z_1', 'Y', 'U_3', 'U_4', 'XL', 'YL']
+cardinalities: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+
+adding constraints for independence: (U_1 ⟂ Z, Uaux_Z_1, XL)
+X: ['U_1'], T: ['Z', 'Uaux_Z_1', 'XL'], S: []
+x: U_1, t: Z
+x: U_1, t: Uaux_Z_1
+x: U_1, t: XL
+adding constraints for independence: (U_2 ⟂ Z, Uaux_Z_1, XL | U_1)
+X: ['U_2'], T: ['Z', 'Uaux_Z_1', 'XL'], S: ['U_1']
+adding constraints for independence: (U_3 ⟂ Uaux_Z_1, Z, X, XL | U_2, U_1)
+X: ['U_3'], T: ['Uaux_Z_1', 'Z', 'X', 'XL'], S: ['U_2', 'U_1']
+adding constraints for independence: (U_4 ⟂ Uaux_Z_1, Z, X, XL | U_2, U_3, U_1)
+X: ['U_4'], T: ['Uaux_Z_1', 'Z', 'X', 'XL'], S: ['U_2', 'U_3', 'U_1']
+adding constraints for independence: (Uaux_Z_1 ⟂ U_3, U_1, U_4, U_2, YL, XL)
+X: ['Uaux_Z_1'], T: ['U_3', 'U_1', 'U_4', 'U_2', 'YL', 'XL'], S: []
+x: Uaux_Z_1, t: U_3
+x: Uaux_Z_1, t: U_1
+x: Uaux_Z_1, t: U_4
+x: Uaux_Z_1, t: U_2
+x: Uaux_Z_1, t: YL
+x: Uaux_Z_1, t: XL
+adding constraints for independence: (X ⟂ U_3, U_4, YL, Uaux_Z_1, XL | U_2, Z, U_1)
+X: ['X'], T: ['U_3', 'U_4', 'YL', 'Uaux_Z_1', 'XL'], S: ['U_2', 'Z', 'U_1']
+adding constraints for independence: (XL ⟂ U_3, Z, U_1, U_4, Y, U_2, X, Uaux_Z_1)
+X: ['XL'], T: ['U_3', 'Z', 'U_1', 'U_4', 'Y', 'U_2', 'X', 'Uaux_Z_1'], S: []
+x: XL, t: U_3
+x: XL, t: Z
+x: XL, t: U_1
+x: XL, t: U_4
+x: XL, t: Y
+x: XL, t: U_2
+x: XL, t: X
+x: XL, t: Uaux_Z_1
+adding constraints for independence: (Y ⟂ Z, U_1, U_2, YL, Uaux_Z_1, XL | U_3, X, U_4)
+X: ['Y'], T: ['Z', 'U_1', 'U_2', 'YL', 'Uaux_Z_1', 'XL'], S: ['U_3', 'X', 'U_4']
+adding constraints for independence: (YL ⟂ Z, U_1, Y, U_2, X, Uaux_Z_1 | XL, U_3, U_4)
+X: ['YL'], T: ['Z', 'U_1', 'Y', 'U_2', 'X', 'Uaux_Z_1'], S: ['XL', 'U_3', 'U_4']
+adding constraints for independence: (Z ⟂ U_3, U_1, U_4, U_2, YL, XL | Uaux_Z_1)
+X: ['Z'], T: ['U_3', 'U_1', 'U_4', 'U_2', 'YL', 'XL'], S: ['Uaux_Z_1']
+WARNING: Could not locate the 'ipopt' executable, which is required for solver
+ipopt
+Exception during ipopt: No executable found for solver 'ipopt'
+[Ipopt] objective=None, optimal=False
+[ExactInference] Result for YL is: [ 0.0, 0.0 ]
+[ExactInference] Feasibility: lb=False, ub=False, all=False
+[ExactInference] Time elapsed: 72.16251254081726 sec
+==============================================
+Bounds for the first intervention
+[0.0, 0.0]
+==============================================
+Parsed LCN format with 38 sentences.
+Build the LCN's primal graph.
+Build the LCN's structure graph.
+Build the LCN's independence assumptions (LMC).
+[Local Markov Condition: 10 independencies]
+(U_1 ⟂ Z, Uaux_Z_1, XL)
+(U_2 ⟂ Z, Uaux_Z_1, XL | U_1)
+(U_3 ⟂ Uaux_Z_1, Z, X, XL | U_2, U_1)
+(U_4 ⟂ Uaux_Z_1, Z, X, XL | U_2, U_3, U_1)
+(Uaux_Z_1 ⟂ U_3, U_1, U_4, U_2, YL, XL)
+(X ⟂ U_3, U_4, YL, Uaux_Z_1, XL | U_2, Z, U_1)
+(XL ⟂ U_3, Z, U_1, U_4, Y, U_2, X, Uaux_Z_1)
+(Y ⟂ Z, U_1, U_2, YL, Uaux_Z_1, XL | U_3, X, U_4)
+(YL ⟂ Z, U_1, Y, U_2, X, Uaux_Z_1 | XL, U_3, U_4)
+(Z ⟂ U_3, U_1, U_4, U_2, YL, XL | Uaux_Z_1)
+vars: ['X', 'U_1', 'U_2', 'Z', 'Uaux_Z_1', 'Y', 'U_3', 'U_4', 'XL', 'YL']
+cardinalities: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+
+adding constraints for independence: (U_1 ⟂ Z, Uaux_Z_1, XL)
+X: ['U_1'], T: ['Z', 'Uaux_Z_1', 'XL'], S: []
+x: U_1, t: Z
+x: U_1, t: Uaux_Z_1
+x: U_1, t: XL
+adding constraints for independence: (U_2 ⟂ Z, Uaux_Z_1, XL | U_1)
+X: ['U_2'], T: ['Z', 'Uaux_Z_1', 'XL'], S: ['U_1']
+adding constraints for independence: (U_3 ⟂ Uaux_Z_1, Z, X, XL | U_2, U_1)
+X: ['U_3'], T: ['Uaux_Z_1', 'Z', 'X', 'XL'], S: ['U_2', 'U_1']
+adding constraints for independence: (U_4 ⟂ Uaux_Z_1, Z, X, XL | U_2, U_3, U_1)
+X: ['U_4'], T: ['Uaux_Z_1', 'Z', 'X', 'XL'], S: ['U_2', 'U_3', 'U_1']
+adding constraints for independence: (Uaux_Z_1 ⟂ U_3, U_1, U_4, U_2, YL, XL)
+X: ['Uaux_Z_1'], T: ['U_3', 'U_1', 'U_4', 'U_2', 'YL', 'XL'], S: []
+x: Uaux_Z_1, t: U_3
+x: Uaux_Z_1, t: U_1
+x: Uaux_Z_1, t: U_4
+x: Uaux_Z_1, t: U_2
+x: Uaux_Z_1, t: YL
+x: Uaux_Z_1, t: XL
+adding constraints for independence: (X ⟂ U_3, U_4, YL, Uaux_Z_1, XL | U_2, Z, U_1)
+X: ['X'], T: ['U_3', 'U_4', 'YL', 'Uaux_Z_1', 'XL'], S: ['U_2', 'Z', 'U_1']
+adding constraints for independence: (XL ⟂ U_3, Z, U_1, U_4, Y, U_2, X, Uaux_Z_1)
+X: ['XL'], T: ['U_3', 'Z', 'U_1', 'U_4', 'Y', 'U_2', 'X', 'Uaux_Z_1'], S: []
+x: XL, t: U_3
+x: XL, t: Z
+x: XL, t: U_1
+x: XL, t: U_4
+x: XL, t: Y
+x: XL, t: U_2
+x: XL, t: X
+x: XL, t: Uaux_Z_1
+adding constraints for independence: (Y ⟂ Z, U_1, U_2, YL, Uaux_Z_1, XL | U_3, X, U_4)
+X: ['Y'], T: ['Z', 'U_1', 'U_2', 'YL', 'Uaux_Z_1', 'XL'], S: ['U_3', 'X', 'U_4']
+adding constraints for independence: (YL ⟂ Z, U_1, Y, U_2, X, Uaux_Z_1 | XL, U_3, U_4)
+X: ['YL'], T: ['Z', 'U_1', 'Y', 'U_2', 'X', 'Uaux_Z_1'], S: ['XL', 'U_3', 'U_4']
+adding constraints for independence: (Z ⟂ U_3, U_1, U_4, U_2, YL, XL | Uaux_Z_1)
+X: ['Z'], T: ['U_3', 'U_1', 'U_4', 'U_2', 'YL', 'XL'], S: ['Uaux_Z_1']
+WARNING: Could not locate the 'ipopt' executable, which is required for solver
+ipopt
+Exception during ipopt: No executable found for solver 'ipopt'
+[Ipopt] objective=None, optimal=False
+vars: ['X', 'U_1', 'U_2', 'Z', 'Uaux_Z_1', 'Y', 'U_3', 'U_4', 'XL', 'YL']
+cardinalities: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+
+adding constraints for independence: (U_1 ⟂ Z, Uaux_Z_1, XL)
+X: ['U_1'], T: ['Z', 'Uaux_Z_1', 'XL'], S: []
+x: U_1, t: Z
+x: U_1, t: Uaux_Z_1
+x: U_1, t: XL
+adding constraints for independence: (U_2 ⟂ Z, Uaux_Z_1, XL | U_1)
+X: ['U_2'], T: ['Z', 'Uaux_Z_1', 'XL'], S: ['U_1']
+adding constraints for independence: (U_3 ⟂ Uaux_Z_1, Z, X, XL | U_2, U_1)
+X: ['U_3'], T: ['Uaux_Z_1', 'Z', 'X', 'XL'], S: ['U_2', 'U_1']
+adding constraints for independence: (U_4 ⟂ Uaux_Z_1, Z, X, XL | U_2, U_3, U_1)
+X: ['U_4'], T: ['Uaux_Z_1', 'Z', 'X', 'XL'], S: ['U_2', 'U_3', 'U_1']
+adding constraints for independence: (Uaux_Z_1 ⟂ U_3, U_1, U_4, U_2, YL, XL)
+X: ['Uaux_Z_1'], T: ['U_3', 'U_1', 'U_4', 'U_2', 'YL', 'XL'], S: []
+x: Uaux_Z_1, t: U_3
+x: Uaux_Z_1, t: U_1
+x: Uaux_Z_1, t: U_4
+x: Uaux_Z_1, t: U_2
+x: Uaux_Z_1, t: YL
+x: Uaux_Z_1, t: XL
+adding constraints for independence: (X ⟂ U_3, U_4, YL, Uaux_Z_1, XL | U_2, Z, U_1)
+X: ['X'], T: ['U_3', 'U_4', 'YL', 'Uaux_Z_1', 'XL'], S: ['U_2', 'Z', 'U_1']
+adding constraints for independence: (XL ⟂ U_3, Z, U_1, U_4, Y, U_2, X, Uaux_Z_1)
+X: ['XL'], T: ['U_3', 'Z', 'U_1', 'U_4', 'Y', 'U_2', 'X', 'Uaux_Z_1'], S: []
+x: XL, t: U_3
+x: XL, t: Z
+x: XL, t: U_1
+x: XL, t: U_4
+x: XL, t: Y
+x: XL, t: U_2
+x: XL, t: X
+x: XL, t: Uaux_Z_1
+adding constraints for independence: (Y ⟂ Z, U_1, U_2, YL, Uaux_Z_1, XL | U_3, X, U_4)
+X: ['Y'], T: ['Z', 'U_1', 'U_2', 'YL', 'Uaux_Z_1', 'XL'], S: ['U_3', 'X', 'U_4']
+adding constraints for independence: (YL ⟂ Z, U_1, Y, U_2, X, Uaux_Z_1 | XL, U_3, U_4)
+X: ['YL'], T: ['Z', 'U_1', 'Y', 'U_2', 'X', 'Uaux_Z_1'], S: ['XL', 'U_3', 'U_4']
+adding constraints for independence: (Z ⟂ U_3, U_1, U_4, U_2, YL, XL | Uaux_Z_1)
+X: ['Z'], T: ['U_3', 'U_1', 'U_4', 'U_2', 'YL', 'XL'], S: ['Uaux_Z_1']
+WARNING: Could not locate the 'ipopt' executable, which is required for solver
+ipopt
+Exception during ipopt: No executable found for solver 'ipopt'
+[Ipopt] objective=None, optimal=False
+[ExactInference] Result for YL is: [ 0.0, 0.0 ]
+[ExactInference] Feasibility: lb=False, ub=False, all=False
+[ExactInference] Time elapsed: 67.96987390518188 sec
+==============================================
+Bounds for the second intervention
+[0.0, 0.0]
+==============================================
+Bounds for the ATE
+[0.0, 0.0]
+==============================================

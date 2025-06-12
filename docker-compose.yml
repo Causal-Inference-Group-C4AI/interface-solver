@@ -1,0 +1,21 @@
+services:
+  main_interface:
+    build:
+      context: .
+      dockerfile: ./main/Dockerfile
+    volumes:
+      - ./data:/app/data
+      - ./tests:/app/tests
+    ports:
+      - "8080:8080"
+    depends_on:
+      - bcause_solver
+
+  bcause_solver:
+    build:
+      context: .
+      dockerfile: ./src/solvers/bcause_solver/Dockerfile
+    volumes:
+      - ./data:/app/data
+    ports:
+      - "5003:5003"
