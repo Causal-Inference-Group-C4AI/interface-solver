@@ -81,8 +81,21 @@ def bcause_solver(
     writer(f'Weak PN = {weak_pn}')
     writer(f'Weak PS = {weak_ps}')
     writer("==============================================")
+
+    lower_bound = do1.values[1] - do0.values[3]
+    upper_bound = do1.values[3] - do0.values[1]
+    writer("==============================================")
+    writer(
+        f'P({outcome}=1|do({treatment}=0)) = '
+        f'{[do0.values[1], do0.values[3]]}')
+    writer(
+        f'P({outcome}=1|do({treatment}=1)) = '
+        f'{[do1.values[1], do1.values[3]]}')
+    writer(
+        f"Causal effect lies in the interval [{lower_bound}, {upper_bound}]")
+    writer("==============================================")
     logging.info("Bcause solver Done.")
-    return 0, 0
+    return lower_bound, upper_bound
 
 
 def run_bcause_solver(data):
