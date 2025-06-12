@@ -3,9 +3,17 @@
 Interface Solver is a modular framework for causal inference and probabilistic graphical models.
 It offers a streamlined pipeline for executing and comparing causal inference algorithms in a reproducible, containerized environment.
 The framework supports seamless integration and benchmarking of multiple packages—including [DoWhy](https://github.com/py-why/dowhy), [bcause](https://github.com/PGM-Lab/bcause), [lcn](https://github.com/IBM/LCN), and [autobounds](https://www.tandfonline.com/doi/full/10.1080/01621459.2023.2216909) (with source code access)—enabling direct comparison of their performance.
-The primary goal of this project is to evaluate and compare the effectiveness of different tools when working with partially identifiable causal graphs.
 
-This project was carried out with the support of IBM and of Itaú Unibanco S.A., through the Itaú Scholarship Program (PBI).
+This project was supported by IBM through its Scholarship Program and by Itaú Unibanco S.A. through the Itaú Scholarship Program (PBI).
+
+## Overview
+
+Causal inference is an area in data science and statistical analysis, focusing on understanding and identifying cause-effect relationships in data, often under conditions of uncertainty or limited information.
+In many real-world scenarios, causal relationships cannot be fully identified due to missing data, unobserved confounding, or other limitations.
+This is where partial identifiability comes into play—an approach that allows for estimating causal effects in such limited scenarios, providing bounds or ranges for causal effects instead of exact values.
+
+This project integrates four distinct causal inference libraries, each offering unique methods for handling (or not handling) partial identifiability.
+Users can compare and contrast these approaches, exploring how each library handles the challenge of uncertainty in causal modeling, and evaluate their outputs and efficiency in a reproducible, containerized environment.
 
 
 ## Features
@@ -45,6 +53,20 @@ In linux environment:
     ```bash
     ./run_all_bracis_tests.sh
     ```
+
+## Contributing
+1. Fork the repository.
+2. Create a feature branch (git checkout -b feature-branch).
+3. Commit your changes (git commit -m 'Add feature').
+4. Push to the branch (git push origin feature-branch).
+5. Open a Pull Request.
+
+## Acknowledgements
+This interface integrates with open-source libraries, and we appreciate the researchers and developers of LCN, Autobounds, Bcause, and DoWhy for their contributions to causal inference.
+
 ## License
 
 This project is licensed under the terms of the [LICENSE](LICENSE) file.
+
+## Contact
+For questions or issues, please contact [Daniel](daniel.lawand@gmail.com).
