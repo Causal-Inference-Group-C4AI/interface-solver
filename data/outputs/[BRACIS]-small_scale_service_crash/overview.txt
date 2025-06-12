@@ -1,0 +1,39 @@
+********************************************************************************
+Test '[BRACIS]-small_scale_service_crash' on 2025-05-08 18:58:11
+--------------------------------------------
+bcause
+   Time taken by bcause: 143.631559 seconds
+   ATE lies in the interval: [0, 0]
+--------------------------------------------
+********************************************************************************
+Test '[BRACIS]-small_scale_service_crash' on 2025-05-08 19:28:00
+--------------------------------------------
+bcause
+   Time taken by bcause: 761.944484 seconds
+   ATE lies in the interval: [0, 0]
+--------------------------------------------
+********************************************************************************
+Test '[BRACIS]-small_scale_service_crash' on 2025-05-09 20:23:32
+--------------------------------------------
+bcause
+   Solver bcause failed with error: 'IntervalProbFactor' object is not subscript
+able
+--------------------------------------------
+bcause
+   Solver bcause failed with error: 'IntervalProbFactor' object is not subscript
+able
+--------------------------------------------
+********************************************************************************
+Test '[BRACIS]-small_scale_service_crash' on 2025-05-09 20:46:55
+--------------------------------------------
+bcause
+   Time taken by bcause: 218.755256 seconds
+   ATE lies in the interval: [0, 0]
+--------------------------------------------
+********************************************************************************
+Test '[BRACIS]-small_scale_service_crash' on 2025-05-09 21:04:49
+--------------------------------------------
+bcause
+   Time taken by bcause: 93.098014 seconds
+   ATE lies in the interval: [0, 0]
+--------------------------------------------

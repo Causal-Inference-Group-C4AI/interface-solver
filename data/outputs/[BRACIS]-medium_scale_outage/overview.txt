@@ -1,0 +1,39 @@
+********************************************************************************
+Test '[BRACIS]-medium_scale_outage' on 2025-05-09 22:19:35
+--------------------------------------------
+bcause
+   Time taken by bcause: 479.394614 seconds
+   ATE lies in the interval: [0, 0]
+--------------------------------------------
+********************************************************************************
+Test '[BRACIS]-medium_scale_outage' on 2025-05-09 23:04:19
+--------------------------------------------
+bcause
+   Solver bcause failed with error: one or more specified nodes not found in the
+ graph
+--------------------------------------------
+bcause
+   Solver bcause failed with error: one or more specified nodes not found in the
+ graph
+--------------------------------------------
+********************************************************************************
+Test '[BRACIS]-medium_scale_outage' on 2025-05-09 23:05:32
+--------------------------------------------
+bcause
+   Time taken by bcause: 667.459633 seconds
+   ATE lies in the interval: [0, 0]
+--------------------------------------------
+********************************************************************************
+Test '[BRACIS]-medium_scale_outage' on 2025-05-09 23:38:12
+--------------------------------------------
+bcause
+   Time taken by bcause: 658.278356 seconds
+   ATE lies in the interval: [0, 0]
+--------------------------------------------
+********************************************************************************
+Test '[BRACIS]-medium_scale_outage' on 2025-05-10 17:50:29
+--------------------------------------------
+bcause
+   Time taken by bcause: 432.621262 seconds
+   ATE lies in the interval: [0, 0]
+--------------------------------------------

@@ -4,6 +4,7 @@ import sys
 from abc import ABC, abstractmethod
 from itertools import product
 from typing import Any, Dict, List, Set, Tuple, Union
+from collections import defaultdict
 
 import numpy as np
 import pandas as pd
@@ -15,6 +16,52 @@ from utils._enums import DirectoryPaths
 from utils.canonical_partitions.canonicalPartitions import completeRelaxed
 from utils.validator import Validator
 
+class DataOptim:
+    def __init__(self, csv_path: str) -> None:
+        self.csv_path = csv_path
+        self.column_labels, self.node_cardinalities, self.combination_counts, self.unique_rows = self._process_large_dataset()
+
+    def _process_large_dataset(self):
+        header = pd.read_csv(self.csv_path, nrows=0)
+        column_labels = header.columns.tolist()
+
+        unique_counts = {col: defaultdict(int) for col in column_labels}
+        combination_counts = defaultdict(int)
+        agnostic_combination_counts = defaultdict(int)
+
+        
+        for chunk in pd.read_csv(self.csv_path, chunksize=100000, usecols=column_labels):
+            for col in column_labels:
+                for val in chunk[col].values:
+                    unique_counts[col][val] += 1
+
+            for _, row in chunk.iterrows():
+                # Process for agnostic_combination_counts (tuple version)
+                vals = tuple(row[col] for col in column_labels)
+                agnostic_combination_counts[vals] += 1
+                
+                # Process for combination_counts (string key version)
+                key = ",".join(f"{col}:{row[col]}" for col in column_labels)
+                combination_counts[key] += 1
+        
+        unique_rows = pd.DataFrame([list(row) + [count] for row, count in agnostic_combination_counts.items()])
+        unique_rows.columns = column_labels + ['frequency']
+        return column_labels, {col: len(counts) for col, counts in unique_counts.items()}, combination_counts, unique_rows
+
+    def test(self):
+        parents_values: List[List[int]] = [
+            np.arange(2).tolist()
+            for _ in ["E", "T"]
+        ]
+        parents_combinations = list(product(*parents_values))
+
+        _grouped_df = self.unique_rows.groupby(["E", "T"])
+        print(_grouped_df.head())
+        for combination in parents_combinations:
+            rows = _grouped_df.get_group(combination)
+            # print(f"-->{rows}")
+            possible_functions = rows["D"].unique()
+            print(f">>{len(possible_functions)}")
 
 class Node():
     """Node class to represent a node in a graph.
@@ -177,7 +224,7 @@ class Edge():
 
 class Graph():
     """Graph class to represent a graph."""
-    def __init__(self, edges_str: str) -> None:
+    def __init__(self, edges_str: str, data_optim: DataOptim) -> None:
         """Initializes the Graph class.
 
         Args:
@@ -193,7 +240,7 @@ class Graph():
         self._nodes_children: Dict[Node, List[Node]] = {}
         self._endogenous: List[Node] = []
         self._exogenous: List[Node] = []
-
+        self.data_optim = data_optim
         self._create_graph(edges_str)
 
     def __str__(self) -> str:
@@ -482,15 +529,13 @@ class ExogenousMechanism(Mechanism):
 
 class MechanismsDefiner():
     """Class to define the mechanisms of the nodes in a graph."""
-    def __init__(self, graph: Graph, df: pd.DataFrame) -> None:
+    def __init__(self, graph: Graph) -> None:
         """Initializes the MechanismsDefiner class.
 
         Args:
             graph (Graph): The graph.
-            df (pd.DataFrame): The data frame.
         """
         self._graph: Graph = graph
-        self._df: pd.DataFrame = df
 
     def _define_r_functions(self, node: Node) -> None:
         """Defines the r functions for endogenous nodes.
@@ -590,9 +635,13 @@ class MechanismsDefiner():
         parents_str = [
             parent.get_value() for parent in node.get_parents()
         ]
+        _grouped_df = self._graph.data_optim.unique_rows.groupby(parents_str)
         for combination in parents_combinations:
-            rows = self._df[(self._df[parents_str] == combination).all(1)]
-            possible_functions = rows[node.get_value()].unique()
+            try:
+                rows = _grouped_df.get_group(combination)
+                possible_functions = rows[node.get_value()].unique()
+            except KeyError:
+                possible_functions = []
             if len(possible_functions) == 1:
                 mechanism += [int(possible_functions[0])]
             else:  # Not in the data
@@ -638,7 +687,6 @@ class MechanismsDefiner():
 class RelaxedGraphGenerator():
     """Class to generate a relaxed graph."""
     _graph: Graph = None
-    _df: pd.DataFrame = None
 
     @classmethod
     def _define_observable_cardinality(cls, node: Node) -> None:
@@ -653,12 +701,12 @@ class RelaxedGraphGenerator():
             Exception: If an error occurs while defining the cardinality.
         """
         try:
-            node.cardinality = len(cls._df[node.get_value()].unique())
+            node.cardinality = cls._graph.data_optim.node_cardinalities[node.get_value()]
         except Exception as e:
             print(e)
 
     @classmethod
-    def generate(cls, graph: Graph, df: pd.DataFrame) -> 'ValidUAIGraph':
+    def generate(cls, graph: Graph) -> 'ValidUAIGraph':
         """Generates a relaxed graph.
 
         Args:
@@ -669,14 +717,11 @@ class RelaxedGraphGenerator():
             ValidUAIGraph: The relaxed graph.
         """
         cls._graph = graph
-        cls._df = df
         nodes_str: List[str] = []
-        obs_nodes: List[str] = []
         for node in cls._graph.get_nodes():
-            if node.get_value() in cls._df.columns:
+            if node.get_value() in cls._graph.data_optim.column_labels:
                 cls._define_observable_cardinality(node)
                 nodes_str.append(f"{node} {node.cardinality}")
-                obs_nodes.append(node.get_value())
             else:
                 nodes_str.append(f"{node} 0")
 
@@ -684,7 +729,7 @@ class RelaxedGraphGenerator():
             nodes_str, cls._graph.get_edges_as_str()
         )
 
-        cls._graph = ValidUAIGraph(relaxed, cls._df, cls._graph, obs_nodes)
+        cls._graph = ValidUAIGraph(relaxed, cls._graph)
         lat = lat.split(", ")
         cls._graph.define_latents_cardinalities(lat, lat_card)
         cls._graph._mechanisms_definer.define_mechanisms()
@@ -694,8 +739,7 @@ class RelaxedGraphGenerator():
 
 class ValidUAIGraph(Graph):
     """Class to represent a valid UAI graph. Inherits from Graph."""
-    def __init__(self, edges_str: str, df: pd.DataFrame, graph: Graph = None,
-                 fixed_nodes: List[str] = None) -> None:
+    def __init__(self, edges_str: str, graph: Graph = None) -> None:
         """Initializes the ValidUAIGraph class.
 
         Args:
@@ -719,11 +763,10 @@ class ValidUAIGraph(Graph):
             self._endogenous: List[Node] = []
             self._exogenous: List[Node] = []
             self.__old_graph: Graph = graph
-            if fixed_nodes:
-                self._fix_nodes(fixed_nodes)
+            if graph.data_optim.column_labels:
+                self._fix_nodes(graph.data_optim.column_labels)
             self._create_graph(edges_str)
 
-        self._df = df
         self._mechanisms_definer: MechanismsDefiner = None
         self._complete_valid_uai_graph()
 
@@ -732,7 +775,7 @@ class ValidUAIGraph(Graph):
         checking the validity of the graph.
         """
         self.check_validity()
-        self._mechanisms_definer = MechanismsDefiner(self, self._df)
+        self._mechanisms_definer = MechanismsDefiner(self)
 
     def _fix_nodes(self, fixed_nodes: List[str]) -> None:
         """Fixes the selected nodes in the graph. The fixed nodes are added to
@@ -750,7 +793,7 @@ class ValidUAIGraph(Graph):
         the data frame (is observable), a dummy node is added to the graph."""
         for ex in self._exogenous:
             ex_str = ex.get_value()
-            if ex_str in self._df.columns:
+            if ex_str in self.__old_graph.data_optim.column_labels:
                 self.add_dummy_node(ex)
 
     def _check_non_deterministic_nodes(self) -> None:
@@ -762,12 +805,10 @@ class ValidUAIGraph(Graph):
         for node in self._endogenous:
             if self.get_ex_parents(node):
                 continue
-            functions = self._df.drop_duplicates(
-                subset=node.get_parents_values() + [node.get_value()]
-            )
-            parents_combinations = functions.drop_duplicates(
-                subset=node.get_parents_values()
-            )
+            subset_cols = node.get_parents_values() + [node.get_value()]            
+            functions = self.__old_graph.data_optim.unique_rows.drop_duplicates(subset=subset_cols)
+            parents_combinations = functions.drop_duplicates(subset=node.get_parents_values())
+
             if len(functions) != len(parents_combinations):
                 self.add_dummy_node(node, len(functions))
 
@@ -864,7 +905,6 @@ class UAIGenerator:
         self.edges_str: str = edges_str
         self.csv_file: str = csv_file
         self.graph: ValidUAIGraph = None
-        self.df = pd.read_csv(csv_file)
 
         self.generate()
 
@@ -939,11 +979,10 @@ class UAIGenerator:
         # Define UAI path
         self.uai_path = f"{DirectoryPaths.UAI.value}/{self.test_name}.uai"
 
-        # Load data
-        df = pd.read_csv(self.csv_file)
+        data_optim = DataOptim(csv_path=self.csv_file)
 
         # Define graph
-        self.graph = RelaxedGraphGenerator.generate(Graph(self.edges_str), df)
+        self.graph = RelaxedGraphGenerator.generate(Graph(self.edges_str,data_optim))
 
         # Write UAI file
         self.write_uai_file()
@@ -951,8 +990,14 @@ class UAIGenerator:
         return self.uai_path
 
 
+
+
 # Example
 if __name__ == "__main__":
+    # r = DataOptim("data/inputs/csv/OBSERVAVEL_itau.csv")
+    # r.test()
+
+
     uai = UAIGenerator(
         "OBSERVAVEL_itau",
         "T -> Y, T -> D, U -> Y, U -> T, D -> Y, E -> D",

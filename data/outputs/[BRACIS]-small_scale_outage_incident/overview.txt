@@ -1,0 +1,32 @@
+********************************************************************************
+Test '[BRACIS]-small_scale_outage_incident' on 2025-05-08 19:05:35
+--------------------------------------------
+bcause
+   Time taken by bcause: 650.672827 seconds
+   ATE lies in the interval: [0, 0]
+--------------------------------------------
+********************************************************************************
+Test '[BRACIS]-small_scale_outage_incident' on 2025-05-09 20:13:52
+--------------------------------------------
+bcause
+   Solver bcause failed with error: 'IntervalProbFactor' object is not subscript
+able
+--------------------------------------------
+bcause
+   Solver bcause failed with error: 'IntervalProbFactor' object is not subscript
+able
+--------------------------------------------
+********************************************************************************
+Test '[BRACIS]-small_scale_outage_incident' on 2025-05-09 20:39:37
+--------------------------------------------
+bcause
+   Time taken by bcause: 217.023196 seconds
+   ATE lies in the interval: [0, 0]
+--------------------------------------------
+********************************************************************************
+Test '[BRACIS]-small_scale_outage_incident' on 2025-05-09 21:01:45
+--------------------------------------------
+bcause
+   Time taken by bcause: 89.335815 seconds
+   ATE lies in the interval: [0, 0]
+--------------------------------------------

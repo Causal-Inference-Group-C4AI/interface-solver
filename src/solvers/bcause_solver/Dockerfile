@@ -10,6 +10,6 @@ COPY src/solvers/bcause_solver/bcause_solver.py .
 
 COPY utils ./utils
 
-EXPOSE 5002
+EXPOSE 5003
 
 CMD ["python", "bcause_solver.py"]
